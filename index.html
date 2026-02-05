@@ -1,972 +1,480 @@
--<!DOCTYPE html>
--<html lang="en" class="scroll-smooth">
--<head>
--    <meta name="google-site-verification" content="MS1nztxILX_L5GLz25K1JwNrm4156yeS3x1OqA4O3N0" />
--    <meta charset="UTF-8">
--    <meta name="viewport" content="width=device-width, initial-scale=1.0">
--    
--    <!-- SEO: Targeted for Windsor & Slough + Phone Sales -->
--    <title>Windsor Express | Phone Repair Windsor & Slough | We Buy & Sell</title>
--    <meta name="description" content="Windsor Express - The #1 Tech Repair shop serving Windsor, Slough, and Eton. We fix iPhones, Samsungs, Laptops & Consoles at 3 Queen Anne's Court (SL4 1DG). Fast 30-min repairs.">
--    <meta name="keywords" content="Phone Repair Windsor, Phone Repair Slough, iPhone Screen Fix SL4, Samsung Repair Windsor, Buy Phones Slough, Tech Repair Queen Anne's Court">
--    
--    <!-- Canonical Link (Your official address) -->
--    <link rel="canonical" href="https://windsorexpress.github.io/Windsor-Express/" />
--
--    <!-- Open Graph -->
--    <meta property="og:title" content="Windsor Express - Repairs & Phone Sales">
--    <meta property="og:description" content="Fast repairs in Windsor & Slough. Buy a phone and get a FREE Case & Screen Protector! Visit us at Queen Anne's Court.">
--    <meta property="og:type" content="website">
--    <meta property="og:url" content="https://windsorexpress.github.io/Windsor-Express/">
--    
--    <!-- Fonts -->
--    <link rel="preconnect" href="https://fonts.googleapis.com">
--    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
--    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
--
--    <!-- Tailwind CSS -->
--    <script src="https://cdn.tailwindcss.com"></script>
--    <script>
--        tailwind.config = {
--            theme: {
--                extend: {
--                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
--                    colors: { brand: { 500: '#10b981', 600: '#059669' } }
--                }
--            }
--        }
--    </script>
--    
--    <!-- React & Babel -->
--    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
--    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
--    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
--
--    <!-- STRUCTURED DATA (JSON-LD) -->
--    <script type="application/ld+json">
--    {
--      "@context": "https://schema.org",
--      "@type": "ElectronicsRepairShop",
--      "name": "Windsor Express",
--      "image": "",
--      "url": "https://windsorexpress.github.io/Windsor-Express/",
--      "telephone": "07912150397",
--      "priceRange": "££",
--      "address": {
--        "@type": "PostalAddress",
--        "streetAddress": "3 Queen Anne's Court, Peascod Street",
--        "addressLocality": "Windsor",
--        "postalCode": "SL4 1DG",
--        "addressCountry": "UK"
--      },
--      "geo": {
--        "@type": "GeoCoordinates",
--        "latitude": 51.482, 
--        "longitude": -0.608
--      },
--      "openingHoursSpecification": [
--        {
--          "@type": "OpeningHoursSpecification",
--          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
--          "opens": "09:30",
--          "closes": "18:30"
--        },
--        {
--          "@type": "OpeningHoursSpecification",
--          "dayOfWeek": "Sunday",
--          "opens": "10:00",
--          "closes": "17:00"
--        }
--      ],
--      "areaServed": ["Windsor", "Slough", "Eton", "Datchet", "Maidenhead"],
--      "makesOffer": {
--        "@type": "Offer",
--        "itemOffered": {
--          "@type": "Service",
--          "name": "Phone Repair"
--        }
--      }
--    }
--    </script>
--
--    <style>
--        body { font-family: 'Outfit', sans-serif; }
--        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
--        .animate-float { animation: float 6s ease-in-out infinite; }
--        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
--    </style>
--</head>
--<body class="bg-gray-50 text-gray-900">
--
--    <div id="root"></div>
--
--    <script type="text/babel">
--        const { useState, useEffect } = React;
--
--        // CONFIGURATION
--        const ownerEmail = "tanish.ratala@gmail.com"; 
--        const apiKey = ""; // Insert your Gemini API Key here if you have one. If empty, AI will use fallback mode.
--
--        // --- Helper: Send Email (FormSubmit) ---
--        const sendEmail = async (subject, data) => {
--            try {
--                const response = await fetch(`https://formsubmit.co/ajax/${ownerEmail}`, {
--                    method: "POST",
--                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
--                    body: JSON.stringify({ _subject: `New ${subject} - Windsor Express`, ...data })
--                });
--                return response.ok;
--            } catch (error) {
--                console.error(error);
--                return false;
--            }
--        }
--
--        // --- Helper: Gemini AI ---
--        const callGemini = async (userPrompt) => {
--            if (!apiKey) return "I'm currently offline, but our human experts are ready! Please bring your device to 3 Queen Anne's Court for a free instant diagnostic.";
--            
--            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
--            try {
--                const response = await fetch(url, {
--                    method: 'POST',
--                    headers: { 'Content-Type': 'application/json' },
--                    body: JSON.stringify({
--                        contents: [{ parts: [{ text: userPrompt }] }],
--                        systemInstruction: { parts: [{ text: "You are 'TechBot' at Windsor Express. Analyze the tech problem, give a safety warning if needed, and estimate repair time. Keep it encouraging and under 60 words." }] }
--                    })
--                });
--                if (!response.ok) throw new Error('API Error');
--                const data = await response.json();
--                return data.candidates[0].content.parts[0].text;
--            } catch (error) {
--                return "I'm having trouble connecting to the diagnostic server. Please bring your device to 3 Queen Anne's Court for a free manual check-up!";
--            }
--        };
--
--        // --- Data ---
--        const REVIEWS = [
--            { id: 1, name: "James Wilson", date: "2 days ago", rating: 5, text: "Windsor Express is amazing. Fixed my screen in 20 minutes." },
--            { id: 2, name: "Sophie Miller", date: "1 week ago", rating: 5, text: "Sold my old iPad here and got a much better price than online." },
--            { id: 3, name: "Tom Baker", date: "2 weeks ago", rating: 5, text: "Honest advice. They told me my charging port just needed cleaning." },
--            { id: 4, name: "Emily Green", date: "1 month ago", rating: 5, text: "My go-to place for tech in Windsor. Reliable, fast, and good prices." },
--        ];
--
--        const SERVICES = [
--            { id: 'phone', title: 'Phone Repair', icon: 'fa-mobile-screen', price: 'From £30', desc: 'Screens, Batteries' },
--            { id: 'laptop', title: 'Computers', icon: 'fa-laptop', price: 'From £45', desc: 'Screen, Virus Removal' },
--            { id: 'console', title: 'Consoles', icon: 'fa-gamepad', price: 'From £40', desc: 'HDMI, Overheating' },
--            { id: 'unlock', title: 'Unlocking', icon: 'fa-lock-open', price: 'From £20', desc: 'Network Unlocking' },
--        ];
--
--        const PRICE_LIST = {
--            iphone: [
--                { model: "iPhone 15 / 15 Plus", screen: "£ --", battery: "£ --" },
--                { model: "iPhone 14 Series", screen: "£ --", battery: "£ --" },
--                { model: "iPhone 13 Series", screen: "£ --", battery: "£ --" },
--                { model: "iPhone 12 Series", screen: "£ --", battery: "£ --" },
--                { model: "iPhone 11 Series", screen: "£ --", battery: "£ --" },
--            ],
--            samsung: [
--                { model: "Samsung S23 Ultra", screen: "£ --", battery: "£ --" },
--                { model: "Samsung S22 Series", screen: "£ --", battery: "£ --" },
--                { model: "Samsung S21 Series", screen: "£ --", battery: "£ --" },
--                { model: "Samsung A Series", screen: "£ --", battery: "£ --" },
--            ]
--        };
--
--        // --- Components ---
--        const Button = ({ children, onClick, variant = 'primary', className = '', type = 'button', disabled=false }) => {
--            const base = "px-8 py-3 rounded-full font-bold transition-all hover:scale-105 flex items-center justify-center shadow-lg disabled:opacity-50 disabled:cursor-not-allowed";
--            const variants = {
--                primary: "bg-gradient-to-r from-green-500 to-emerald-700 text-white",
--                secondary: "bg-gray-900 text-white",
--                outline: "border-2 border-white text-white backdrop-blur-sm bg-white/10",
--                ai: "bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:shadow-purple-500/30"
--            };
--            return <button type={type} onClick={onClick} disabled={disabled} className={`${base} ${variants[variant]} ${className}`}>{children}</button>;
--        };
--
--        const Input = ({ label, type = "text", placeholder, value, onChange, required = false }) => (
--            <div className="mb-5">
--                {label && <label className="block text-gray-700 text-sm font-bold mb-2 ml-1">{label}</label>}
--                <input type={type} className="w-full px-5 py-4 rounded-xl bg-gray-50 border-2 border-gray-100 focus:border-green-500 outline-none" placeholder={placeholder} value={value} onChange={onChange} required={required} />
--            </div>
--        );
--
--        const WindsorLogo = () => (
--            <div className="flex items-center group cursor-pointer">
--                <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center text-white mr-2 shadow-lg"><i className="fas fa-bolt text-xl"></i></div>
--                <div className="flex flex-col"><div className="text-2xl font-black text-gray-900 leading-none">WINDSOR <span className="text-green-600">EXPRESS</span></div></div>
--            </div>
--        );
--
--        // --- Main App ---
--        function App() {
--            const [view, setView] = useState('home');
--            const [isMenuOpen, setIsMenuOpen] = useState(false);
--            const [notification, setNotification] = useState(null);
--            const [prefilledIssue, setPrefilledIssue] = useState('');
--
--            const showNotify = (msg) => {
--                setNotification(msg);
--                setTimeout(() => setNotification(null), 3000);
--            };
--
--            // --- Sub-Pages ---
--            const AIDiagnosticPage = () => {
--                const [problem, setProblem] = useState('');
--                const [analysis, setAnalysis] = useState(null);
--                const [loading, setLoading] = useState(false);
--
--                const handleAnalyze = async (e) => {
--                    e.preventDefault();
--                    if (!problem.trim()) return;
--                    setLoading(true);
--                    const result = await callGemini(problem);
--                    setAnalysis(result);
--                    setLoading(false);
--                };
--
--                return (
--                    <div className="min-h-screen bg-gray-50 py-16 px-4 fade-in">
--                        <div className="max-w-2xl mx-auto">
--                            <div className="text-center mb-10">
--                                <div className="inline-block p-4 rounded-full bg-indigo-100 text-indigo-600 mb-4 text-3xl shadow-md"><i className="fas fa-sparkles"></i></div>
--                                <h2 className="text-4xl font-extrabold text-gray-900 mb-2">AI Repair Genius</h2>
--                                <p className="text-gray-500 text-lg">Describe your issue in plain English. Our AI will diagnose it instantly.</p>
--                            </div>
--                            <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
--                                <form onSubmit={handleAnalyze}>
--                                    <label className="block text-gray-700 font-bold mb-3 ml-1">What's happening?</label>
--                                    <textarea className="w-full px-5 py-4 rounded-xl bg-gray-50 border-2 border-gray-100 focus:border-indigo-500 outline-none h-40 mb-6 text-lg resize-none" placeholder="Type here..." value={problem} onChange={(e) => setProblem(e.target.value)} required></textarea>
--                                    <Button type="submit" disabled={loading} variant="ai" className="w-full py-4 text-lg">{loading ? "Analyzing..." : "Analyze Problem ✨"}</Button>
--                                </form>
--                                {analysis && (
--                                    <div className="mt-8 pt-8 border-t-2 border-gray-100 animate-float" style={{animationDuration: '1s', animationIterationCount: 1}}>
--                                        <div className="bg-indigo-50 rounded-2xl p-6 border border-indigo-100">
--                                            <h3 className="text-indigo-800 font-bold text-lg mb-2"><i className="fas fa-robot mr-2"></i> Diagnosis:</h3>
--                                            <p className="text-gray-700 text-lg">{analysis}</p>
--                                        </div>
--                                        <div className="mt-6 text-center">
--                                            <Button onClick={() => { setPrefilledIssue(`AI Diagnosis: ${problem} - ${analysis}`); setView('booking'); }} variant="primary" className="w-full">Book This Repair</Button>
--                                        </div>
--                                    </div>
--                                )}
--                            </div>
--                        </div>
--                    </div>
--                );
--            };
--
--            const BookingPage = () => {
--                const [formData, setFormData] = useState({ deviceType: '', deviceModel: prefilledIssue ? 'See Diagnosis' : '', date: '', time: '', name: '', phone: '', notes: prefilledIssue || '' });
--                const [loading, setLoading] = useState(false);
--                const handleBook = async (e) => {
--                    e.preventDefault();
--                    setLoading(true);
--                    const success = await sendEmail("Booking Request", formData);
--                    setLoading(false);
--                    if(success) { showNotify("Booking Sent! Check email."); setTimeout(() => setView('home'), 2000); } else { showNotify("Error sending."); }
--                };
--                return (
--                    <div className="min-h-screen bg-gray-50 py-16 px-4 fade-in">
--                        <div className="max-w-2xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden">
--                            <div className="bg-gradient-to-r from-green-700 to-green-600 px-10 py-10 text-white"><h2 className="text-3xl font-bold">Book Repair</h2></div>
--                            <form onSubmit={handleBook} className="p-10">
--                                {prefilledIssue && <div className="mb-6 bg-indigo-50 p-4 rounded-xl text-indigo-800 text-sm"><strong>AI Diagnosis Attached</strong></div>}
--                                <div className="grid grid-cols-2 gap-4 mb-8">{SERVICES.map(s => <button key={s.id} type="button" onClick={() => setFormData({...formData, deviceType: s.title})} className={`p-4 rounded-2xl border-2 text-left ${formData.deviceType === s.title ? 'border-green-500 bg-green-50' : 'border-gray-100'}`}><div className="text-green-600 mb-2"><i className={`fas ${s.icon} text-xl`}></i></div><span className="font-bold text-gray-900">{s.title}</span></button>)}</div>
--                                <Input label="Device Model" placeholder="e.g. iPhone 13" value={formData.deviceModel} onChange={(e) => setFormData({...formData, deviceModel: e.target.value})} required />
--                                <div className="grid grid-cols-2 gap-4">
--                                    <Input label="Date" type="date" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} required />
--                                    <div className="mb-5"><label className="block text-gray-700 text-sm font-bold mb-2 ml-1">Time</label><select value={formData.time} onChange={(e) => setFormData({...formData, time: e.target.value})} className="w-full px-5 py-4 rounded-xl bg-gray-50 border-2 border-gray-100 focus:border-green-500 outline-none"><option>10:00 AM</option><option>12:00 PM</option><option>02:00 PM</option><option>04:00 PM</option></select></div>
--                                </div>
--                                <Input label="Your Name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} required />
--                                <Input label="Phone Number" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} required />
--                                <Button type="submit" disabled={loading} className="w-full py-4 text-lg">{loading ? "Sending..." : "Confirm Booking"}</Button>
--                            </form>
--                        </div>
--                    </div>
--                );
--            };
--
--            const QuotePage = () => {
--                const [formData, setFormData] = useState({ deviceModel: '', issueDescription: '', email: '' });
--                const [loading, setLoading] = useState(false);
--                const handleQuote = async (e) => {
--                    e.preventDefault();
--                    setLoading(true);
--                    const success = await sendEmail("Quote Request", formData);
--                    setLoading(false);
--                    if(success) { showNotify("Quote Request Sent!"); setTimeout(() => setView('home'), 2000); } else { showNotify("Error sending."); }
--                };
--                return (
--                    <div className="min-h-screen bg-gray-50 py-16 px-4 fade-in">
--                        <div className="max-w-xl mx-auto bg-white rounded-3xl shadow-xl p-10">
--                            <h2 className="text-3xl font-bold mb-2">Get a Free Quote</h2>
--                            <form onSubmit={handleQuote}>
--                                <Input label="Device" placeholder="e.g. iPhone 14" value={formData.deviceModel} onChange={(e) => setFormData({...formData, deviceModel: e.target.value})} required />
--                                <label className="block text-gray-700 text-sm font-bold mb-2 ml-1">Issue</label>
--                                <textarea className="w-full px-5 py-4 mb-5 rounded-xl bg-gray-50 border-2 border-gray-100 focus:border-green-500 outline-none h-32" value={formData.issueDescription} onChange={(e) => setFormData({...formData, issueDescription: e.target.value})} required></textarea>
--                                <Input label="Email" type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} required />
--                                <Button type="submit" disabled={loading} className="w-full py-4">{loading ? "Sending..." : "Request Quote"}</Button>
--                            </form>
--                        </div>
--                    </div>
--                );
--            };
--
--            const TradeInPage = () => {
--                const [formData, setFormData] = useState({ deviceModel: '', storage: '', condition: '', email: '', phone: '' });
--                const [loading, setLoading] = useState(false);
--                const handleTradeIn = async (e) => {
--                    e.preventDefault();
--                    setLoading(true);
--                    const success = await sendEmail("Trade-In Request", formData);
--                    setLoading(false);
--                    if(success) { showNotify("Request Sent!"); setTimeout(() => setView('home'), 2000); } else { showNotify("Error sending."); }
--                };
--                return (
--                    <div className="min-h-screen bg-gray-50 py-16 px-4 fade-in">
--                        <div className="max-w-xl mx-auto bg-white rounded-3xl shadow-xl p-10">
--                            <h2 className="text-3xl font-bold mb-6">Sell Your Device</h2>
--                            <form onSubmit={handleTradeIn}>
--                                <Input label="Device" placeholder="e.g. iPhone 14" value={formData.deviceModel} onChange={(e) => setFormData({...formData, deviceModel: e.target.value})} required />
--                                <Input label="Storage" placeholder="e.g. 128GB" value={formData.storage} onChange={(e) => setFormData({...formData, storage: e.target.value})} required />
--                                <div className="mb-5"><label className="block text-gray-700 text-sm font-bold mb-2 ml-1">Condition</label><select className="w-full px-5 py-4 rounded-xl bg-gray-50 border-2 border-gray-100 focus:border-green-500 outline-none" value={formData.condition} onChange={(e) => setFormData({...formData, condition: e.target.value})} required><option value="">Select Condition...</option><option value="Like New">Like New</option><option value="Good">Good</option><option value="Fair">Fair</option><option value="Broken">Broken</option></select></div>
--                                <Input label="Email" type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} required />
--                                <Input label="Phone" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} required />
--                                <Button type="submit" disabled={loading} className="w-full py-4">{loading ? "Sending..." : "Get My Offer"}</Button>
--                            </form>
--                        </div>
--                    </div>
--                );
--            };
--
--            // --- Layout Sections ---
--            const TrustBadges = () => (
--                <div className="bg-white py-10 border-b border-gray-100">
--                    <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
--                        {[{i:"fa-shield-alt",t:"12-Month Warranty"},{i:"fa-stopwatch",t:"30-Min Fix"},{i:"fa-hand-holding-dollar",t:"No Fix, No Fee"},{i:"fa-lock",t:"Data Safe"}].map(b => (
--                            <div key={b.t}><i className={`fas ${b.i} text-3xl text-green-600 mb-3`}></i><h4 className="font-bold">{b.t}</h4></div>
--                        ))}
--                    </div>
--                </div>
--            );
--
--            const PhoneSalesSection = () => (
--                <div className="py-24 bg-gradient-to-br from-gray-900 to-gray-800 text-white relative overflow-hidden">
--                    <div className="max-w-7xl mx-auto px-4 relative z-10 flex flex-col md:flex-row items-center gap-12">
--                        <div className="md:w-1/2">
--                            <span className="text-green-400 font-bold tracking-widest text-sm uppercase mb-2 block">Premium Refurbished</span>
--                            <h2 className="text-4xl md:text-5xl font-extrabold mb-6">Buy Your Next Phone<br/>For Less.</h2>
--                            <p className="text-gray-300 text-lg mb-8 leading-relaxed">Why pay full price? Get pristine, fully tested iPhones and Samsungs at a fraction of the cost.</p>
--                            <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl mb-8 flex items-start">
--                                <div className="text-4xl mr-4">🎁</div>
--                                <div><h4 className="font-bold text-xl text-white mb-1">Exclusive In-Store Offer</h4><p className="text-green-300 font-medium">Buy any phone and get a FREE Case & Screen Protector!</p></div>
--                            </div>
--                            <p className="text-gray-400 text-sm mb-6"><i className="fas fa-map-marker-alt mr-2 text-green-500"></i> Available now at 3 Queen Anne's Court</p>
--                        </div>
--                        <div className="md:w-1/2 flex justify-center">
--                            <div className="relative animate-float">
--                                <div className="relative rounded-[3rem] border-8 border-gray-800 bg-gray-900 w-72 h-[36rem] shadow-2xl flex flex-col overflow-hidden rotate-3 hover:rotate-0 transition-all">
--                                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 h-7 w-28 bg-gray-800 rounded-b-2xl z-20"></div>
--                                    <div className="flex-1 bg-gradient-to-br from-gray-800 to-black relative z-10 flex flex-col items-center justify-center p-6 text-center">
--                                        <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mb-6 shadow-lg"><i className="fas fa-mobile-screen text-4xl text-white"></i></div>
--                                        <h3 className="text-3xl font-bold text-white mb-2">New & Used</h3>
--                                        <p className="text-gray-400 mb-8">Premium Quality</p>
--                                        <div className="mt-auto pt-8"><span className="inline-block px-4 py-1 rounded-full bg-green-900/50 text-green-400 text-xs font-bold uppercase border border-green-800">In Stock Now</span></div>
--                                    </div>
--                                </div>
--                            </div>
--                        </div>
--                    </div>
--                </div>
--            );
--
--            const PriceListSection = () => {
--                const [activeTab, setActiveTab] = useState('iphone');
--                return (
--                    <div className="py-24 bg-white relative overflow-hidden">
--                        <div className="max-w-4xl mx-auto px-4 relative z-10">
--                            <div className="text-center mb-12"><h2 className="text-4xl font-extrabold text-gray-900 mt-2 mb-4">Repair Price List</h2></div>
--                            <div className="flex justify-center space-x-4 mb-10">{['iphone', 'samsung'].map((brand) => (<button key={brand} onClick={() => setActiveTab(brand)} className={`px-8 py-3 rounded-full font-bold transition-all ${activeTab === brand ? 'bg-green-600 text-white shadow-xl' : 'bg-gray-100 text-gray-500'}`}>{brand === 'iphone' ? 'Apple' : 'Samsung'}</button>))}</div>
--                            <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden"><div className="grid grid-cols-3 bg-gray-50 p-5 font-extrabold text-gray-800 text-sm uppercase"><div>Device</div><div className="text-center text-green-600">Screen</div><div className="text-right text-blue-600">Battery</div></div><div className="divide-y divide-gray-100">{PRICE_LIST[activeTab].map((item, index) => (<div key={index} className="grid grid-cols-3 p-5 hover:bg-green-50 items-center font-medium"><div className="text-gray-900">{item.model}</div><div className="text-center text-gray-600">{item.screen}</div><div className="text-right text-gray-600">{item.battery}</div></div>))}</div></div>
--                        </div>
--                    </div>
--                );
--            };
--
--            const FAQSection = () => (
--                <div className="py-24 bg-white">
--                    <div className="max-w-3xl mx-auto px-4">
--                        <h2 className="text-4xl font-extrabold text-gray-900 text-center mb-12">Common Questions</h2>
--                        <div className="space-y-6">
--                            {[
--                                {q: "Do you offer a warranty?", a: "Yes! We offer a warranty on all repairs ranging from 6 months up to 2 years."},
--                                {q: "Do I need to book an appointment?", a: "We welcome both walk-ins and bookings. Booking online guarantees your slot."},
--                                {q: "How long does a repair take?", a: "Simple repairs (like screens and batteries) are often done within 1 hour."}
--                            ].map((item, i) => (
--                                <div key={i} className="bg-gray-50 p-8 rounded-3xl border border-gray-100 hover:border-green-200 transition-colors">
--                                    <h3 className="font-bold text-xl mb-3 text-gray-900 flex items-center"><i className="fas fa-circle-question text-green-500 mr-3"></i> {item.q}</h3>
--                                    <p className="text-gray-600 ml-8">{item.a}</p>
--                                </div>
--                            ))}
--                        </div>
--                    </div>
--                </div>
--            );
--
--            // --- Main App Logic ---
--            const Header = () => (
--                <nav className="glass sticky top-0 z-50 border-b border-gray-100/50">
--                    <div className="max-w-7xl mx-auto px-4 flex justify-between h-24 items-center">
--                        <div onClick={() => setView('home')} className="cursor-pointer"><WindsorLogo /></div>
--                        <div className="hidden md:flex items-center space-x-8">
--                            <button onClick={() => setView('home')} className="font-semibold hover:text-green-600">Home</button>
--                            <button onClick={() => setView('quote')} className="font-semibold hover:text-green-600">Quote</button>
--                            <button onClick={() => setView('tradein')} className="font-semibold hover:text-green-600">Sell</button>
--                            <button onClick={() => setView('ai')} className="font-semibold text-indigo-600 hover:text-indigo-800"><i className="fas fa-sparkles mr-1"></i> AI Help</button>
--                            <Button onClick={() => setView('booking')} className="py-2 px-6 text-sm shadow-green-500/30">Book</Button>
--                        </div>
--                        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden text-gray-800"><i className="fas fa-bars text-2xl"></i></button>
--                    </div>
--                    {isMenuOpen && <div className="md:hidden bg-white border-t p-4 space-y-2"><button onClick={() => setView('home')} className="block w-full text-left p-2 font-semibold">Home</button><button onClick={() => setView('booking')} className="block w-full text-left p-2 font-semibold">Book</button></div>}
--                </nav>
--            );
--
--            return (
--                <div className="flex flex-col min-h-screen">
--                    <Header />
--                    {notification && <div className="fixed top-28 right-5 z-50 bg-green-600 text-white px-6 py-4 rounded-xl shadow-2xl animate-bounce font-bold"><i className="fas fa-check-circle mr-3"></i> {notification}</div>}
--                    
--                    {view === 'home' && (
--                        <>
--                            <div className="relative bg-gray-900 text-white overflow-hidden min-h-[600px] flex items-center">
--                                <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/80 to-transparent z-10"></div>
--                                <div className="absolute inset-0 opacity-30 bg-[url('https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center"></div>
--                                <div className="relative max-w-7xl mx-auto px-4 py-24 text-center z-20">
--                                    <div className="inline-block px-4 py-2 rounded-full bg-green-500/20 border border-green-500/50 mb-6 text-green-300 text-sm font-bold uppercase tracking-widest backdrop-blur-sm"><i className="fas fa-bolt mr-2"></i> Windsor & Slough's Fastest Tech Repair</div>
--                                    <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight">Tech Repair & Sales.<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">Done Right.</span></h1>
--                                    <p className="text-xl text-gray-300 mb-10 max-w-lg mx-auto leading-relaxed">Serving Windsor & Slough. Repairs, Trade-ins, and Premium Refurbished Phones.</p>
--                                    <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6"><Button onClick={() => setView('booking')} className="py-4 px-8 text-lg">Book Repair</Button><Button onClick={() => setView('ai')} variant="ai" className="py-4 px-8 text-lg"><i className="fas fa-sparkles mr-2"></i> AI Diagnosis</Button></div>
--                                </div>
--                            </div>
--                            <TrustBadges />
--                            <PhoneSalesSection />
--                            <div className="py-24 bg-white text-center"><h2 className="text-4xl font-extrabold text-gray-900 mb-12">Expert Repairs</h2><div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">{SERVICES.map(s => <div key={s.id} className="p-8 rounded-3xl border border-green-100 hover:shadow-xl transition-all"><div className="text-4xl text-green-600 mb-4"><i className={`fas ${s.icon}`}></i></div><h3 className="text-xl font-bold mb-2">{s.title}</h3><p className="text-green-600 font-bold">{s.price}</p></div>)}</div></div>
--                            <div className="py-24 bg-gray-50 relative"><div className="max-w-7xl mx-auto px-4 text-center relative z-10"><h2 className="text-4xl font-extrabold text-gray-900 mb-16">Simple as 1-2-3</h2><div className="grid grid-cols-1 md:grid-cols-3 gap-12">{[{icon: "fa-calendar-check", title: "Book or Visit", desc: "Book online or walk in."}, {icon: "fa-screwdriver-wrench", title: "Fast Repair", desc: "Expert fix in ~30 mins."}, {icon: "fa-check-circle", title: "Collect & Pay", desc: "Check it works, then pay."}].map((step, i) => <div key={i} className="group bg-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all hover:-translate-y-2"><div className="w-20 h-20 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center text-3xl font-bold mx-auto mb-6"><i className={`fas ${step.icon}`}></i></div><h3 className="text-xl font-bold mb-3">{step.title}</h3><p className="text-gray-500">{step.desc}</p></div>)}</div></div></div>
--                            <PriceListSection />
--                            <div className="py-24 bg-gray-50"><div className="max-w-7xl mx-auto px-4"><h2 className="text-4xl font-extrabold text-center mb-12">Reviews</h2><div className="grid md:grid-cols-2 gap-8">{REVIEWS.map(r => <div key={r.id} className="bg-white p-8 rounded-3xl shadow-sm"><h4 className="font-bold">{r.name}</h4><p className="text-gray-600 mt-2">"{r.text}"</p></div>)}</div></div></div>
--                            <FAQSection />
--                            <div className="py-12 bg-white"><div className="max-w-7xl mx-auto px-4 text-center"><h2 className="text-3xl font-extrabold text-gray-900 mb-8">Find Us</h2><div className="h-[450px] w-full rounded-[2rem] overflow-hidden shadow-xl"><iframe className="w-full h-full border-0" src="https://maps.google.com/maps?q=3%20Queen%20Anne's%20Court%2C%20Peascod%20Street%2C%20Windsor%2C%20SL4%201DG%20(Windsor%20Express)&t=&z=15&ie=UTF8&iwloc=B&output=embed" allowFullScreen loading="lazy"></iframe></div></div></div>
--                        </>
--                    )}
--                    {view === 'booking' && <BookingPage />}
--                    {view === 'quote' && <QuotePage />}
--                    {view === 'tradein' && <TradeInPage />}
--                    {view === 'ai' && <AIDiagnosticPage />}
--                    
--                    <footer className="bg-gray-900 text-white pt-20 pb-10 border-t border-gray-800"><div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 mb-8"><div><WindsorLogo /></div><div><h3 className="text-lg font-bold mb-4">Contact</h3><p className="text-gray-400">3 Queen Anne's Court, Windsor SL4 1DG</p><p className="text-gray-400">07912150397</p></div><div><h3 className="text-lg font-bold mb-4">Hours</h3><p className="text-gray-400">Mon-Sat: 09:30 - 18:30</p><p className="text-gray-400">Sun: 10:00 - 17:00</p></div></div><div className="text-center text-gray-600 text-sm border-t border-gray-800 pt-8">&copy; 2025 Windsor Express</div></footer>
--                </div>
--            );
--        }
--
--        const root = ReactDOM.createRoot(document.getElementById('root'));
--        root.render(<App />);
--    </script>
--</body>
--</html>
--
-+<!DOCTYPE html>
-+<html lang="en" class="scroll-smooth">
-+<head>
-+    <meta name="google-site-verification" content="MS1nztxILX_L5GLz25K1JwNrm4156yeS3x1OqA4O3N0" />
-+    <meta charset="UTF-8">
-+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-+    
-+    <!-- SEO: Targeted for Windsor & Slough + Phone Sales -->
-+    <title>Windsor Express | Phone Repair Windsor & Slough | We Buy & Sell</title>
-+    <meta name="description" content="Windsor Express - The #1 Tech Repair shop serving Windsor, Slough, and Eton. We fix iPhones, Samsungs, Laptops & Consoles at 3 Queen Anne's Court (SL4 1DG). Fast 30-min repairs.">
-+    <meta name="keywords" content="Phone Repair Windsor, Phone Repair Slough, iPhone Screen Fix SL4, Samsung Repair Windsor, Buy Phones Slough, Tech Repair Queen Anne's Court">
-+    
-+    <!-- Canonical Link (Your official address) -->
-+    <link rel="canonical" href="https://windsorexpress.github.io/Windsor-Express/" />
-+
-+    <!-- Open Graph -->
-+    <meta property="og:title" content="Windsor Express - Repairs & Phone Sales">
-+    <meta property="og:description" content="Fast repairs in Windsor & Slough. Buy a phone and get a FREE Case & Screen Protector! Visit us at Queen Anne's Court.">
-+    <meta property="og:type" content="website">
-+    <meta property="og:url" content="https://windsorexpress.github.io/Windsor-Express/">
-+    
-+    <!-- Fonts -->
-+    <link rel="preconnect" href="https://fonts.googleapis.com">
-+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-+
-+    <!-- Tailwind CSS -->
-+    <script src="https://cdn.tailwindcss.com"></script>
-+    <script>
-+        tailwind.config = {
-+            theme: {
-+                extend: {
-+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
-+                    colors: { brand: { 500: '#10b981', 600: '#059669' } }
-+                }
-+            }
-+        }
-+    </script>
-+    
-+    <!-- React & Babel -->
-+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-+
-+    <!-- STRUCTURED DATA (JSON-LD) -->
-+    <script type="application/ld+json">
-+    {
-+      "@context": "https://schema.org",
-+      "@type": "ElectronicsRepairShop",
-+      "name": "Windsor Express",
-+      "image": "",
-+      "url": "https://windsorexpress.github.io/Windsor-Express/",
-+      "telephone": "07912150397",
-+      "priceRange": "££",
-+      "address": {
-+        "@type": "PostalAddress",
-+        "streetAddress": "3 Queen Anne's Court, Peascod Street",
-+        "addressLocality": "Windsor",
-+        "postalCode": "SL4 1DG",
-+        "addressCountry": "UK"
-+      },
-+      "geo": {
-+        "@type": "GeoCoordinates",
-+        "latitude": 51.482, 
-+        "longitude": -0.608
-+      },
-+      "openingHoursSpecification": [
-+        {
-+          "@type": "OpeningHoursSpecification",
-+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-+          "opens": "09:30",
-+          "closes": "18:30"
-+        },
-+        {
-+          "@type": "OpeningHoursSpecification",
-+          "dayOfWeek": "Sunday",
-+          "opens": "10:00",
-+          "closes": "17:00"
-+        }
-+      ],
-+      "areaServed": ["Windsor", "Slough", "Eton", "Datchet", "Maidenhead"],
-+      "makesOffer": {
-+        "@type": "Offer",
-+        "itemOffered": {
-+          "@type": "Service",
-+          "name": "Phone Repair"
-+        }
-+      }
-+    }
-+    </script>
-+
-+    <style>
-+        body { font-family: 'Outfit', sans-serif; }
-+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
-+        .animate-float { animation: float 6s ease-in-out infinite; }
-+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
-+    </style>
-+</head>
-+<body class="bg-gray-50 text-gray-900">
-+
-+    <div id="root"></div>
-+
-+    <script type="text/babel">
-+        const { useState, useEffect } = React;
-+
-+        // CONFIGURATION
-+        const ownerEmail = "tanish.ratala@gmail.com"; 
-+        const apiKey = ""; // Insert your Gemini API Key here if you have one. If empty, AI will use fallback mode.
-+
-+        // --- Helper: Send Email (FormSubmit) ---
-+        const sendEmail = async (subject, data) => {
-+            try {
-+                const response = await fetch(`https://formsubmit.co/ajax/${ownerEmail}`, {
-+                    method: "POST",
-+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-+                    body: JSON.stringify({ _subject: `New ${subject} - Windsor Express`, ...data })
-+                });
-+                return response.ok;
-+            } catch (error) {
-+                console.error(error);
-+                return false;
-+            }
-+        }
-+
-+        // --- Helper: Gemini AI ---
-+        const callGemini = async (userPrompt) => {
-+            if (!apiKey) return "I'm currently offline, but our human experts are ready! Please bring your device to 3 Queen Anne's Court for a free instant diagnostic.";
-+            
-+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-+            try {
-+                const response = await fetch(url, {
-+                    method: 'POST',
-+                    headers: { 'Content-Type': 'application/json' },
-+                    body: JSON.stringify({
-+                        contents: [{ parts: [{ text: userPrompt }] }],
-+                        systemInstruction: { parts: [{ text: "You are 'TechBot' at Windsor Express. Analyze the tech problem, give a safety warning if needed, and estimate repair time. Keep it encouraging and under 60 words." }] }
-+                    })
-+                });
-+                if (!response.ok) throw new Error('API Error');
-+                const data = await response.json();
-+                return data.candidates[0].content.parts[0].text;
-+            } catch (error) {
-+                return "I'm having trouble connecting to the diagnostic server. Please bring your device to 3 Queen Anne's Court for a free manual check-up!";
-+            }
-+        };
-+
-+        // --- Data ---
-+        const REVIEWS = [
-+            { id: 1, name: "James Wilson", date: "2 days ago", rating: 5, text: "Windsor Express is amazing. Fixed my screen in 20 minutes." },
-+            { id: 2, name: "Sophie Miller", date: "1 week ago", rating: 5, text: "Sold my old iPad here and got a much better price than online." },
-+            { id: 3, name: "Tom Baker", date: "2 weeks ago", rating: 5, text: "Honest advice. They told me my charging port just needed cleaning." },
-+            { id: 4, name: "Emily Green", date: "1 month ago", rating: 5, text: "My go-to place for tech in Windsor. Reliable, fast, and good prices." },
-+        ];
-+
-+        const SERVICES = [
-+            { id: 'phone', title: 'Phone Repair', icon: 'fa-mobile-screen', price: 'From £30', desc: 'Screens, Batteries' },
-+            { id: 'laptop', title: 'Computers', icon: 'fa-laptop', price: 'From £45', desc: 'Screen, Virus Removal' },
-+            { id: 'console', title: 'Consoles', icon: 'fa-gamepad', price: 'From £40', desc: 'HDMI, Overheating' },
-+            { id: 'unlock', title: 'Unlocking', icon: 'fa-lock-open', price: 'From £20', desc: 'Network Unlocking' },
-+        ];
-+
-+
-+        const BOOKING_TIMES = Array.from({ length: 22 }, (_, index) => {
-+            const totalMinutes = (9 * 60) + (index * 30);
-+            const hours24 = Math.floor(totalMinutes / 60);
-+            const minutes = totalMinutes % 60;
-+            const meridiem = hours24 >= 12 ? 'PM' : 'AM';
-+            const hours12 = hours24 % 12 || 12;
-+            return `${String(hours12).padStart(2, '0')}:${String(minutes).padStart(2, '0')} ${meridiem}`;
-+        });
-+
-+        const PRICE_LIST = {
-+            iphone: [
-+                { model: "iPhone 15 / 15 Plus", screen: "£ --", battery: "£ --" },
-+                { model: "iPhone 14 Series", screen: "£ --", battery: "£ --" },
-+                { model: "iPhone 13 Series", screen: "£ --", battery: "£ --" },
-+                { model: "iPhone 12 Series", screen: "£ --", battery: "£ --" },
-+                { model: "iPhone 11 Series", screen: "£ --", battery: "£ --" },
-+            ],
-+            samsung: [
-+                { model: "Samsung S23 Ultra", screen: "£ --", battery: "£ --" },
-+                { model: "Samsung S22 Series", screen: "£ --", battery: "£ --" },
-+                { model: "Samsung S21 Series", screen: "£ --", battery: "£ --" },
-+                { model: "Samsung A Series", screen: "£ --", battery: "£ --" },
-+            ]
-+        };
-+
-+        // --- Components ---
-+        const Button = ({ children, onClick, variant = 'primary', className = '', type = 'button', disabled=false }) => {
-+            const base = "px-8 py-3 rounded-full font-bold transition-all hover:scale-105 flex items-center justify-center shadow-lg disabled:opacity-50 disabled:cursor-not-allowed";
-+            const variants = {
-+                primary: "bg-gradient-to-r from-green-500 to-emerald-700 text-white",
-+                secondary: "bg-gray-900 text-white",
-+                outline: "border-2 border-white text-white backdrop-blur-sm bg-white/10",
-+                ai: "bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:shadow-purple-500/30"
-+            };
-+            return <button type={type} onClick={onClick} disabled={disabled} className={`${base} ${variants[variant]} ${className}`}>{children}</button>;
-+        };
-+
-+        const Input = ({ label, type = "text", placeholder, value, onChange, required = false }) => (
-+            <div className="mb-5">
-+                {label && <label className="block text-gray-700 text-sm font-bold mb-2 ml-1">{label}</label>}
-+                <input type={type} className="w-full px-5 py-4 rounded-xl bg-gray-50 border-2 border-gray-100 focus:border-green-500 outline-none" placeholder={placeholder} value={value} onChange={onChange} required={required} />
-+            </div>
-+        );
-+
-+        const WindsorLogo = () => (
-+            <div className="flex items-center group cursor-pointer">
-+                <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center text-white mr-2 shadow-lg"><i className="fas fa-bolt text-xl"></i></div>
-+                <div className="flex flex-col"><div className="text-2xl font-black text-gray-900 leading-none">WINDSOR <span className="text-green-600">EXPRESS</span></div></div>
-+            </div>
-+        );
-+
-+        // --- Main App ---
-+        function App() {
-+            const [view, setView] = useState('home');
-+            const [isMenuOpen, setIsMenuOpen] = useState(false);
-+            const [notification, setNotification] = useState(null);
-+            const [prefilledIssue, setPrefilledIssue] = useState('');
-+
-+            const showNotify = (msg) => {
-+                setNotification(msg);
-+                setTimeout(() => setNotification(null), 3000);
-+            };
-+
-+            // --- Sub-Pages ---
-+            const AIDiagnosticPage = () => {
-+                const [problem, setProblem] = useState('');
-+                const [analysis, setAnalysis] = useState(null);
-+                const [loading, setLoading] = useState(false);
-+
-+                const handleAnalyze = async (e) => {
-+                    e.preventDefault();
-+                    if (!problem.trim()) return;
-+                    setLoading(true);
-+                    const result = await callGemini(problem);
-+                    setAnalysis(result);
-+                    setLoading(false);
-+                };
-+
-+                return (
-+                    <div className="min-h-screen bg-gray-50 py-16 px-4 fade-in">
-+                        <div className="max-w-2xl mx-auto">
-+                            <div className="text-center mb-10">
-+                                <div className="inline-block p-4 rounded-full bg-indigo-100 text-indigo-600 mb-4 text-3xl shadow-md"><i className="fas fa-sparkles"></i></div>
-+                                <h2 className="text-4xl font-extrabold text-gray-900 mb-2">AI Repair Genius</h2>
-+                                <p className="text-gray-500 text-lg">Describe your issue in plain English. Our AI will diagnose it instantly.</p>
-+                            </div>
-+                            <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
-+                                <form onSubmit={handleAnalyze}>
-+                                    <label className="block text-gray-700 font-bold mb-3 ml-1">What's happening?</label>
-+                                    <textarea className="w-full px-5 py-4 rounded-xl bg-gray-50 border-2 border-gray-100 focus:border-indigo-500 outline-none h-40 mb-6 text-lg resize-none" placeholder="Type here..." value={problem} onChange={(e) => setProblem(e.target.value)} required></textarea>
-+                                    <Button type="submit" disabled={loading} variant="ai" className="w-full py-4 text-lg">{loading ? "Analyzing..." : "Analyze Problem ✨"}</Button>
-+                                </form>
-+                                {analysis && (
-+                                    <div className="mt-8 pt-8 border-t-2 border-gray-100 animate-float" style={{animationDuration: '1s', animationIterationCount: 1}}>
-+                                        <div className="bg-indigo-50 rounded-2xl p-6 border border-indigo-100">
-+                                            <h3 className="text-indigo-800 font-bold text-lg mb-2"><i className="fas fa-robot mr-2"></i> Diagnosis:</h3>
-+                                            <p className="text-gray-700 text-lg">{analysis}</p>
-+                                        </div>
-+                                        <div className="mt-6 text-center">
-+                                            <Button onClick={() => { setPrefilledIssue(`AI Diagnosis: ${problem} - ${analysis}`); setView('booking'); }} variant="primary" className="w-full">Book This Repair</Button>
-+                                        </div>
-+                                    </div>
-+                                )}
-+                            </div>
-+                        </div>
-+                    </div>
-+                );
-+            };
-+
-+            const BookingPage = () => {
-+                const [formData, setFormData] = useState({ deviceType: '', deviceModel: prefilledIssue ? 'See Diagnosis' : '', date: '', time: '', name: '', phone: '', notes: prefilledIssue || '' });
-+                const [loading, setLoading] = useState(false);
-+                const handleBook = async (e) => {
-+                    e.preventDefault();
-+                    setLoading(true);
-+                    const success = await sendEmail("Booking Request", formData);
-+                    setLoading(false);
-+                    if(success) { showNotify("Booking Sent! Check email."); setTimeout(() => setView('home'), 2000); } else { showNotify("Error sending."); }
-+                };
-+                return (
-+                    <div className="min-h-screen bg-gray-50 py-16 px-4 fade-in">
-+                        <div className="max-w-2xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden">
-+                            <div className="bg-gradient-to-r from-green-700 to-green-600 px-10 py-10 text-white"><h2 className="text-3xl font-bold">Book Repair</h2></div>
-+                            <form onSubmit={handleBook} className="p-10">
-+                                {prefilledIssue && <div className="mb-6 bg-indigo-50 p-4 rounded-xl text-indigo-800 text-sm"><strong>AI Diagnosis Attached</strong></div>}
-+                                <div className="grid grid-cols-2 gap-4 mb-8">{SERVICES.map(s => <button key={s.id} type="button" onClick={() => setFormData({...formData, deviceType: s.title})} className={`p-4 rounded-2xl border-2 text-left ${formData.deviceType === s.title ? 'border-green-500 bg-green-50' : 'border-gray-100'}`}><div className="text-green-600 mb-2"><i className={`fas ${s.icon} text-xl`}></i></div><span className="font-bold text-gray-900">{s.title}</span></button>)}</div>
-+                                <Input label="Device Model" placeholder="e.g. iPhone 13" value={formData.deviceModel} onChange={(e) => setFormData({...formData, deviceModel: e.target.value})} required />
-+                                <div className="grid grid-cols-2 gap-4">
-+                                    <Input label="Date" type="date" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} required />
-+                                    <div className="mb-5"><label className="block text-gray-700 text-sm font-bold mb-2 ml-1">Time</label><select value={formData.time} onChange={(e) => setFormData({...formData, time: e.target.value})} className="w-full px-5 py-4 rounded-xl bg-gray-50 border-2 border-gray-100 focus:border-green-500 outline-none" required><option value="">Select a time...</option>{BOOKING_TIMES.map((timeSlot) => <option key={timeSlot} value={timeSlot}>{timeSlot}</option>)}</select></div>
-+                                </div>
-+                                <Input label="Your Name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} required />
-+                                <Input label="Phone Number" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} required />
-+                                <Button type="submit" disabled={loading} className="w-full py-4 text-lg">{loading ? "Sending..." : "Confirm Booking"}</Button>
-+                            </form>
-+                        </div>
-+                    </div>
-+                );
-+            };
-+
-+            const QuotePage = () => {
-+                const [formData, setFormData] = useState({ deviceModel: '', issueDescription: '', email: '' });
-+                const [loading, setLoading] = useState(false);
-+                const handleQuote = async (e) => {
-+                    e.preventDefault();
-+                    setLoading(true);
-+                    const success = await sendEmail("Quote Request", formData);
-+                    setLoading(false);
-+                    if(success) { showNotify("Quote Request Sent!"); setTimeout(() => setView('home'), 2000); } else { showNotify("Error sending."); }
-+                };
-+                return (
-+                    <div className="min-h-screen bg-gray-50 py-16 px-4 fade-in">
-+                        <div className="max-w-xl mx-auto bg-white rounded-3xl shadow-xl p-10">
-+                            <h2 className="text-3xl font-bold mb-2">Get a Free Quote</h2>
-+                            <form onSubmit={handleQuote}>
-+                                <Input label="Device" placeholder="e.g. iPhone 14" value={formData.deviceModel} onChange={(e) => setFormData({...formData, deviceModel: e.target.value})} required />
-+                                <label className="block text-gray-700 text-sm font-bold mb-2 ml-1">Issue</label>
-+                                <textarea className="w-full px-5 py-4 mb-5 rounded-xl bg-gray-50 border-2 border-gray-100 focus:border-green-500 outline-none h-32" value={formData.issueDescription} onChange={(e) => setFormData({...formData, issueDescription: e.target.value})} required></textarea>
-+                                <Input label="Email" type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} required />
-+                                <Button type="submit" disabled={loading} className="w-full py-4">{loading ? "Sending..." : "Request Quote"}</Button>
-+                            </form>
-+                        </div>
-+                    </div>
-+                );
-+            };
-+
-+            const TradeInPage = () => {
-+                const [formData, setFormData] = useState({ deviceModel: '', storage: '', condition: '', email: '', phone: '' });
-+                const [loading, setLoading] = useState(false);
-+                const handleTradeIn = async (e) => {
-+                    e.preventDefault();
-+                    setLoading(true);
-+                    const success = await sendEmail("Trade-In Request", formData);
-+                    setLoading(false);
-+                    if(success) { showNotify("Request Sent!"); setTimeout(() => setView('home'), 2000); } else { showNotify("Error sending."); }
-+                };
-+                return (
-+                    <div className="min-h-screen bg-gray-50 py-16 px-4 fade-in">
-+                        <div className="max-w-xl mx-auto bg-white rounded-3xl shadow-xl p-10">
-+                            <h2 className="text-3xl font-bold mb-6">Sell Your Device</h2>
-+                            <form onSubmit={handleTradeIn}>
-+                                <Input label="Device" placeholder="e.g. iPhone 14" value={formData.deviceModel} onChange={(e) => setFormData({...formData, deviceModel: e.target.value})} required />
-+                                <Input label="Storage" placeholder="e.g. 128GB" value={formData.storage} onChange={(e) => setFormData({...formData, storage: e.target.value})} required />
-+                                <div className="mb-5"><label className="block text-gray-700 text-sm font-bold mb-2 ml-1">Condition</label><select className="w-full px-5 py-4 rounded-xl bg-gray-50 border-2 border-gray-100 focus:border-green-500 outline-none" value={formData.condition} onChange={(e) => setFormData({...formData, condition: e.target.value})} required><option value="">Select Condition...</option><option value="Like New">Like New</option><option value="Good">Good</option><option value="Fair">Fair</option><option value="Broken">Broken</option></select></div>
-+                                <Input label="Email" type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} required />
-+                                <Input label="Phone" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} required />
-+                                <Button type="submit" disabled={loading} className="w-full py-4">{loading ? "Sending..." : "Get My Offer"}</Button>
-+                            </form>
-+                        </div>
-+                    </div>
-+                );
-+            };
-+
-+            // --- Layout Sections ---
-+            const TrustBadges = () => (
-+                <div className="bg-white py-10 border-b border-gray-100">
-+                    <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-+                        {[{i:"fa-shield-alt",t:"12-Month Warranty"},{i:"fa-stopwatch",t:"30-Min Fix"},{i:"fa-hand-holding-dollar",t:"No Fix, No Fee"},{i:"fa-lock",t:"Data Safe"}].map(b => (
-+                            <div key={b.t}><i className={`fas ${b.i} text-3xl text-green-600 mb-3`}></i><h4 className="font-bold">{b.t}</h4></div>
-+                        ))}
-+                    </div>
-+                </div>
-+            );
-+
-+            const PhoneSalesSection = () => (
-+                <div className="py-24 bg-gradient-to-br from-gray-900 to-gray-800 text-white relative overflow-hidden">
-+                    <div className="max-w-7xl mx-auto px-4 relative z-10 flex flex-col md:flex-row items-center gap-12">
-+                        <div className="md:w-1/2">
-+                            <span className="text-green-400 font-bold tracking-widest text-sm uppercase mb-2 block">Premium Refurbished</span>
-+                            <h2 className="text-4xl md:text-5xl font-extrabold mb-6">Buy Your Next Phone<br/>For Less.</h2>
-+                            <p className="text-gray-300 text-lg mb-8 leading-relaxed">Why pay full price? Get pristine, fully tested iPhones and Samsungs at a fraction of the cost.</p>
-+                            <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl mb-8 flex items-start">
-+                                <div className="text-4xl mr-4">🎁</div>
-+                                <div><h4 className="font-bold text-xl text-white mb-1">Exclusive In-Store Offer</h4><p className="text-green-300 font-medium">Buy any phone and get a FREE Case & Screen Protector!</p></div>
-+                            </div>
-+                            <p className="text-gray-400 text-sm mb-6"><i className="fas fa-map-marker-alt mr-2 text-green-500"></i> Available now at 3 Queen Anne's Court</p>
-+                        </div>
-+                        <div className="md:w-1/2 flex justify-center">
-+                            <div className="relative animate-float">
-+                                <div className="relative rounded-[3rem] border-8 border-gray-800 bg-gray-900 w-72 h-[36rem] shadow-2xl flex flex-col overflow-hidden rotate-3 hover:rotate-0 transition-all">
-+                                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 h-7 w-28 bg-gray-800 rounded-b-2xl z-20"></div>
-+                                    <div className="flex-1 bg-gradient-to-br from-gray-800 to-black relative z-10 flex flex-col items-center justify-center p-6 text-center">
-+                                        <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mb-6 shadow-lg"><i className="fas fa-mobile-screen text-4xl text-white"></i></div>
-+                                        <h3 className="text-3xl font-bold text-white mb-2">New & Used</h3>
-+                                        <p className="text-gray-400 mb-8">Premium Quality</p>
-+                                        <div className="mt-auto pt-8"><span className="inline-block px-4 py-1 rounded-full bg-green-900/50 text-green-400 text-xs font-bold uppercase border border-green-800">In Stock Now</span></div>
-+                                    </div>
-+                                </div>
-+                            </div>
-+                        </div>
-+                    </div>
-+                </div>
-+            );
-+
-+            const PriceListSection = () => {
-+                const [activeTab, setActiveTab] = useState('iphone');
-+                return (
-+                    <div className="py-24 bg-white relative overflow-hidden">
-+                        <div className="max-w-4xl mx-auto px-4 relative z-10">
-+                            <div className="text-center mb-12"><h2 className="text-4xl font-extrabold text-gray-900 mt-2 mb-4">Repair Price List</h2></div>
-+                            <div className="flex justify-center space-x-4 mb-10">{['iphone', 'samsung'].map((brand) => (<button key={brand} onClick={() => setActiveTab(brand)} className={`px-8 py-3 rounded-full font-bold transition-all ${activeTab === brand ? 'bg-green-600 text-white shadow-xl' : 'bg-gray-100 text-gray-500'}`}>{brand === 'iphone' ? 'Apple' : 'Samsung'}</button>))}</div>
-+                            <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden"><div className="grid grid-cols-3 bg-gray-50 p-5 font-extrabold text-gray-800 text-sm uppercase"><div>Device</div><div className="text-center text-green-600">Screen</div><div className="text-right text-blue-600">Battery</div></div><div className="divide-y divide-gray-100">{PRICE_LIST[activeTab].map((item, index) => (<div key={index} className="grid grid-cols-3 p-5 hover:bg-green-50 items-center font-medium"><div className="text-gray-900">{item.model}</div><div className="text-center text-gray-600">{item.screen}</div><div className="text-right text-gray-600">{item.battery}</div></div>))}</div></div>
-+                        </div>
-+                    </div>
-+                );
-+            };
-+
-+            const FAQSection = () => (
-+                <div className="py-24 bg-white">
-+                    <div className="max-w-3xl mx-auto px-4">
-+                        <h2 className="text-4xl font-extrabold text-gray-900 text-center mb-12">Common Questions</h2>
-+                        <div className="space-y-6">
-+                            {[
-+                                {q: "Do you offer a warranty?", a: "Yes! We offer a warranty on all repairs ranging from 6 months up to 2 years."},
-+                                {q: "Do I need to book an appointment?", a: "We welcome both walk-ins and bookings. Booking online guarantees your slot."},
-+                                {q: "How long does a repair take?", a: "Simple repairs (like screens and batteries) are often done within 1 hour."}
-+                            ].map((item, i) => (
-+                                <div key={i} className="bg-gray-50 p-8 rounded-3xl border border-gray-100 hover:border-green-200 transition-colors">
-+                                    <h3 className="font-bold text-xl mb-3 text-gray-900 flex items-center"><i className="fas fa-circle-question text-green-500 mr-3"></i> {item.q}</h3>
-+                                    <p className="text-gray-600 ml-8">{item.a}</p>
-+                                </div>
-+                            ))}
-+                        </div>
-+                    </div>
-+                </div>
-+            );
-+
-+            // --- Main App Logic ---
-+            const Header = () => (
-+                <nav className="glass sticky top-0 z-50 border-b border-gray-100/50">
-+                    <div className="max-w-7xl mx-auto px-4 flex justify-between h-24 items-center">
-+                        <div onClick={() => setView('home')} className="cursor-pointer"><WindsorLogo /></div>
-+                        <div className="hidden md:flex items-center space-x-8">
-+                            <button onClick={() => setView('home')} className="font-semibold hover:text-green-600">Home</button>
-+                            <button onClick={() => setView('quote')} className="font-semibold hover:text-green-600">Quote</button>
-+                            <button onClick={() => setView('tradein')} className="font-semibold hover:text-green-600">Sell</button>
-+                            <button onClick={() => setView('ai')} className="font-semibold text-indigo-600 hover:text-indigo-800"><i className="fas fa-sparkles mr-1"></i> AI Help</button>
-+                            <Button onClick={() => setView('booking')} className="py-2 px-6 text-sm shadow-green-500/30">Book</Button>
-+                        </div>
-+                        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden text-gray-800"><i className="fas fa-bars text-2xl"></i></button>
-+                    </div>
-+                    {isMenuOpen && <div className="md:hidden bg-white border-t p-4 space-y-2"><button onClick={() => setView('home')} className="block w-full text-left p-2 font-semibold">Home</button><button onClick={() => setView('booking')} className="block w-full text-left p-2 font-semibold">Book</button></div>}
-+                </nav>
-+            );
-+
-+            return (
-+                <div className="flex flex-col min-h-screen">
-+                    <Header />
-+                    {notification && <div className="fixed top-28 right-5 z-50 bg-green-600 text-white px-6 py-4 rounded-xl shadow-2xl animate-bounce font-bold"><i className="fas fa-check-circle mr-3"></i> {notification}</div>}
-+                    
-+                    {view === 'home' && (
-+                        <>
-+                            <div className="relative bg-gray-900 text-white overflow-hidden min-h-[600px] flex items-center">
-+                                <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/80 to-transparent z-10"></div>
-+                                <div className="absolute inset-0 opacity-30 bg-[url('https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center"></div>
-+                                <div className="relative max-w-7xl mx-auto px-4 py-24 text-center z-20">
-+                                    <div className="inline-block px-4 py-2 rounded-full bg-green-500/20 border border-green-500/50 mb-6 text-green-300 text-sm font-bold uppercase tracking-widest backdrop-blur-sm"><i className="fas fa-bolt mr-2"></i> Windsor & Slough's Fastest Tech Repair</div>
-+                                    <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight">Tech Repair & Sales.<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">Done Right.</span></h1>
-+                                    <p className="text-xl text-gray-300 mb-10 max-w-lg mx-auto leading-relaxed">Serving Windsor & Slough. Repairs, Trade-ins, and Premium Refurbished Phones.</p>
-+                                    <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6"><Button onClick={() => setView('booking')} className="py-4 px-8 text-lg">Book Repair</Button><Button onClick={() => setView('ai')} variant="ai" className="py-4 px-8 text-lg"><i className="fas fa-sparkles mr-2"></i> AI Diagnosis</Button></div>
-+                                </div>
-+                            </div>
-+                            <TrustBadges />
-+                            <PhoneSalesSection />
-+                            <div className="py-24 bg-white text-center"><h2 className="text-4xl font-extrabold text-gray-900 mb-12">Expert Repairs</h2><div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">{SERVICES.map(s => <div key={s.id} className="p-8 rounded-3xl border border-green-100 hover:shadow-xl transition-all"><div className="text-4xl text-green-600 mb-4"><i className={`fas ${s.icon}`}></i></div><h3 className="text-xl font-bold mb-2">{s.title}</h3><p className="text-green-600 font-bold">{s.price}</p></div>)}</div></div>
-+                            <div className="py-24 bg-gray-50 relative"><div className="max-w-7xl mx-auto px-4 text-center relative z-10"><h2 className="text-4xl font-extrabold text-gray-900 mb-16">Simple as 1-2-3</h2><div className="grid grid-cols-1 md:grid-cols-3 gap-12">{[{icon: "fa-calendar-check", title: "Book or Visit", desc: "Book online or walk in."}, {icon: "fa-screwdriver-wrench", title: "Fast Repair", desc: "Expert fix in ~30 mins."}, {icon: "fa-check-circle", title: "Collect & Pay", desc: "Check it works, then pay."}].map((step, i) => <div key={i} className="group bg-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all hover:-translate-y-2"><div className="w-20 h-20 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center text-3xl font-bold mx-auto mb-6"><i className={`fas ${step.icon}`}></i></div><h3 className="text-xl font-bold mb-3">{step.title}</h3><p className="text-gray-500">{step.desc}</p></div>)}</div></div></div>
-+                            <PriceListSection />
-+                            <div className="py-24 bg-gray-50"><div className="max-w-7xl mx-auto px-4"><h2 className="text-4xl font-extrabold text-center mb-12">Reviews</h2><div className="grid md:grid-cols-2 gap-8">{REVIEWS.map(r => <div key={r.id} className="bg-white p-8 rounded-3xl shadow-sm"><h4 className="font-bold">{r.name}</h4><p className="text-gray-600 mt-2">"{r.text}"</p></div>)}</div></div></div>
-+                            <FAQSection />
-+                            <div className="py-12 bg-white"><div className="max-w-7xl mx-auto px-4 text-center"><h2 className="text-3xl font-extrabold text-gray-900 mb-8">Find Us</h2><div className="h-[450px] w-full rounded-[2rem] overflow-hidden shadow-xl"><iframe className="w-full h-full border-0" src="https://maps.google.com/maps?q=3%20Queen%20Anne's%20Court%2C%20Peascod%20Street%2C%20Windsor%2C%20SL4%201DG%20(Windsor%20Express)&t=&z=15&ie=UTF8&iwloc=B&output=embed" allowFullScreen loading="lazy"></iframe></div></div></div>
-+                        </>
-+                    )}
-+                    {view === 'booking' && <BookingPage />}
-+                    {view === 'quote' && <QuotePage />}
-+                    {view === 'tradein' && <TradeInPage />}
-+                    {view === 'ai' && <AIDiagnosticPage />}
-+                    
-+                    <footer className="bg-gray-900 text-white pt-20 pb-10 border-t border-gray-800"><div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 mb-8"><div><WindsorLogo /></div><div><h3 className="text-lg font-bold mb-4">Contact</h3><p className="text-gray-400">3 Queen Anne's Court, Windsor SL4 1DG</p><p className="text-gray-400">07912150397</p></div><div><h3 className="text-lg font-bold mb-4">Hours</h3><p className="text-gray-400">Mon-Sat: 09:30 - 18:30</p><p className="text-gray-400">Sun: 10:00 - 17:00</p></div></div><div className="text-center text-gray-600 text-sm border-t border-gray-800 pt-8">&copy; 2025 Windsor Express</div></footer>
-+                </div>
-+            );
-+        }
-+
-+        const root = ReactDOM.createRoot(document.getElementById('root'));
-+        root.render(<App />);
-+    </script>
-+</body>
-+</html>
-+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta name="google-site-verification" content="MS1nztxILX_L5GLz25K1JwNrm4156yeS3x1OqA4O3N0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO: Targeted for Windsor & Slough + Phone Sales -->
+    <title>Windsor Express | Phone Repair Windsor & Slough | We Buy & Sell</title>
+    <meta name="description" content="Windsor Express - The #1 Tech Repair shop serving Windsor, Slough, and Eton. We fix iPhones, Samsungs, Laptops & Consoles at 3 Queen Anne's Court (SL4 1DG). Fast 30-min repairs.">
+    <meta name="keywords" content="Phone Repair Windsor, Phone Repair Slough, iPhone Screen Fix SL4, Samsung Repair Windsor, Buy Phones Slough, Tech Repair Queen Anne's Court">
+    
+    <!-- Canonical Link (Your official address) -->
+    <link rel="canonical" href="https://windsorexpress.github.io/Windsor-Express/" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Windsor Express - Repairs & Phone Sales">
+    <meta property="og:description" content="Fast repairs in Windsor & Slough. Buy a phone and get a FREE Case & Screen Protector! Visit us at Queen Anne's Court.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://windsorexpress.github.io/Windsor-Express/">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: { brand: { 500: '#10b981', 600: '#059669' } }
+                }
+            }
+        }
+    </script>
+    
+    <!-- React & Babel -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- STRUCTURED DATA (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ElectronicsRepairShop",
+      "name": "Windsor Express",
+      "image": "",
+      "url": "https://windsorexpress.github.io/Windsor-Express/",
+      "telephone": "07912150397",
+      "priceRange": "££",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "3 Queen Anne's Court, Peascod Street",
+        "addressLocality": "Windsor",
+        "postalCode": "SL4 1DG",
+        "addressCountry": "UK"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 51.482, 
+        "longitude": -0.608
+      },
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+          "opens": "09:30",
+          "closes": "18:30"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": "Sunday",
+          "opens": "10:00",
+          "closes": "17:00"
+        }
+      ],
+      "areaServed": ["Windsor", "Slough", "Eton", "Datchet", "Maidenhead"],
+      "makesOffer": {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Phone Repair"
+        }
+      }
+    }
+    </script>
+
+    <style>
+        body { font-family: 'Outfit', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // CONFIGURATION
+        const ownerEmail = "tanish.ratala@gmail.com"; 
+        const apiKey = ""; // Insert your Gemini API Key here if you have one. If empty, AI will use fallback mode.
+
+        // --- Helper: Send Email (FormSubmit) ---
+        const sendEmail = async (subject, data) => {
+            try {
+                const response = await fetch(`https://formsubmit.co/ajax/${ownerEmail}`, {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ _subject: `New ${subject} - Windsor Express`, ...data })
+                });
+                return response.ok;
+            } catch (error) {
+                console.error(error);
+                return false;
+            }
+        }
+
+        // --- Helper: Gemini AI ---
+        const callGemini = async (userPrompt) => {
+            if (!apiKey) return "I'm currently offline, but our human experts are ready! Please bring your device to 3 Queen Anne's Court for a free instant diagnostic.";
+            
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: userPrompt }] }],
+                        systemInstruction: { parts: [{ text: "You are 'TechBot' at Windsor Express. Analyze the tech problem, give a safety warning if needed, and estimate repair time. Keep it encouraging and under 60 words." }] }
+                    })
+                });
+                if (!response.ok) throw new Error('API Error');
+                const data = await response.json();
+                return data.candidates[0].content.parts[0].text;
+            } catch (error) {
+                return "I'm having trouble connecting to the diagnostic server. Please bring your device to 3 Queen Anne's Court for a free manual check-up!";
+            }
+        };
+
+        // --- Data ---
+        const REVIEWS = [
+            { id: 1, name: "James Wilson", date: "2 days ago", rating: 5, text: "Windsor Express is amazing. Fixed my screen in 20 minutes." },
+            { id: 2, name: "Sophie Miller", date: "1 week ago", rating: 5, text: "Sold my old iPad here and got a much better price than online." },
+            { id: 3, name: "Tom Baker", date: "2 weeks ago", rating: 5, text: "Honest advice. They told me my charging port just needed cleaning." },
+            { id: 4, name: "Emily Green", date: "1 month ago", rating: 5, text: "My go-to place for tech in Windsor. Reliable, fast, and good prices." },
+        ];
+
+        const SERVICES = [
+            { id: 'phone', title: 'Phone Repair', icon: 'fa-mobile-screen', price: 'From £30', desc: 'Screens, Batteries' },
+            { id: 'laptop', title: 'Computers', icon: 'fa-laptop', price: 'From £45', desc: 'Screen, Virus Removal' },
+            { id: 'console', title: 'Consoles', icon: 'fa-gamepad', price: 'From £40', desc: 'HDMI, Overheating' },
+            { id: 'unlock', title: 'Unlocking', icon: 'fa-lock-open', price: 'From £20', desc: 'Network Unlocking' },
+        ];
+
+        const PRICE_LIST = {
+            iphone: [
+                { model: "iPhone 15 / 15 Plus", screen: "£ --", battery: "£ --" },
+                { model: "iPhone 14 Series", screen: "£ --", battery: "£ --" },
+                { model: "iPhone 13 Series", screen: "£ --", battery: "£ --" },
+                { model: "iPhone 12 Series", screen: "£ --", battery: "£ --" },
+                { model: "iPhone 11 Series", screen: "£ --", battery: "£ --" },
+            ],
+            samsung: [
+                { model: "Samsung S23 Ultra", screen: "£ --", battery: "£ --" },
+                { model: "Samsung S22 Series", screen: "£ --", battery: "£ --" },
+                { model: "Samsung S21 Series", screen: "£ --", battery: "£ --" },
+                { model: "Samsung A Series", screen: "£ --", battery: "£ --" },
+            ]
+        };
+
+        // --- Components ---
+        const Button = ({ children, onClick, variant = 'primary', className = '', type = 'button', disabled=false }) => {
+            const base = "px-8 py-3 rounded-full font-bold transition-all hover:scale-105 flex items-center justify-center shadow-lg disabled:opacity-50 disabled:cursor-not-allowed";
+            const variants = {
+                primary: "bg-gradient-to-r from-green-500 to-emerald-700 text-white",
+                secondary: "bg-gray-900 text-white",
+                outline: "border-2 border-white text-white backdrop-blur-sm bg-white/10",
+                ai: "bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:shadow-purple-500/30"
+            };
+            return <button type={type} onClick={onClick} disabled={disabled} className={`${base} ${variants[variant]} ${className}`}>{children}</button>;
+        };
+
+        const Input = ({ label, type = "text", placeholder, value, onChange, required = false }) => (
+            <div className="mb-5">
+                {label && <label className="block text-gray-700 text-sm font-bold mb-2 ml-1">{label}</label>}
+                <input type={type} className="w-full px-5 py-4 rounded-xl bg-gray-50 border-2 border-gray-100 focus:border-green-500 outline-none" placeholder={placeholder} value={value} onChange={onChange} required={required} />
+            </div>
+        );
+
+        const WindsorLogo = () => (
+            <div className="flex items-center group cursor-pointer">
+                <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center text-white mr-2 shadow-lg"><i className="fas fa-bolt text-xl"></i></div>
+                <div className="flex flex-col"><div className="text-2xl font-black text-gray-900 leading-none">WINDSOR <span className="text-green-600">EXPRESS</span></div></div>
+            </div>
+        );
+
+        // --- Main App ---
+        function App() {
+            const [view, setView] = useState('home');
+            const [isMenuOpen, setIsMenuOpen] = useState(false);
+            const [notification, setNotification] = useState(null);
+            const [prefilledIssue, setPrefilledIssue] = useState('');
+
+            const showNotify = (msg) => {
+                setNotification(msg);
+                setTimeout(() => setNotification(null), 3000);
+            };
+
+            // --- Sub-Pages ---
+            const AIDiagnosticPage = () => {
+                const [problem, setProblem] = useState('');
+                const [analysis, setAnalysis] = useState(null);
+                const [loading, setLoading] = useState(false);
+
+                const handleAnalyze = async (e) => {
+                    e.preventDefault();
+                    if (!problem.trim()) return;
+                    setLoading(true);
+                    const result = await callGemini(problem);
+                    setAnalysis(result);
+                    setLoading(false);
+                };
+
+                return (
+                    <div className="min-h-screen bg-gray-50 py-16 px-4 fade-in">
+                        <div className="max-w-2xl mx-auto">
+                            <div className="text-center mb-10">
+                                <div className="inline-block p-4 rounded-full bg-indigo-100 text-indigo-600 mb-4 text-3xl shadow-md"><i className="fas fa-sparkles"></i></div>
+                                <h2 className="text-4xl font-extrabold text-gray-900 mb-2">AI Repair Genius</h2>
+                                <p className="text-gray-500 text-lg">Describe your issue in plain English. Our AI will diagnose it instantly.</p>
+                            </div>
+                            <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
+                                <form onSubmit={handleAnalyze}>
+                                    <label className="block text-gray-700 font-bold mb-3 ml-1">What's happening?</label>
+                                    <textarea className="w-full px-5 py-4 rounded-xl bg-gray-50 border-2 border-gray-100 focus:border-indigo-500 outline-none h-40 mb-6 text-lg resize-none" placeholder="Type here..." value={problem} onChange={(e) => setProblem(e.target.value)} required></textarea>
+                                    <Button type="submit" disabled={loading} variant="ai" className="w-full py-4 text-lg">{loading ? "Analyzing..." : "Analyze Problem ✨"}</Button>
+                                </form>
+                                {analysis && (
+                                    <div className="mt-8 pt-8 border-t-2 border-gray-100 animate-float" style={{animationDuration: '1s', animationIterationCount: 1}}>
+                                        <div className="bg-indigo-50 rounded-2xl p-6 border border-indigo-100">
+                                            <h3 className="text-indigo-800 font-bold text-lg mb-2"><i className="fas fa-robot mr-2"></i> Diagnosis:</h3>
+                                            <p className="text-gray-700 text-lg">{analysis}</p>
+                                        </div>
+                                        <div className="mt-6 text-center">
+                                            <Button onClick={() => { setPrefilledIssue(`AI Diagnosis: ${problem} - ${analysis}`); setView('booking'); }} variant="primary" className="w-full">Book This Repair</Button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
+
+            const BookingPage = () => {
+                const [formData, setFormData] = useState({ deviceType: '', deviceModel: prefilledIssue ? 'See Diagnosis' : '', date: '', time: '', name: '', phone: '', notes: prefilledIssue || '' });
+                const [loading, setLoading] = useState(false);
+                const handleBook = async (e) => {
+                    e.preventDefault();
+                    setLoading(true);
+                    const success = await sendEmail("Booking Request", formData);
+                    setLoading(false);
+                    if(success) { showNotify("Booking Sent! Check email."); setTimeout(() => setView('home'), 2000); } else { showNotify("Error sending."); }
+                };
+                return (
+                    <div className="min-h-screen bg-gray-50 py-16 px-4 fade-in">
+                        <div className="max-w-2xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden">
+                            <div className="bg-gradient-to-r from-green-700 to-green-600 px-10 py-10 text-white"><h2 className="text-3xl font-bold">Book Repair</h2></div>
+                            <form onSubmit={handleBook} className="p-10">
+                                {prefilledIssue && <div className="mb-6 bg-indigo-50 p-4 rounded-xl text-indigo-800 text-sm"><strong>AI Diagnosis Attached</strong></div>}
+                                <div className="grid grid-cols-2 gap-4 mb-8">{SERVICES.map(s => <button key={s.id} type="button" onClick={() => setFormData({...formData, deviceType: s.title})} className={`p-4 rounded-2xl border-2 text-left ${formData.deviceType === s.title ? 'border-green-500 bg-green-50' : 'border-gray-100'}`}><div className="text-green-600 mb-2"><i className={`fas ${s.icon} text-xl`}></i></div><span className="font-bold text-gray-900">{s.title}</span></button>)}</div>
+                                <Input label="Device Model" placeholder="e.g. iPhone 13" value={formData.deviceModel} onChange={(e) => setFormData({...formData, deviceModel: e.target.value})} required />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Input label="Date" type="date" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} required />
+                                    <div className="mb-5"><label className="block text-gray-700 text-sm font-bold mb-2 ml-1">Time</label><select value={formData.time} onChange={(e) => setFormData({...formData, time: e.target.value})} className="w-full px-5 py-4 rounded-xl bg-gray-50 border-2 border-gray-100 focus:border-green-500 outline-none"><option>10:00 AM</option><option>12:00 PM</option><option>02:00 PM</option><option>04:00 PM</option></select></div>
+                                </div>
+                                <Input label="Your Name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} required />
+                                <Input label="Phone Number" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} required />
+                                <Button type="submit" disabled={loading} className="w-full py-4 text-lg">{loading ? "Sending..." : "Confirm Booking"}</Button>
+                            </form>
+                        </div>
+                    </div>
+                );
+            };
+
+            const QuotePage = () => {
+                const [formData, setFormData] = useState({ deviceModel: '', issueDescription: '', email: '' });
+                const [loading, setLoading] = useState(false);
+                const handleQuote = async (e) => {
+                    e.preventDefault();
+                    setLoading(true);
+                    const success = await sendEmail("Quote Request", formData);
+                    setLoading(false);
+                    if(success) { showNotify("Quote Request Sent!"); setTimeout(() => setView('home'), 2000); } else { showNotify("Error sending."); }
+                };
+                return (
+                    <div className="min-h-screen bg-gray-50 py-16 px-4 fade-in">
+                        <div className="max-w-xl mx-auto bg-white rounded-3xl shadow-xl p-10">
+                            <h2 className="text-3xl font-bold mb-2">Get a Free Quote</h2>
+                            <form onSubmit={handleQuote}>
+                                <Input label="Device" placeholder="e.g. iPhone 14" value={formData.deviceModel} onChange={(e) => setFormData({...formData, deviceModel: e.target.value})} required />
+                                <label className="block text-gray-700 text-sm font-bold mb-2 ml-1">Issue</label>
+                                <textarea className="w-full px-5 py-4 mb-5 rounded-xl bg-gray-50 border-2 border-gray-100 focus:border-green-500 outline-none h-32" value={formData.issueDescription} onChange={(e) => setFormData({...formData, issueDescription: e.target.value})} required></textarea>
+                                <Input label="Email" type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} required />
+                                <Button type="submit" disabled={loading} className="w-full py-4">{loading ? "Sending..." : "Request Quote"}</Button>
+                            </form>
+                        </div>
+                    </div>
+                );
+            };
+
+            const TradeInPage = () => {
+                const [formData, setFormData] = useState({ deviceModel: '', storage: '', condition: '', email: '', phone: '' });
+                const [loading, setLoading] = useState(false);
+                const handleTradeIn = async (e) => {
+                    e.preventDefault();
+                    setLoading(true);
+                    const success = await sendEmail("Trade-In Request", formData);
+                    setLoading(false);
+                    if(success) { showNotify("Request Sent!"); setTimeout(() => setView('home'), 2000); } else { showNotify("Error sending."); }
+                };
+                return (
+                    <div className="min-h-screen bg-gray-50 py-16 px-4 fade-in">
+                        <div className="max-w-xl mx-auto bg-white rounded-3xl shadow-xl p-10">
+                            <h2 className="text-3xl font-bold mb-6">Sell Your Device</h2>
+                            <form onSubmit={handleTradeIn}>
+                                <Input label="Device" placeholder="e.g. iPhone 14" value={formData.deviceModel} onChange={(e) => setFormData({...formData, deviceModel: e.target.value})} required />
+                                <Input label="Storage" placeholder="e.g. 128GB" value={formData.storage} onChange={(e) => setFormData({...formData, storage: e.target.value})} required />
+                                <div className="mb-5"><label className="block text-gray-700 text-sm font-bold mb-2 ml-1">Condition</label><select className="w-full px-5 py-4 rounded-xl bg-gray-50 border-2 border-gray-100 focus:border-green-500 outline-none" value={formData.condition} onChange={(e) => setFormData({...formData, condition: e.target.value})} required><option value="">Select Condition...</option><option value="Like New">Like New</option><option value="Good">Good</option><option value="Fair">Fair</option><option value="Broken">Broken</option></select></div>
+                                <Input label="Email" type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} required />
+                                <Input label="Phone" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} required />
+                                <Button type="submit" disabled={loading} className="w-full py-4">{loading ? "Sending..." : "Get My Offer"}</Button>
+                            </form>
+                        </div>
+                    </div>
+                );
+            };
+
+            // --- Layout Sections ---
+            const TrustBadges = () => (
+                <div className="bg-white py-10 border-b border-gray-100">
+                    <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                        {[{i:"fa-shield-alt",t:"12-Month Warranty"},{i:"fa-stopwatch",t:"30-Min Fix"},{i:"fa-hand-holding-dollar",t:"No Fix, No Fee"},{i:"fa-lock",t:"Data Safe"}].map(b => (
+                            <div key={b.t}><i className={`fas ${b.i} text-3xl text-green-600 mb-3`}></i><h4 className="font-bold">{b.t}</h4></div>
+                        ))}
+                    </div>
+                </div>
+            );
+
+            const PhoneSalesSection = () => (
+                <div className="py-24 bg-gradient-to-br from-gray-900 to-gray-800 text-white relative overflow-hidden">
+                    <div className="max-w-7xl mx-auto px-4 relative z-10 flex flex-col md:flex-row items-center gap-12">
+                        <div className="md:w-1/2">
+                            <span className="text-green-400 font-bold tracking-widest text-sm uppercase mb-2 block">Premium Refurbished</span>
+                            <h2 className="text-4xl md:text-5xl font-extrabold mb-6">Buy Your Next Phone<br/>For Less.</h2>
+                            <p className="text-gray-300 text-lg mb-8 leading-relaxed">Why pay full price? Get pristine, fully tested iPhones and Samsungs at a fraction of the cost.</p>
+                            <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl mb-8 flex items-start">
+                                <div className="text-4xl mr-4">🎁</div>
+                                <div><h4 className="font-bold text-xl text-white mb-1">Exclusive In-Store Offer</h4><p className="text-green-300 font-medium">Buy any phone and get a FREE Case & Screen Protector!</p></div>
+                            </div>
+                            <p className="text-gray-400 text-sm mb-6"><i className="fas fa-map-marker-alt mr-2 text-green-500"></i> Available now at 3 Queen Anne's Court</p>
+                        </div>
+                        <div className="md:w-1/2 flex justify-center">
+                            <div className="relative animate-float">
+                                <div className="relative rounded-[3rem] border-8 border-gray-800 bg-gray-900 w-72 h-[36rem] shadow-2xl flex flex-col overflow-hidden rotate-3 hover:rotate-0 transition-all">
+                                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 h-7 w-28 bg-gray-800 rounded-b-2xl z-20"></div>
+                                    <div className="flex-1 bg-gradient-to-br from-gray-800 to-black relative z-10 flex flex-col items-center justify-center p-6 text-center">
+                                        <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mb-6 shadow-lg"><i className="fas fa-mobile-screen text-4xl text-white"></i></div>
+                                        <h3 className="text-3xl font-bold text-white mb-2">New & Used</h3>
+                                        <p className="text-gray-400 mb-8">Premium Quality</p>
+                                        <div className="mt-auto pt-8"><span className="inline-block px-4 py-1 rounded-full bg-green-900/50 text-green-400 text-xs font-bold uppercase border border-green-800">In Stock Now</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            const PriceListSection = () => {
+                const [activeTab, setActiveTab] = useState('iphone');
+                return (
+                    <div className="py-24 bg-white relative overflow-hidden">
+                        <div className="max-w-4xl mx-auto px-4 relative z-10">
+                            <div className="text-center mb-12"><h2 className="text-4xl font-extrabold text-gray-900 mt-2 mb-4">Repair Price List</h2></div>
+                            <div className="flex justify-center space-x-4 mb-10">{['iphone', 'samsung'].map((brand) => (<button key={brand} onClick={() => setActiveTab(brand)} className={`px-8 py-3 rounded-full font-bold transition-all ${activeTab === brand ? 'bg-green-600 text-white shadow-xl' : 'bg-gray-100 text-gray-500'}`}>{brand === 'iphone' ? 'Apple' : 'Samsung'}</button>))}</div>
+                            <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden"><div className="grid grid-cols-3 bg-gray-50 p-5 font-extrabold text-gray-800 text-sm uppercase"><div>Device</div><div className="text-center text-green-600">Screen</div><div className="text-right text-blue-600">Battery</div></div><div className="divide-y divide-gray-100">{PRICE_LIST[activeTab].map((item, index) => (<div key={index} className="grid grid-cols-3 p-5 hover:bg-green-50 items-center font-medium"><div className="text-gray-900">{item.model}</div><div className="text-center text-gray-600">{item.screen}</div><div className="text-right text-gray-600">{item.battery}</div></div>))}</div></div>
+                        </div>
+                    </div>
+                );
+            };
+
+            const FAQSection = () => (
+                <div className="py-24 bg-white">
+                    <div className="max-w-3xl mx-auto px-4">
+                        <h2 className="text-4xl font-extrabold text-gray-900 text-center mb-12">Common Questions</h2>
+                        <div className="space-y-6">
+                            {[
+                                {q: "Do you offer a warranty?", a: "Yes! We offer a warranty on all repairs ranging from 6 months up to 2 years."},
+                                {q: "Do I need to book an appointment?", a: "We welcome both walk-ins and bookings. Booking online guarantees your slot."},
+                                {q: "How long does a repair take?", a: "Simple repairs (like screens and batteries) are often done within 1 hour."}
+                            ].map((item, i) => (
+                                <div key={i} className="bg-gray-50 p-8 rounded-3xl border border-gray-100 hover:border-green-200 transition-colors">
+                                    <h3 className="font-bold text-xl mb-3 text-gray-900 flex items-center"><i className="fas fa-circle-question text-green-500 mr-3"></i> {item.q}</h3>
+                                    <p className="text-gray-600 ml-8">{item.a}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+
+            // --- Main App Logic ---
+            const Header = () => (
+                <nav className="glass sticky top-0 z-50 border-b border-gray-100/50">
+                    <div className="max-w-7xl mx-auto px-4 flex justify-between h-24 items-center">
+                        <div onClick={() => setView('home')} className="cursor-pointer"><WindsorLogo /></div>
+                        <div className="hidden md:flex items-center space-x-8">
+                            <button onClick={() => setView('home')} className="font-semibold hover:text-green-600">Home</button>
+                            <button onClick={() => setView('quote')} className="font-semibold hover:text-green-600">Quote</button>
+                            <button onClick={() => setView('tradein')} className="font-semibold hover:text-green-600">Sell</button>
+                            <button onClick={() => setView('ai')} className="font-semibold text-indigo-600 hover:text-indigo-800"><i className="fas fa-sparkles mr-1"></i> AI Help</button>
+                            <Button onClick={() => setView('booking')} className="py-2 px-6 text-sm shadow-green-500/30">Book</Button>
+                        </div>
+                        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden text-gray-800"><i className="fas fa-bars text-2xl"></i></button>
+                    </div>
+                    {isMenuOpen && <div className="md:hidden bg-white border-t p-4 space-y-2"><button onClick={() => setView('home')} className="block w-full text-left p-2 font-semibold">Home</button><button onClick={() => setView('booking')} className="block w-full text-left p-2 font-semibold">Book</button></div>}
+                </nav>
+            );
+
+            return (
+                <div className="flex flex-col min-h-screen">
+                    <Header />
+                    {notification && <div className="fixed top-28 right-5 z-50 bg-green-600 text-white px-6 py-4 rounded-xl shadow-2xl animate-bounce font-bold"><i className="fas fa-check-circle mr-3"></i> {notification}</div>}
+                    
+                    {view === 'home' && (
+                        <>
+                            <div className="relative bg-gray-900 text-white overflow-hidden min-h-[600px] flex items-center">
+                                <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/80 to-transparent z-10"></div>
+                                <div className="absolute inset-0 opacity-30 bg-[url('https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center"></div>
+                                <div className="relative max-w-7xl mx-auto px-4 py-24 text-center z-20">
+                                    <div className="inline-block px-4 py-2 rounded-full bg-green-500/20 border border-green-500/50 mb-6 text-green-300 text-sm font-bold uppercase tracking-widest backdrop-blur-sm"><i className="fas fa-bolt mr-2"></i> Windsor & Slough's Fastest Tech Repair</div>
+                                    <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight">Tech Repair & Sales.<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">Done Right.</span></h1>
+                                    <p className="text-xl text-gray-300 mb-10 max-w-lg mx-auto leading-relaxed">Serving Windsor & Slough. Repairs, Trade-ins, and Premium Refurbished Phones.</p>
+                                    <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6"><Button onClick={() => setView('booking')} className="py-4 px-8 text-lg">Book Repair</Button><Button onClick={() => setView('ai')} variant="ai" className="py-4 px-8 text-lg"><i className="fas fa-sparkles mr-2"></i> AI Diagnosis</Button></div>
+                                </div>
+                            </div>
+                            <TrustBadges />
+                            <PhoneSalesSection />
+                            <div className="py-24 bg-white text-center"><h2 className="text-4xl font-extrabold text-gray-900 mb-12">Expert Repairs</h2><div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">{SERVICES.map(s => <div key={s.id} className="p-8 rounded-3xl border border-green-100 hover:shadow-xl transition-all"><div className="text-4xl text-green-600 mb-4"><i className={`fas ${s.icon}`}></i></div><h3 className="text-xl font-bold mb-2">{s.title}</h3><p className="text-green-600 font-bold">{s.price}</p></div>)}</div></div>
+                            <div className="py-24 bg-gray-50 relative"><div className="max-w-7xl mx-auto px-4 text-center relative z-10"><h2 className="text-4xl font-extrabold text-gray-900 mb-16">Simple as 1-2-3</h2><div className="grid grid-cols-1 md:grid-cols-3 gap-12">{[{icon: "fa-calendar-check", title: "Book or Visit", desc: "Book online or walk in."}, {icon: "fa-screwdriver-wrench", title: "Fast Repair", desc: "Expert fix in ~30 mins."}, {icon: "fa-check-circle", title: "Collect & Pay", desc: "Check it works, then pay."}].map((step, i) => <div key={i} className="group bg-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all hover:-translate-y-2"><div className="w-20 h-20 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center text-3xl font-bold mx-auto mb-6"><i className={`fas ${step.icon}`}></i></div><h3 className="text-xl font-bold mb-3">{step.title}</h3><p className="text-gray-500">{step.desc}</p></div>)}</div></div></div>
+                            <PriceListSection />
+                            <div className="py-24 bg-gray-50"><div className="max-w-7xl mx-auto px-4"><h2 className="text-4xl font-extrabold text-center mb-12">Reviews</h2><div className="grid md:grid-cols-2 gap-8">{REVIEWS.map(r => <div key={r.id} className="bg-white p-8 rounded-3xl shadow-sm"><h4 className="font-bold">{r.name}</h4><p className="text-gray-600 mt-2">"{r.text}"</p></div>)}</div></div></div>
+                            <FAQSection />
+                            <div className="py-12 bg-white"><div className="max-w-7xl mx-auto px-4 text-center"><h2 className="text-3xl font-extrabold text-gray-900 mb-8">Find Us</h2><div className="h-[450px] w-full rounded-[2rem] overflow-hidden shadow-xl"><iframe className="w-full h-full border-0" src="https://maps.google.com/maps?q=3%20Queen%20Anne's%20Court%2C%20Peascod%20Street%2C%20Windsor%2C%20SL4%201DG%20(Windsor%20Express)&t=&z=15&ie=UTF8&iwloc=B&output=embed" allowFullScreen loading="lazy"></iframe></div></div></div>
+                        </>
+                    )}
+                    {view === 'booking' && <BookingPage />}
+                    {view === 'quote' && <QuotePage />}
+                    {view === 'tradein' && <TradeInPage />}
+                    {view === 'ai' && <AIDiagnosticPage />}
+                    
+                    <footer className="bg-gray-900 text-white pt-20 pb-10 border-t border-gray-800"><div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 mb-8"><div><WindsorLogo /></div><div><h3 className="text-lg font-bold mb-4">Contact</h3><p className="text-gray-400">3 Queen Anne's Court, Windsor SL4 1DG</p><p className="text-gray-400">07912150397</p></div><div><h3 className="text-lg font-bold mb-4">Hours</h3><p className="text-gray-400">Mon-Sat: 09:30 - 18:30</p><p className="text-gray-400">Sun: 10:00 - 17:00</p></div></div><div className="text-center text-gray-600 text-sm border-t border-gray-800 pt-8">&copy; 2025 Windsor Express</div></footer>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
