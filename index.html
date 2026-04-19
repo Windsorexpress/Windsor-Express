@@ -4,39 +4,37 @@
     <link rel="icon" type="image/png" href="/favicon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Heavy Local SEO -->
     <title>Phone Repair Windsor | Sell Your Device & Trade-In | Windsor Express SL4</title>
     <meta name="description" content="Windsor's premier tech shop on Peascod Street. We offer 30-minute iPhone & Samsung repairs, pay top cash for old phones and trade-ins, and sell premium vapes. No fix, no fee.">
     <meta name="keywords" content="Phone repair Windsor, iPhone screen repair Windsor, Samsung repair Berkshire, fix phone screen Peascod street, mobile shop Windsor SL4, sell your device Windsor, phone trade in near me, cash for phones Windsor, buy back phones, cheap phone repair SL4, vape shop Peascod street">
-    
-    <!-- Open Graph / Social Media SEO -->
     <meta property="og:title" content="Windsor Express | Fast Phone Repairs & Trade-Ins">
     <meta property="og:description" content="Get your phone fixed in 30 minutes, or sell your old device for instant cash. Located on Peascod Street, Windsor.">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="en_GB">
 
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
-                    colors: { brand: { 50: '#ecfdf5', 100: '#d1fae5', 400: '#34d399', 500: '#10b981', 600: '#059669', 900: '#064e3b' } }
+                    fontFamily: {
+                        display: ['Barlow Condensed', 'sans-serif'],
+                        sans: ['DM Sans', 'sans-serif']
+                    },
+                    colors: {
+                        brand: { 50: '#ecfdf5', 100: '#d1fae5', 400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857', 900: '#064e3b' }
+                    }
                 }
             }
         }
     </script>
-    
-    <!-- React & Babel -->
+
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Schema.org Data for Google Maps/Search -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -52,11 +50,7 @@
         "postalCode": "SL4 1DG",
         "addressCountry": "UK"
       },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": "51.4815",
-        "longitude": "-0.6067"
-      },
+      "geo": { "@type": "GeoCoordinates", "latitude": "51.4815", "longitude": "-0.6067" },
       "priceRange": "££",
       "makesOffer": [
         {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "iPhone Screen Replacement"}},
@@ -68,419 +62,658 @@
     </script>
 
     <style>
-        body { font-family: 'Outfit', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-        .funnel-card { transition: all 0.2s ease; cursor: pointer; border-width: 2px; }
-        .funnel-card:hover { transform: translateY(-3px); border-color: #10b981; box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2); }
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        * { box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: #f8fafc; color: #0f172a; }
+        h1, h2, h3, .font-display { font-family: 'Barlow Condensed', sans-serif; }
+
+        .glass { background: rgba(255,255,255,0.97); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+
+        /* Hero dot grid */
+        .hero-dots {
+            background-image: radial-gradient(circle, #10b981 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        /* Cards */
+        .funnel-card {
+            transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            border-width: 2px;
+        }
+        .funnel-card:hover {
+            transform: translateY(-5px);
+            border-color: #10b981 !important;
+            box-shadow: 0 16px 32px -8px rgba(16, 185, 129, 0.25);
+        }
+        .funnel-card:active { transform: scale(0.98); }
+
+        /* Shine effect */
+        .card-shine { position: relative; overflow: hidden; }
+        .card-shine::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -100%;
+            width: 50%; height: 200%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);
+            transform: skewX(-15deg);
+            transition: left 0.55s ease;
+            pointer-events: none;
+        }
+        .card-shine:hover::after { left: 150%; }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Live status dot */
+        .live-dot {
+            width: 8px; height: 8px; background: #10b981;
+            border-radius: 50%; display: inline-block; flex-shrink: 0;
+            animation: livePulse 2s ease-in-out infinite;
+        }
+        @keyframes livePulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
+            50% { box-shadow: 0 0 0 5px rgba(16,185,129,0); }
+        }
+
+        /* Progress bar */
+        .progress-bar-fill { transition: width 0.45s ease; }
+
+        /* Stats */
+        @keyframes countUp { from { opacity: 0; transform: scale(0.8) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .stat-num { animation: countUp 0.6s ease-out both; }
+
+        /* FAQ */
+        .faq-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease, opacity 0.25s ease; opacity: 0; }
+        .faq-body.open { max-height: 260px; opacity: 1; }
+        .faq-icon { transition: transform 0.3s ease; }
+        .faq-icon.rotated { transform: rotate(45deg); }
+
+        /* Screen tier colour accents */
+        .tier-lcd  { border-left: 4px solid #f59e0b; }
+        .tier-fhd  { border-left: 4px solid #3b82f6; }
+        .tier-oled { border-left: 4px solid #10b981; }
+
+        /* WhatsApp */
+        .whatsapp-btn {
+            position: fixed; bottom: 24px; right: 24px;
+            background: #25D366; color: white;
+            width: 58px; height: 58px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+            box-shadow: 0 4px 20px rgba(37,211,102,0.45);
+            transition: all 0.2s ease; z-index: 49;
+            text-decoration: none;
+        }
+        .whatsapp-btn:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(37,211,102,0.6); }
+
+        /* Mobile bottom CTA bar */
+        .mobile-cta-bar {
+            display: none;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: white; border-top: 1px solid #e2e8f0;
+            padding: 10px 14px; z-index: 48;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            gap: 10px;
+        }
+        @media (max-width: 768px) {
+            .mobile-cta-bar { display: flex !important; }
+            .whatsapp-btn { bottom: 88px; }
+            body { padding-bottom: 72px; }
+        }
+
+        /* Review card */
+        .review-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .review-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,0.08); }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #f8fafc; }
+        ::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
+<body>
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // --- CORE CONFIGURATION ---
-        const OWNER_EMAIL = "tanish.ratala@gmail.com"; 
-        const SHOP_PHONE = "+447912150397";
-        // WARNING: Ensure you restrict this API key to your domain in Google Cloud Console!
-        const apiKey = "AIzaSyCrIHWXBa5PnlzlxIsl8Qy2_gjuHaioteU";
+        // --- CONFIG ---
+        const OWNER_EMAIL = "tanish.ratala@gmail.com";
+        const SHOP_PHONE  = "+447912150397";
+        const apiKey      = "AIzaSyCrIHWXBa5PnlzlxIsl8Qy2_gjuHaioteU";
 
-        // --- IPHONE PRICING DATA ---
+        // --- IPHONE PRICING ---
         const IPHONE_PRICES = {
-            "X / Xs / XR / 11": { lcd: 39.99, oled: 59.99 },
-            "Xs Max": { lcd: 44.99, oled: 64.99 },
-            "11 Pro": { lcd: 44.99, oled: 64.99 },
-            "11 Pro Max": { lcd: 49.99, oled: 69.99 },
-            "12 / 12 Mini": { lcd: 49.99, oled: 74.99 },
-            "12 Pro / 12 Pro Max": { lcd: 54.99, oled: 79.99 },
-            "13 / 13 Mini": { lcd: 54.99, oled: 84.99 },
-            "13 Pro": { lcd: 64.99, fhd: 79.99, oled: 134.99 },
-            "13 Pro Max": { lcd: 69.99, fhd: 84.99, oled: 139.99 },
-            "14 / 14 Plus": { lcd: 59.99, oled: 94.99 },
-            "14 Pro": { lcd: 69.99, fhd: 89.99, oled: 149.99 },
-            "14 Pro Max": { lcd: 79.99, fhd: 99.99, oled: 154.99 },
-            "15 / 15 Plus": { lcd: 74.99, fhd: 94.99, oled: 154.99 },
-            "15 Pro": { lcd: 79.99, fhd: 99.99, oled: 159.99 },
-            "15 Pro Max": { lcd: 89.99, fhd: 109.99, oled: 169.99 },
-            "16 / 16 Plus": { lcd: 94.99, fhd: 114.99, oled: 174.99 },
-            "16 Pro": { lcd: 109.99, fhd: 129.99, oled: 219.99 },
-            "16 Pro Max": { lcd: 119.99, fhd: 139.99, oled: 229.99 },
-            "17": { fhd: 169.99, oled: 249.99 },
-            "17 Pro": { fhd: 179.99, oled: 279.99 },
-            "17 Pro Max": { fhd: 189.99, oled: 289.99 }
+            "X / Xs / XR / 11":    { lcd: 39.99, oled: 59.99 },
+            "Xs Max":               { lcd: 44.99, oled: 64.99 },
+            "11 Pro":               { lcd: 44.99, oled: 64.99 },
+            "11 Pro Max":           { lcd: 49.99, oled: 69.99 },
+            "12 / 12 Mini":         { lcd: 49.99, oled: 74.99 },
+            "12 Pro / 12 Pro Max":  { lcd: 54.99, oled: 79.99 },
+            "13 / 13 Mini":         { lcd: 54.99, oled: 84.99 },
+            "13 Pro":               { lcd: 64.99, fhd: 79.99,  oled: 134.99 },
+            "13 Pro Max":           { lcd: 69.99, fhd: 84.99,  oled: 139.99 },
+            "14 / 14 Plus":         { lcd: 59.99, oled: 94.99 },
+            "14 Pro":               { lcd: 69.99, fhd: 89.99,  oled: 149.99 },
+            "14 Pro Max":           { lcd: 79.99, fhd: 99.99,  oled: 154.99 },
+            "15 / 15 Plus":         { lcd: 74.99, fhd: 94.99,  oled: 154.99 },
+            "15 Pro":               { lcd: 79.99, fhd: 99.99,  oled: 159.99 },
+            "15 Pro Max":           { lcd: 89.99, fhd: 109.99, oled: 169.99 },
+            "16 / 16 Plus":         { lcd: 94.99, fhd: 114.99, oled: 174.99 },
+            "16 Pro":               { lcd: 109.99, fhd: 129.99, oled: 219.99 },
+            "16 Pro Max":           { lcd: 119.99, fhd: 139.99, oled: 229.99 },
+            "17":                   { fhd: 169.99, oled: 249.99 },
+            "17 Pro":               { fhd: 179.99, oled: 279.99 },
+            "17 Pro Max":           { fhd: 189.99, oled: 289.99 }
         };
 
-        // --- HELPER: GEMINI API SENDER ---
+        const TIER_META = {
+            lcd:  { label: "LCD",  tagline: "Works perfectly – great value",       textColor: "text-amber-700", bg: "bg-amber-50",  border: "tier-lcd"  },
+            fhd:  { label: "FHD",  tagline: "Better colour & brightness",           textColor: "text-blue-700",  bg: "bg-blue-50",   border: "tier-fhd"  },
+            oled: { label: "OLED", tagline: "Original quality – best choice",       textColor: "text-brand-700", bg: "bg-brand-50",  border: "tier-oled" }
+        };
+
+        const TIME_SLOTS = [];
+        for (let h = 10; h <= 19; h++) {
+            const disp = h > 12 ? h - 12 : h;
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            TIME_SLOTS.push(`Today at ${disp}:00 ${ampm}`);
+            if (h < 19) TIME_SLOTS.push(`Today at ${disp}:30 ${ampm}`);
+        }
+        TIME_SLOTS.push("Tomorrow – Any Time");
+
+        const FAQ_ITEMS = [
+            { q: "How long does a repair take?",
+              a: "Most iPhone and Samsung screen repairs are done in under 30 minutes. Battery replacements typically take 30–60 minutes. We'll give you an accurate time estimate when you drop in." },
+            { q: "Is my data safe with you?",
+              a: "100% guaranteed. Our technicians only access the hardware — we never look at your personal photos, messages, or apps. Your data stays completely private." },
+            { q: "Do all repairs come with a warranty?",
+              a: "Every repair is backed by a 12-month warranty on parts and labour. If anything goes wrong with our work, we fix it for free — no questions asked." },
+            { q: "Can I send my phone by post?",
+              a: "Yes! Book the mail-in option online and we'll email you secure prepaid postage instructions. Once repaired, we post it straight back to your door." },
+            { q: "What payment methods do you accept?",
+              a: "Cash, all major credit and debit cards, Apple Pay, and Google Pay — whatever works best for you." },
+            { q: "Do you repair water-damaged phones?",
+              a: "Yes — drop in or book online for a free diagnostic. We have a strong success rate with water damage, especially if you act quickly. Don't charge it first!" }
+        ];
+
+        // --- GEMINI ---
         const callGemini = async (prompt, isJson = false) => {
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             const payload = { contents: [{ parts: [{ text: prompt }] }] };
-            if (isJson) { payload.generationConfig = { responseMimeType: "application/json" }; }
-            
+            if (isJson) payload.generationConfig = { responseMimeType: "application/json" };
             try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (!response.ok) return null;
-                const data = await response.json();
+                const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!res.ok) return null;
+                const data = await res.json();
                 const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
                 return isJson ? JSON.parse(text) : text;
-            } catch (error) { return null; }
+            } catch { return null; }
         };
 
-        // --- EMAIL FUNCTIONS ---
+        // --- EMAIL ---
         const sendEmail = async (data) => {
             try {
-                const response = await fetch(`https://formsubmit.co/ajax/${OWNER_EMAIL}`, {
+                const res = await fetch(`https://formsubmit.co/ajax/${OWNER_EMAIL}`, {
                     method: "POST",
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({ 
-                        _subject: `🚨 NEW ${data.serviceType.toUpperCase()} BOOKING: ${data.brand} ${data.model || ''}`, 
-                        email: data.email, // Allows you to reply directly to the customer
-                        name: data.name,
-                        "Service Type": data.serviceType === 'mail-in' ? "📦 Mail-In Service" : "🏬 Walk-in",
-                        "Device": `${data.brand} ${data.model || ''}`,
-                        "Issue": data.issue,
-                        "Quality": data.quality || "N/A",
-                        "Price Quote": data.quotedPrice || "Needs Custom Quote",
-                        "Drop-off Time (If Walk-in)": data.time || "N/A",
-                        "Return Address (If Mail-in)": data.address || "N/A",
-                        "Customer Name": data.name,
-                        "Customer Email": data.email,
-                        "Customer Phone": data.phone
+                    body: JSON.stringify({
+                        _subject: `🚨 NEW ${data.serviceType.toUpperCase()} BOOKING: ${data.brand} ${data.model || ''}`,
+                        email: data.email, name: data.name,
+                        "Service Type":       data.serviceType === 'mail-in' ? "📦 Mail-In" : "🏬 Walk-in",
+                        "Device":             `${data.brand} ${data.model || ''}`,
+                        "Issue":              data.issue,
+                        "Quality":            data.quality || "N/A",
+                        "Price Quote":        data.quotedPrice || "Custom Quote Needed",
+                        "Drop-off Time":      data.time || "N/A",
+                        "Return Address":     data.address || "N/A",
+                        "Customer":           `${data.name} | ${data.phone} | ${data.email}`
                     })
                 });
-                return response.ok;
-            } catch (error) { return false; }
+                return res.ok;
+            } catch { return false; }
         };
 
         const sendSellEmail = async (data) => {
             try {
-                const response = await fetch(`https://formsubmit.co/ajax/${OWNER_EMAIL}`, {
+                const res = await fetch(`https://formsubmit.co/ajax/${OWNER_EMAIL}`, {
                     method: "POST",
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({ 
-                        _subject: `💰 NEW DEVICE SELL INQUIRY: ${data.device}`, 
-                        email: data.email,
-                        name: data.name,
-                        "Device to Sell": data.device,
+                    body: JSON.stringify({
+                        _subject: `💰 SELL INQUIRY: ${data.device}`,
+                        email: data.email, name: data.name,
+                        "Device":    data.device,
                         "Condition": data.condition,
-                        "Customer Name": data.name,
-                        "Customer Email": data.email,
-                        "Customer Phone": data.phone
+                        "Customer":  `${data.name} | ${data.phone} | ${data.email}`
                     })
                 });
-                return response.ok;
-            } catch (error) { return false; }
+                return res.ok;
+            } catch { return false; }
         };
 
+        // ─── STATIC SUB-COMPONENTS ─────────────────────────────────────────────
+
         const TrustBar = () => (
-            <div className="bg-brand-500 text-white py-3 shadow-md z-10 relative">
-                <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 text-center font-bold text-xs md:text-sm">
-                    <div className="flex items-center justify-center"><i className="fas fa-lock mr-2"></i> 100% Data Safe Guarantee</div>
-                    <div className="flex items-center justify-center"><i className="fas fa-shield-halved mr-2"></i> Premium Parts & 12-Mo Warranty</div>
-                    <div className="flex items-center justify-center"><i className="fas fa-handshake mr-2"></i> No Fix, No Fee</div>
+            <div className="bg-brand-500 text-white py-2.5">
+                <div className="max-w-7xl mx-auto px-4 flex items-center justify-center flex-wrap gap-x-6 gap-y-1 text-xs md:text-sm font-semibold">
+                    <span className="flex items-center gap-1.5"><i className="fas fa-shield-halved"></i> No Fix, No Fee</span>
+                    <span className="text-white/30 hidden md:block">·</span>
+                    <span className="flex items-center gap-1.5"><i className="fas fa-clock"></i> 30-Min Repairs</span>
+                    <span className="text-white/30 hidden md:block">·</span>
+                    <span className="flex items-center gap-1.5"><i className="fas fa-medal"></i> 12-Month Warranty</span>
+                    <span className="text-white/30 hidden md:block">·</span>
+                    <span className="flex items-center gap-1.5"><i className="fas fa-lock"></i> Data Safe Guarantee</span>
                 </div>
             </div>
         );
 
-        const TIME_SLOTS = [];
-        for (let hour = 10; hour <= 19; hour++) {
-            const h = hour > 12 ? hour - 12 : hour;
-            const ampm = hour >= 12 ? 'PM' : 'AM';
-            TIME_SLOTS.push(`Today at ${h}:00 ${ampm}`);
-            TIME_SLOTS.push(`Today at ${h}:30 ${ampm}`);
-        }
-        TIME_SLOTS.push("Tomorrow Any Time");
+        const StatsBar = () => (
+            <div className="bg-gray-900 py-12">
+                <div className="max-w-4xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                    {[
+                        { num: "500+", label: "Repairs Done",    icon: "fa-wrench"        },
+                        { num: "~30",  label: "Min Fix Time",    icon: "fa-clock"         },
+                        { num: "5.0★", label: "Google Rating",  icon: "fa-star"          },
+                        { num: "12mo", label: "Warranty",        icon: "fa-shield-halved" }
+                    ].map(({ num, label, icon }, i) => (
+                        <div key={i} className="stat-num" style={{ animationDelay: `${i * 0.1}s` }}>
+                            <div className="text-brand-400 mb-2"><i className={`fas ${icon} text-xl`}></i></div>
+                            <div className="font-display text-5xl font-black text-white">{num}</div>
+                            <div className="text-gray-400 text-sm font-medium mt-1">{label}</div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+
+        const HowItWorks = () => (
+            <section className="py-20 bg-white">
+                <div className="max-w-5xl mx-auto px-4">
+                    <div className="text-center mb-14">
+                        <h2 className="font-display text-5xl md:text-6xl font-black text-gray-900 mb-2">How It Works</h2>
+                        <p className="text-gray-400 font-medium text-lg">Three steps from broken to fixed</p>
+                    </div>
+                    <div className="flex flex-col md:flex-row items-start gap-6 md:gap-0">
+                        {[
+                            { n: "01", title: "Book Online",      body: "Pick your device, describe the issue, and choose a time slot. Takes under 2 minutes.",           icon: "fa-calendar-check",       bg: "bg-brand-500"  },
+                            { n: "02", title: "Drop It Off",      body: "Walk in at your chosen time on Peascod Street. No queuing — we're expecting you.",               icon: "fa-store",                bg: "bg-gray-800"   },
+                            { n: "03", title: "Collect It Fixed", body: "Most repairs done in 30 minutes. We text you when it's ready — good as new and fully tested.",  icon: "fa-mobile-screen-button", bg: "bg-brand-600"  }
+                        ].map(({ n, title, body, icon, bg }, i) => (
+                            <React.Fragment key={i}>
+                                <div className="flex-1 flex flex-col items-center text-center px-6">
+                                    <div className={`w-16 h-16 ${bg} rounded-2xl flex items-center justify-center text-white text-2xl mb-4 shadow-lg`}>
+                                        <i className={`fas ${icon}`}></i>
+                                    </div>
+                                    <div className="font-display text-6xl font-black text-gray-100 leading-none mb-1">{n}</div>
+                                    <h3 className="font-display text-2xl font-bold text-gray-900 mb-2">{title}</h3>
+                                    <p className="text-gray-500 text-sm leading-relaxed font-medium max-w-[200px]">{body}</p>
+                                </div>
+                                {i < 2 && (
+                                    <div className="hidden md:flex items-center justify-center w-8 mt-10 flex-shrink-0">
+                                        <i className="fas fa-arrow-right text-gray-200 text-xl"></i>
+                                    </div>
+                                )}
+                            </React.Fragment>
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+
+        const FAQSection = () => {
+            const [open, setOpen] = useState(null);
+            return (
+                <section className="py-20 bg-white border-t border-gray-100">
+                    <div className="max-w-3xl mx-auto px-4">
+                        <div className="text-center mb-12">
+                            <h2 className="font-display text-5xl md:text-6xl font-black text-gray-900 mb-2">Questions? Answered.</h2>
+                            <p className="text-gray-400 font-medium">Everything you need to know before you visit</p>
+                        </div>
+                        <div className="space-y-3">
+                            {FAQ_ITEMS.map((item, i) => (
+                                <div key={i} onClick={() => setOpen(open === i ? null : i)}
+                                    className="bg-gray-50 hover:bg-gray-100 transition-colors rounded-2xl overflow-hidden cursor-pointer border border-gray-100">
+                                    <div className="flex justify-between items-center p-5 md:p-6">
+                                        <h3 className="font-bold text-gray-900 text-sm md:text-base pr-4 leading-snug">{item.q}</h3>
+                                        <i className={`fas fa-plus text-brand-500 text-base flex-shrink-0 faq-icon ${open === i ? 'rotated' : ''}`}></i>
+                                    </div>
+                                    <div className={`faq-body px-5 md:px-6 ${open === i ? 'open' : ''}`}>
+                                        <p className="text-gray-500 text-sm leading-relaxed font-medium pb-5">{item.a}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        // ─── MAIN APP ──────────────────────────────────────────────────────────
 
         const App = () => {
-            const [view, setView] = useState('home'); // 'home', 'booking', 'sell'
-            
-            // Repair State
-            const [funnelStep, setFunnelStep] = useState(1);
-            const [bookingData, setBookingData] = useState({ serviceType: 'walk-in', brand: '', model: '', issue: '', quality: '', quotedPrice: '', time: '', phone: '', name: '', email: '', address: '' });
-            const [isSubmitting, setIsSubmitting] = useState(false);
-            
-            // Sell State
-            const [sellData, setSellData] = useState({ device: '', condition: '', name: '', phone: '', email: '' });
-            const [isSellSubmitting, setIsSellSubmitting] = useState(false);
+            const [view, setView] = useState('home');
 
-            // AI/Vape State
-            const [showAIPrompt, setShowAIPrompt] = useState(false);
-            const [aiInput, setAiInput] = useState('');
-            const [isAILoading, setIsAILoading] = useState(false);
-            const [aiDiagnosisMsg, setAiDiagnosisMsg] = useState('');
-            const [vapeInput, setVapeInput] = useState('');
-            const [vapeResult, setVapeResult] = useState('');
+            // Repair
+            const [funnelStep, setFunnelStep]   = useState(1);
+            const [bookingData, setBookingData] = useState({
+                serviceType: 'walk-in', brand: '', model: '', issue: '',
+                quality: '', quotedPrice: '', time: '', phone: '', name: '', email: '', address: ''
+            });
+            const [isSubmitting, setIsSubmitting] = useState(false);
+
+            // Sell
+            const [sellData, setSellData]           = useState({ device: '', condition: '', name: '', phone: '', email: '' });
+            const [isSellSubmitting, setIsSell]     = useState(false);
+
+            // AI
+            const [showAIPrompt, setShowAIPrompt]   = useState(false);
+            const [aiInput, setAiInput]             = useState('');
+            const [isAILoading, setIsAILoading]     = useState(false);
+            const [aiDiagnosisMsg, setAiMsg]        = useState('');
+
+            // Vape
+            const [vapeInput, setVapeInput]         = useState('');
+            const [vapeResult, setVapeResult]       = useState('');
             const [isVapeLoading, setIsVapeLoading] = useState(false);
-            
-            // Popup State
-            const [showExitIntent, setShowExitIntent] = useState(false);
-            const hasSeenPopup = useRef(false);
+
+            // Exit intent
+            const [showExit, setShowExit] = useState(false);
+            const seenPopup = useRef(false);
 
             useEffect(() => {
-                const handleMouseLeave = (e) => {
-                    if (e.clientY <= 0 && !hasSeenPopup.current) {
-                        setShowExitIntent(true);
-                        hasSeenPopup.current = true;
-                    }
+                const handler = (e) => {
+                    if (e.clientY <= 0 && !seenPopup.current) { setShowExit(true); seenPopup.current = true; }
                 };
-                document.addEventListener('mouseleave', handleMouseLeave);
-                return () => document.removeEventListener('mouseleave', handleMouseLeave);
+                document.addEventListener('mouseleave', handler);
+                return () => document.removeEventListener('mouseleave', handler);
             }, []);
 
-            const goToHome = () => {
-                setView('home');
-                setFunnelStep(1);
+            const goHome = () => {
+                setView('home'); setFunnelStep(1); setShowAIPrompt(false); setAiMsg('');
                 setBookingData({ serviceType: 'walk-in', brand: '', model: '', issue: '', quality: '', quotedPrice: '', time: '', phone: '', name: '', email: '', address: '' });
                 setSellData({ device: '', condition: '', name: '', phone: '', email: '' });
-                setAiDiagnosisMsg('');
-                setShowAIPrompt(false);
             };
 
-            // --- REPAIR LOGIC ---
-            const handleBrand = (brand) => { 
-                setBookingData(prev => ({ ...prev, brand, model: '', issue: '', quality: '', quotedPrice: '', time: '', phone: '', name: '', email: '', address: '' })); 
-                setFunnelStep(2); 
+            // Funnel logic
+            const handleBrand = (brand) => {
+                setBookingData(p => ({ ...p, brand, model: '', issue: '', quality: '', quotedPrice: '', time: '', phone: '', name: '', email: '', address: '' }));
+                setFunnelStep(2);
             };
-
-            const handleIssue = (issue, aiMsg = '') => { 
-                setBookingData(prev => ({...prev, issue, model: '', quality: '', quotedPrice: ''})); 
-                if (aiMsg) setAiDiagnosisMsg(aiMsg);
-                if(issue === 'Screen' && bookingData.brand === 'Apple iPhone') setFunnelStep(3); 
-                else { setFunnelStep(4); }
+            const handleIssue = (issue, aiMsg = '') => {
+                setBookingData(p => ({ ...p, issue, model: '', quality: '', quotedPrice: '' }));
+                if (aiMsg) setAiMsg(aiMsg);
+                if (issue === 'Screen' && bookingData.brand === 'Apple iPhone') setFunnelStep(3);
+                else setFunnelStep(4);
             };
-
-            const handleModelSelect = (e) => {
-                setBookingData({...bookingData, model: e.target.value, quality: '', quotedPrice: ''});
-            };
-
-            const handleQualitySelect = (qualityKey, price) => {
-                const label = qualityKey === 'lcd' ? 'LCD (Gold Box)' : qualityKey === 'fhd' ? 'FHD (Black Box)' : 'OLED (Red Box)';
-                setBookingData({...bookingData, quality: label, quotedPrice: `£${price.toFixed(2)}`});
+            const handleQualitySelect = (key, price) => {
+                const label = key === 'lcd' ? 'LCD (Gold Box)' : key === 'fhd' ? 'FHD (Black Box)' : 'OLED (Red Box)';
+                setBookingData({ ...bookingData, quality: label, quotedPrice: `£${price.toFixed(2)}` });
                 setFunnelStep(4);
             };
-
             const handleAIDiagnosis = async (e) => {
                 e.preventDefault();
-                if (!aiInput.trim()) return;
                 setIsAILoading(true);
-                const prompt = `Diagnose issue: "${aiInput}". Response JSON: {"diagnosis_message": "...", "category": "Screen|Battery|Port/Other"}`;
-                const result = await callGemini(prompt, true);
+                const result = await callGemini(`Diagnose phone issue: "${aiInput}". JSON: {"diagnosis_message":"...","category":"Screen|Battery|Other"}`, true);
                 setIsAILoading(false);
                 if (result) handleIssue(result.category, result.diagnosis_message);
-                else handleIssue('Port/Other', "Our technicians will diagnose this in-store!");
+                else handleIssue('Other', "Our technicians will diagnose this in-store for free!");
             };
-
             const submitBooking = async (e) => {
-                e.preventDefault();
-                setIsSubmitting(true);
-                const success = await sendEmail(bookingData);
-                setIsSubmitting(false);
-                if(success) {
-                    alert("✅ Booking Confirmed! See you at Windsor Express soon.");
-                    goToHome();
-                } else {
-                    alert("❌ Error. Please call 07912 150397 to book.");
-                }
+                e.preventDefault(); setIsSubmitting(true);
+                const ok = await sendEmail(bookingData); setIsSubmitting(false);
+                if (ok) { alert("✅ Booking Confirmed! See you at Windsor Express soon."); goHome(); }
+                else alert("❌ Something went wrong. Please call 07912 150397 to book.");
             };
-
-            // --- SELL LOGIC ---
-            const submitSellQuote = async (e) => {
-                e.preventDefault();
-                setIsSellSubmitting(true);
-                const success = await sendSellEmail(sellData);
-                setIsSellSubmitting(false);
-                if(success) {
-                    alert("✅ Quote Request Sent! We will email or call you shortly with a cash offer.");
-                    goToHome();
-                } else {
-                    alert("❌ Error. Please call us at 07912 150397 for a quote.");
-                }
+            const submitSell = async (e) => {
+                e.preventDefault(); setIsSell(true);
+                const ok = await sendSellEmail(sellData); setIsSell(false);
+                if (ok) { alert("✅ Quote Request Sent! We'll be in touch shortly with your offer."); goHome(); }
+                else alert("❌ Something went wrong. Please call 07912 150397.");
             };
-
-            // --- VAPE LOGIC ---
             const handleVapeMatch = async (e) => {
-                e.preventDefault();
-                if (!vapeInput.trim()) return;
-                setIsVapeLoading(true);
-                const result = await callGemini(`Vape flavor advice for someone who likes "${vapeInput}". Short, catchy.`);
+                e.preventDefault(); setIsVapeLoading(true);
+                const res = await callGemini(`Give a short, enthusiastic vape flavour recommendation (2-3 sentences) for someone who likes "${vapeInput}".`);
                 setIsVapeLoading(false);
-                if (result) setVapeResult(result);
+                if (res) setVapeResult(res);
             };
 
-            // --- RENDER REPAIR FUNNEL ---
+            const stepLabels    = ['Device', 'Issue', 'Model & Quality', 'Confirm'];
+            const progressPct   = ((funnelStep - 1) / 3) * 100;
+            const waMsg         = encodeURIComponent("Hi Windsor Express! I'd like to book a repair / get a quote.");
+
+            // ── FUNNEL ──
             const renderFunnel = () => (
-                <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden relative">
+                <div className="max-w-2xl mx-auto bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden relative">
                     {isSubmitting && (
-                        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
-                            <i className="fas fa-circle-notch fa-spin text-5xl text-brand-500 mb-4"></i>
-                            <p className="font-bold text-lg">Locking in your slot...</p>
+                        <div className="absolute inset-0 bg-white/90 z-50 flex flex-col items-center justify-center">
+                            <div className="w-14 h-14 border-4 border-brand-100 border-t-brand-500 rounded-full animate-spin mb-4"></div>
+                            <p className="font-bold text-gray-700">Locking in your slot...</p>
                         </div>
                     )}
 
-                    <div className="bg-gray-50 p-6 border-b border-gray-100 flex justify-between items-center">
-                        <h3 className="text-xl md:text-2xl font-black text-gray-800">Fast Repair Booking</h3>
-                        <span className="text-brand-600 font-bold bg-brand-100 px-3 py-1 rounded-full text-sm">Step {funnelStep} of 4</span>
+                    {/* Header + progress */}
+                    <div className="bg-gray-50 border-b border-gray-100 p-5">
+                        <div className="flex justify-between items-center mb-3">
+                            <h3 className="font-display text-2xl font-black text-gray-900">Book Your Repair</h3>
+                            <span className="text-xs font-bold text-brand-600 bg-brand-50 px-3 py-1.5 rounded-full">Step {funnelStep} / 4</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-1.5 mb-2">
+                            <div className="bg-brand-500 h-1.5 rounded-full progress-bar-fill" style={{ width: `${progressPct}%` }}></div>
+                        </div>
+                        <div className="flex justify-between">
+                            {stepLabels.map((l, i) => (
+                                <span key={i} className={`text-xs font-medium ${i + 1 <= funnelStep ? 'text-brand-600' : 'text-gray-300'}`}>{l}</span>
+                            ))}
+                        </div>
                     </div>
-                    
-                    <div className="p-6 md:p-8 min-h-[450px]">
-                        {/* Service Type Toggle (Always visible on Step 1) */}
-                        {funnelStep === 1 && (
-                            <div className="flex bg-gray-100 rounded-xl p-1 mb-8 max-w-md mx-auto">
-                                <button 
-                                    onClick={() => setBookingData({...bookingData, serviceType: 'walk-in'})} 
-                                    className={`flex-1 py-3 rounded-lg font-bold text-sm transition-all ${bookingData.serviceType === 'walk-in' ? 'bg-white shadow-sm text-brand-600' : 'text-gray-500 hover:text-gray-700'}`}
-                                >
-                                    <i className="fas fa-store mr-2"></i>Walk-in
-                                </button>
-                                <button 
-                                    onClick={() => setBookingData({...bookingData, serviceType: 'mail-in'})} 
-                                    className={`flex-1 py-3 rounded-lg font-bold text-sm transition-all ${bookingData.serviceType === 'mail-in' ? 'bg-white shadow-sm text-brand-600' : 'text-gray-500 hover:text-gray-700'}`}
-                                >
-                                    <i className="fas fa-box mr-2"></i>Mail-in (Nationwide)
-                                </button>
-                            </div>
-                        )}
 
+                    <div className="p-6 md:p-8 min-h-[400px]">
+
+                        {/* STEP 1 */}
                         {funnelStep === 1 && (
                             <div className="fade-in">
-                                <h4 className="text-2xl font-bold mb-8 text-center">What device needs fixing?</h4>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div onClick={() => handleBrand('Apple iPhone')} className="funnel-card border-gray-200 rounded-2xl p-6 text-center bg-white">
-                                        <i className="fab fa-apple text-5xl mb-4 text-gray-800"></i>
-                                        <div className="font-bold text-lg">Apple iPhone</div>
-                                    </div>
-                                    <div onClick={() => handleBrand('Samsung')} className="funnel-card border-gray-200 rounded-2xl p-6 text-center bg-white">
-                                        <i className="fas fa-mobile-android text-5xl mb-4 text-blue-600"></i>
-                                        <div className="font-bold text-lg">Samsung</div>
-                                    </div>
+                                <div className="flex bg-gray-100 rounded-xl p-1 mb-7 max-w-xs mx-auto">
+                                    {['walk-in', 'mail-in'].map(t => (
+                                        <button key={t} onClick={() => setBookingData({ ...bookingData, serviceType: t })}
+                                            className={`flex-1 py-2.5 rounded-lg font-bold text-xs md:text-sm transition-all ${bookingData.serviceType === t ? 'bg-white shadow text-brand-600' : 'text-gray-400 hover:text-gray-600'}`}>
+                                            <i className={`fas ${t === 'walk-in' ? 'fa-store' : 'fa-box'} mr-1.5`}></i>
+                                            {t === 'walk-in' ? 'Walk-in' : 'Mail-in (UK)'}
+                                        </button>
+                                    ))}
                                 </div>
-                                <div className="text-center mt-6">
-                                    <button onClick={() => handleBrand('Other/iPad/Laptop')} className="text-gray-400 font-bold hover:text-brand-500 underline">Other Brand / Device</button>
+                                <h4 className="font-display text-3xl font-black text-gray-900 text-center mb-7">What needs fixing?</h4>
+                                <div className="grid grid-cols-2 gap-4 mb-4">
+                                    {[
+                                        { brand: 'Apple iPhone',  iconClass: 'fab fa-apple',           color: 'text-gray-800' },
+                                        { brand: 'Samsung',       iconClass: 'fas fa-mobile-android',  color: 'text-blue-600' }
+                                    ].map(({ brand, iconClass, color }) => (
+                                        <div key={brand} onClick={() => handleBrand(brand)}
+                                            className="funnel-card border-gray-200 rounded-2xl p-7 text-center bg-white card-shine">
+                                            <i className={`${iconClass} text-5xl mb-4 ${color} block`}></i>
+                                            <div className="font-bold text-gray-900">{brand}</div>
+                                        </div>
+                                    ))}
                                 </div>
+                                <button onClick={() => handleBrand('Other / iPad / Laptop')}
+                                    className="w-full text-gray-400 text-sm font-semibold hover:text-brand-500 transition-colors py-3 underline underline-offset-2">
+                                    Other brand or device →
+                                </button>
                             </div>
                         )}
 
+                        {/* STEP 2 — issue */}
                         {funnelStep === 2 && !showAIPrompt && (
                             <div className="fade-in">
-                                <button onClick={() => setFunnelStep(1)} className="text-sm text-gray-400 mb-6 font-bold hover:text-brand-500"><i className="fas fa-arrow-left"></i> Back</button>
-                                <h4 className="text-2xl font-bold mb-8 text-center">What is the problem?</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                    <div onClick={() => handleIssue('Screen')} className="funnel-card border-gray-200 rounded-2xl p-6 text-center">
-                                        <i className="fas fa-burst text-4xl mb-3 text-brand-500"></i>
-                                        <div className="font-bold">Broken Screen</div>
+                                <button onClick={() => setFunnelStep(1)} className="flex items-center gap-1.5 text-sm text-gray-400 font-semibold mb-6 hover:text-brand-500 transition-colors">
+                                    <i className="fas fa-arrow-left text-xs"></i> Back
+                                </button>
+                                <h4 className="font-display text-3xl font-black text-gray-900 text-center mb-7">What's the problem?</h4>
+
+                                {aiDiagnosisMsg && (
+                                    <div className="mb-5 p-4 bg-indigo-50 rounded-xl border border-indigo-100 text-indigo-700 text-sm font-medium flex gap-3 items-start">
+                                        <i className="fas fa-robot mt-0.5 flex-shrink-0"></i>
+                                        <span>{aiDiagnosisMsg}</span>
                                     </div>
-                                    <div onClick={() => handleIssue('Battery')} className="funnel-card border-gray-200 rounded-2xl p-6 text-center">
-                                        <i className="fas fa-battery-quarter text-4xl mb-3 text-brand-500"></i>
-                                        <div className="font-bold">Battery Issue</div>
-                                    </div>
-                                    <div onClick={() => handleIssue('Other')} className="funnel-card border-gray-200 rounded-2xl p-6 text-center">
-                                        <i className="fas fa-plug text-4xl mb-3 text-brand-500"></i>
-                                        <div className="font-bold">Other Fix</div>
-                                    </div>
+                                )}
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                                    {[
+                                        { issue: 'Screen',  icon: 'fa-burst',          label: 'Broken Screen'   },
+                                        { issue: 'Battery', icon: 'fa-battery-quarter', label: 'Battery Issue'   },
+                                        { issue: 'Other',   icon: 'fa-plug',            label: 'Something Else'  }
+                                    ].map(({ issue, icon, label }) => (
+                                        <div key={issue} onClick={() => handleIssue(issue)}
+                                            className="funnel-card border-gray-200 rounded-2xl p-5 text-center card-shine">
+                                            <i className={`fas ${icon} text-3xl mb-3 text-brand-500 block`}></i>
+                                            <div className="font-bold text-gray-800 text-sm md:text-base">{label}</div>
+                                        </div>
+                                    ))}
                                 </div>
-                                <div onClick={() => setShowAIPrompt(true)} className="funnel-card border-indigo-200 bg-indigo-50 rounded-2xl p-6 text-center text-indigo-700 shadow-md">
-                                    <i className="fas fa-robot text-3xl mb-2"></i>
-                                    <div className="font-bold">Not Sure? AI Diagnosis ✨</div>
+                                <div onClick={() => setShowAIPrompt(true)}
+                                    className="funnel-card border-indigo-200 bg-gradient-to-br from-indigo-50 to-violet-50 rounded-2xl p-5 text-center text-indigo-700 card-shine">
+                                    <i className="fas fa-robot text-2xl mb-1.5 block"></i>
+                                    <div className="font-bold text-sm md:text-base">Not sure? AI Diagnosis ✨</div>
+                                    <div className="text-xs text-indigo-400 font-medium mt-1">Describe it and we'll figure it out</div>
                                 </div>
                             </div>
                         )}
 
+                        {/* STEP 2 — AI prompt */}
                         {funnelStep === 2 && showAIPrompt && (
                             <div className="fade-in">
-                                <button onClick={() => setShowAIPrompt(false)} className="text-sm text-gray-400 mb-6 font-bold"><i className="fas fa-arrow-left"></i> Back</button>
-                                <h4 className="text-2xl font-bold mb-4 text-center">Describe the Issue</h4>
-                                <form onSubmit={handleAIDiagnosis}>
-                                    <textarea value={aiInput} onChange={(e) => setAiInput(e.target.value)} className="w-full p-4 border-2 border-indigo-100 rounded-xl outline-none focus:border-indigo-500 min-h-[120px] mb-4" placeholder="e.g. Screen is flickering..." required />
-                                    <button type="submit" disabled={isAILoading} className="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl shadow-lg disabled:opacity-50">
-                                        {isAILoading ? "Analyzing..." : "Diagnose ✨"}
+                                <button onClick={() => setShowAIPrompt(false)} className="flex items-center gap-1.5 text-sm text-gray-400 font-semibold mb-6 hover:text-brand-500 transition-colors">
+                                    <i className="fas fa-arrow-left text-xs"></i> Back
+                                </button>
+                                <h4 className="font-display text-3xl font-black text-gray-900 text-center mb-2">Describe the Issue</h4>
+                                <p className="text-gray-400 text-sm font-medium text-center mb-6">Be as specific as you like — the more detail the better</p>
+                                <form onSubmit={handleAIDiagnosis} className="space-y-4">
+                                    <textarea value={aiInput} onChange={e => setAiInput(e.target.value)}
+                                        className="w-full p-4 border-2 border-indigo-100 focus:border-indigo-400 rounded-2xl outline-none min-h-[120px] resize-none font-medium text-gray-700 placeholder-gray-300 transition-colors"
+                                        placeholder="e.g. Screen is flickering at the top and there's a faint green line..." required />
+                                    <button type="submit" disabled={isAILoading}
+                                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+                                        {isAILoading
+                                            ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> Analysing...</>
+                                            : <><i className="fas fa-wand-magic-sparkles"></i> Diagnose My Phone</>}
                                     </button>
                                 </form>
                             </div>
                         )}
 
+                        {/* STEP 3 — model & quality */}
                         {funnelStep === 3 && (
                             <div className="fade-in">
-                                <button onClick={() => setFunnelStep(2)} className="text-sm text-gray-400 mb-6 font-bold hover:text-brand-500"><i className="fas fa-arrow-left"></i> Back</button>
-                                <h4 className="text-2xl font-bold mb-6 text-center">Select Model & Quality</h4>
-                                <div className="mb-8">
-                                    <label className="block text-sm font-bold text-gray-600 mb-2">Select iPhone Model:</label>
-                                    <select onChange={handleModelSelect} value={bookingData.model} className="w-full p-4 border-2 border-gray-200 rounded-xl outline-none focus:border-brand-500 bg-gray-50">
-                                        <option value="">-- Choose Model --</option>
+                                <button onClick={() => setFunnelStep(2)} className="flex items-center gap-1.5 text-sm text-gray-400 font-semibold mb-6 hover:text-brand-500 transition-colors">
+                                    <i className="fas fa-arrow-left text-xs"></i> Back
+                                </button>
+                                <h4 className="font-display text-3xl font-black text-gray-900 text-center mb-6">Model & Screen Quality</h4>
+
+                                <div className="mb-6">
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">iPhone Model</label>
+                                    <select onChange={e => setBookingData({ ...bookingData, model: e.target.value, quality: '', quotedPrice: '' })} value={bookingData.model}
+                                        className="w-full p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none bg-white font-medium text-gray-700 transition-colors">
+                                        <option value="">— Choose your model —</option>
                                         {Object.keys(IPHONE_PRICES).map(m => <option key={m} value={m}>{m}</option>)}
                                     </select>
                                 </div>
 
                                 {bookingData.model && (
-                                    <div className="grid gap-4">
-                                        {Object.entries(IPHONE_PRICES[bookingData.model]).map(([qKey, price]) => (
-                                            <div key={qKey} onClick={() => handleQualitySelect(qKey, price)} className="funnel-card border-gray-200 rounded-xl p-4 flex justify-between items-center hover:bg-brand-50 group">
-                                                <div className="font-bold text-gray-800 uppercase">{qKey} Tier</div>
-                                                <div className="text-brand-600 font-black text-xl">£{price.toFixed(2)}</div>
-                                            </div>
-                                        ))}
+                                    <div className="space-y-3">
+                                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Screen Quality</label>
+                                        {Object.entries(IPHONE_PRICES[bookingData.model]).map(([key, price]) => {
+                                            const t = TIER_META[key];
+                                            return (
+                                                <div key={key} onClick={() => handleQualitySelect(key, price)}
+                                                    className={`funnel-card ${t.border} border-gray-200 rounded-xl p-4 flex justify-between items-center ${t.bg}`}>
+                                                    <div>
+                                                        <div className={`font-black text-base ${t.textColor}`}>{t.label} Screen</div>
+                                                        <div className="text-gray-400 text-xs font-medium mt-0.5">{t.tagline}</div>
+                                                    </div>
+                                                    <div className="font-display text-3xl font-black text-gray-800">£{price.toFixed(2)}</div>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </div>
                         )}
 
+                        {/* STEP 4 — confirm */}
                         {funnelStep === 4 && (
                             <div className="fade-in">
-                                <button onClick={() => setFunnelStep(bookingData.brand === 'Apple iPhone' && bookingData.issue === 'Screen' ? 3 : 2)} className="text-sm text-gray-400 mb-4 font-bold hover:text-brand-500"><i className="fas fa-arrow-left"></i> Back</button>
-                                <h4 className="text-2xl font-bold mb-6 text-center">Finalize Booking</h4>
+                                <button onClick={() => setFunnelStep(bookingData.brand === 'Apple iPhone' && bookingData.issue === 'Screen' ? 3 : 2)}
+                                    className="flex items-center gap-1.5 text-sm text-gray-400 font-semibold mb-5 hover:text-brand-500 transition-colors">
+                                    <i className="fas fa-arrow-left text-xs"></i> Back
+                                </button>
+                                <h4 className="font-display text-3xl font-black text-gray-900 text-center mb-5">Confirm Your Booking</h4>
 
-                                <div className="bg-brand-50 p-5 rounded-2xl mb-6 text-center border border-brand-200">
-                                    <div className="text-sm text-brand-600 font-bold mb-1">Your Selection</div>
-                                    <div className="font-black text-lg text-brand-900">
-                                        {bookingData.brand} {bookingData.model} {bookingData.issue} {bookingData.quality ? `(${bookingData.quality})` : ''}
-                                        <div className="text-xs text-brand-600 uppercase mt-1 tracking-wider"><i className={`fas ${bookingData.serviceType === 'walk-in' ? 'fa-store' : 'fa-box'} mr-1`}></i> {bookingData.serviceType} service</div>
+                                {/* Summary */}
+                                <div className="bg-gradient-to-br from-brand-50 to-green-50 border border-brand-100 rounded-2xl p-5 text-center mb-5">
+                                    <div className="text-xs font-bold text-brand-600 uppercase tracking-widest mb-1">Your Repair</div>
+                                    <div className="font-display text-xl font-black text-gray-900 leading-tight">
+                                        {bookingData.brand} {bookingData.model} — {bookingData.issue}
+                                        {bookingData.quality && <span className="text-brand-600"> ({bookingData.quality})</span>}
                                     </div>
-                                    {bookingData.quotedPrice ? (
-                                        <div className="text-2xl font-black text-brand-600 mt-2">Fixed Quote: {bookingData.quotedPrice}</div>
-                                    ) : (
-                                        <div className="mt-3 p-4 bg-white rounded-lg border border-brand-200 shadow-sm">
-                                            <p className="text-sm font-bold text-gray-700 mb-1">Call for instant quote:</p>
-                                            <a href={`tel:${SHOP_PHONE}`} className="text-2xl font-black text-brand-500 hover:text-brand-600 transition-colors">07912 150397</a>
-                                        </div>
-                                    )}
+                                    <div className="text-xs text-gray-400 font-semibold mt-1 uppercase tracking-wider">
+                                        <i className={`fas ${bookingData.serviceType === 'walk-in' ? 'fa-store' : 'fa-box'} mr-1`}></i>
+                                        {bookingData.serviceType === 'walk-in' ? 'Walk-in Service' : 'Mail-in Service'}
+                                    </div>
+                                    {bookingData.quotedPrice
+                                        ? <div className="font-display text-4xl font-black text-brand-500 mt-2">{bookingData.quotedPrice}</div>
+                                        : <div className="mt-3">
+                                            <p className="text-xs text-gray-400 font-medium mb-1">Call for an instant quote:</p>
+                                            <a href={`tel:${SHOP_PHONE}`} className="font-display text-3xl font-black text-brand-500 hover:text-brand-600 transition-colors">07912 150397</a>
+                                          </div>
+                                    }
                                 </div>
 
-                                <form onSubmit={submitBooking} className="space-y-4">
+                                <form onSubmit={submitBooking} className="space-y-3">
                                     {bookingData.brand !== 'Apple iPhone' && (
-                                        <input type="text" value={bookingData.model} onChange={(e) => setBookingData({...bookingData, model: e.target.value})} placeholder="Device Model (e.g. Galaxy S24 Ultra)" className="w-full p-4 border-2 border-gray-200 rounded-xl outline-none focus:border-brand-500" required />
+                                        <input type="text" value={bookingData.model} onChange={e => setBookingData({ ...bookingData, model: e.target.value })}
+                                            placeholder="Device model (e.g. Galaxy S24 Ultra)" required
+                                            className="w-full p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
                                     )}
                                     {bookingData.brand === 'Apple iPhone' && !bookingData.model && (
-                                        <select value={bookingData.model} onChange={(e) => setBookingData({...bookingData, model: e.target.value})} className="w-full p-4 border-2 border-gray-200 rounded-xl outline-none focus:border-brand-500 bg-white" required>
-                                            <option value="">Select iPhone Model...</option>
+                                        <select value={bookingData.model} onChange={e => setBookingData({ ...bookingData, model: e.target.value })} required
+                                            className="w-full p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none bg-white font-medium text-gray-700 transition-colors">
+                                            <option value="">Select iPhone model...</option>
                                             {Object.keys(IPHONE_PRICES).map(m => <option key={m} value={m}>{m}</option>)}
                                         </select>
                                     )}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <input type="text" value={bookingData.name} onChange={(e) => setBookingData({...bookingData, name: e.target.value})} placeholder="Your Full Name" className="w-full p-4 border-2 border-gray-200 rounded-xl outline-none focus:border-brand-500" required />
-                                        <input type="tel" value={bookingData.phone} onChange={(e) => setBookingData({...bookingData, phone: e.target.value})} placeholder="Phone Number" className="w-full p-4 border-2 border-gray-200 rounded-xl outline-none focus:border-brand-500" required />
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <input type="text" value={bookingData.name} onChange={e => setBookingData({ ...bookingData, name: e.target.value })} placeholder="Full name" required
+                                            className="p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
+                                        <input type="tel" value={bookingData.phone} onChange={e => setBookingData({ ...bookingData, phone: e.target.value })} placeholder="Phone number" required
+                                            className="p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
                                     </div>
-                                    <input type="email" value={bookingData.email} onChange={(e) => setBookingData({...bookingData, email: e.target.value})} placeholder="Email Address" className="w-full p-4 border-2 border-gray-200 rounded-xl outline-none focus:border-brand-500" required />
-                                    
+                                    <input type="email" value={bookingData.email} onChange={e => setBookingData({ ...bookingData, email: e.target.value })} placeholder="Email address" required
+                                        className="w-full p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
+
                                     {bookingData.serviceType === 'walk-in' ? (
-                                        <select value={bookingData.time} onChange={(e) => setBookingData({...bookingData, time: e.target.value})} className="w-full p-4 border-2 border-gray-200 rounded-xl outline-none focus:border-brand-500 bg-white" required>
+                                        <select value={bookingData.time} onChange={e => setBookingData({ ...bookingData, time: e.target.value })} required
+                                            className="w-full p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none bg-white font-medium text-gray-700 transition-colors">
                                             <option value="">Select drop-off time...</option>
                                             {TIME_SLOTS.map(s => <option key={s} value={s}>{s}</option>)}
                                         </select>
                                     ) : (
-                                        <div className="space-y-2">
-                                            <textarea value={bookingData.address} onChange={(e) => setBookingData({...bookingData, address: e.target.value})} placeholder="Full Return Address" className="w-full p-4 border-2 border-gray-200 rounded-xl outline-none focus:border-brand-500 bg-white min-h-[100px]" required></textarea>
-                                            <p className="text-xs text-gray-500 font-medium"><i className="fas fa-info-circle mr-1"></i> After booking, we will email you secure postage instructions.</p>
+                                        <div>
+                                            <textarea value={bookingData.address} onChange={e => setBookingData({ ...bookingData, address: e.target.value })}
+                                                placeholder="Full return address (including postcode)" required
+                                                className="w-full p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none min-h-[90px] font-medium placeholder-gray-300 resize-none transition-colors" />
+                                            <p className="text-xs text-gray-400 font-medium mt-1.5 flex items-center gap-1">
+                                                <i className="fas fa-info-circle text-brand-400"></i> We'll email prepaid postage instructions after you book.
+                                            </p>
                                         </div>
                                     )}
 
-                                    <button type="submit" className="w-full bg-brand-500 text-white font-black text-lg py-5 rounded-xl hover:bg-brand-600 shadow-lg transition-colors">
-                                        {bookingData.serviceType === 'walk-in' ? "Book 30-Min Repair Now" : "Request Mail-In Repair"}
+                                    <button type="submit"
+                                        className="w-full bg-brand-500 hover:bg-brand-600 text-white font-display font-black text-xl py-5 rounded-xl shadow-lg transition-colors mt-1">
+                                        {bookingData.serviceType === 'walk-in' ? '🔒 Book My 30-Min Repair' : '📦 Request Mail-In Repair'}
                                     </button>
+                                    <p className="text-center text-xs text-gray-400 font-medium">No payment now — pay in-store on the day.</p>
                                 </form>
                             </div>
                         )}
@@ -488,271 +721,326 @@
                 </div>
             );
 
-            // --- RENDER SELL PAGE ---
+            // ── SELL PAGE ──
             const renderSellPage = () => (
-                <div className="max-w-2xl mx-auto bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden relative fade-in">
+                <div className="max-w-2xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden fade-in relative">
                     {isSellSubmitting && (
-                        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
-                            <i className="fas fa-circle-notch fa-spin text-5xl text-blue-500 mb-4"></i>
-                            <p className="font-bold text-lg">Sending Request...</p>
+                        <div className="absolute inset-0 bg-white/90 z-50 flex flex-col items-center justify-center">
+                            <div className="w-14 h-14 border-4 border-gray-200 border-t-gray-800 rounded-full animate-spin mb-4"></div>
+                            <p className="font-bold text-gray-700">Sending your request...</p>
                         </div>
                     )}
-                    
-                    <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-8 text-center text-white">
-                        <div className="text-5xl mb-4">💸</div>
-                        <h2 className="text-3xl font-black mb-2">Sell Your Device</h2>
-                        <p className="text-gray-300 font-medium">Get a fast, fair cash offer for your old or broken phone.</p>
+                    <div className="bg-gray-900 p-8 md:p-10 text-center relative overflow-hidden">
+                        <div className="absolute inset-0 opacity-10" style={{ background: "radial-gradient(circle at 50% 50%, #10b981 0%, transparent 65%)" }}></div>
+                        <div className="relative">
+                            <div className="text-6xl mb-3">💸</div>
+                            <h2 className="font-display text-5xl font-black text-white mb-2">Sell Your Device</h2>
+                            <p className="text-gray-400 font-medium">Fast cash offer for any old or broken phone</p>
+                        </div>
                     </div>
-
                     <div className="p-8">
-                        <form onSubmit={submitSellQuote} className="space-y-5">
+                        <form onSubmit={submitSell} className="space-y-5">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">What device are you selling?</label>
-                                <input type="text" value={sellData.device} onChange={(e) => setSellData({...sellData, device: e.target.value})} placeholder="e.g. iPhone 13 Pro, 128GB" className="w-full p-4 border-2 border-gray-200 rounded-xl outline-none focus:border-gray-800" required />
-                            </div>
-                            
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">What is the condition?</label>
-                                <select value={sellData.condition} onChange={(e) => setSellData({...sellData, condition: e.target.value})} className="w-full p-4 border-2 border-gray-200 rounded-xl outline-none focus:border-gray-800 bg-white" required>
-                                    <option value="">Select condition...</option>
-                                    <option value="Flawless">Flawless (Looks brand new)</option>
-                                    <option value="Good">Good (Minor wear and tear)</option>
-                                    <option value="Poor/Broken">Poor / Broken (Cracked, dead battery, etc.)</option>
-                                </select>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">What are you selling?</label>
+                                <input type="text" value={sellData.device} onChange={e => setSellData({ ...sellData, device: e.target.value })}
+                                    placeholder="e.g. iPhone 13 Pro 128GB, Samsung S22 256GB" required
+                                    className="w-full p-4 border-2 border-gray-200 focus:border-gray-800 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
                             </div>
 
-                            <hr className="my-6 border-gray-100"/>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Your Name</label>
-                                    <input type="text" value={sellData.name} onChange={(e) => setSellData({...sellData, name: e.target.value})} placeholder="Full Name" className="w-full p-4 border-2 border-gray-200 rounded-xl outline-none focus:border-gray-800" required />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Phone Number</label>
-                                    <input type="tel" value={sellData.phone} onChange={(e) => setSellData({...sellData, phone: e.target.value})} placeholder="07..." className="w-full p-4 border-2 border-gray-200 rounded-xl outline-none focus:border-gray-800" required />
-                                </div>
-                            </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Email Address</label>
-                                <input type="email" value={sellData.email} onChange={(e) => setSellData({...sellData, email: e.target.value})} placeholder="Email to receive quote" className="w-full p-4 border-2 border-gray-200 rounded-xl outline-none focus:border-gray-800" required />
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Condition</label>
+                                <div className="grid grid-cols-3 gap-3">
+                                    {[
+                                        { val: 'Flawless',     label: 'Flawless',  sub: 'Looks brand new', icon: '✨' },
+                                        { val: 'Good',         label: 'Good',      sub: 'Minor wear',      icon: '👍' },
+                                        { val: 'Poor/Broken',  label: 'Broken',    sub: 'Cracked / dead',  icon: '💔' }
+                                    ].map(({ val, label, sub, icon }) => (
+                                        <div key={val} onClick={() => setSellData({ ...sellData, condition: val })}
+                                            className={`cursor-pointer rounded-2xl p-4 text-center border-2 transition-all ${sellData.condition === val ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-200 hover:border-gray-400 bg-white'}`}>
+                                            <div className="text-3xl mb-2">{icon}</div>
+                                            <div className="font-bold text-sm">{label}</div>
+                                            <div className={`text-xs font-medium mt-0.5 ${sellData.condition === val ? 'text-gray-400' : 'text-gray-400'}`}>{sub}</div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
 
-                            <button type="submit" className="w-full bg-gray-900 text-white font-black text-lg py-5 rounded-xl hover:bg-black shadow-lg transition-colors mt-4">Get Cash Quote</button>
+                            <hr className="border-gray-100" />
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <input type="text" value={sellData.name} onChange={e => setSellData({ ...sellData, name: e.target.value })} placeholder="Full name" required
+                                    className="p-4 border-2 border-gray-200 focus:border-gray-800 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
+                                <input type="tel" value={sellData.phone} onChange={e => setSellData({ ...sellData, phone: e.target.value })} placeholder="Phone number" required
+                                    className="p-4 border-2 border-gray-200 focus:border-gray-800 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
+                            </div>
+                            <input type="email" value={sellData.email} onChange={e => setSellData({ ...sellData, email: e.target.value })} placeholder="Email address" required
+                                className="w-full p-4 border-2 border-gray-200 focus:border-gray-800 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
+
+                            <button type="submit"
+                                className="w-full bg-gray-900 hover:bg-black text-white font-display font-black text-xl py-5 rounded-xl shadow-lg transition-colors">
+                                💰 Get My Cash Quote
+                            </button>
+                            <p className="text-center text-xs text-gray-400 font-medium">We'll call or email you within a few hours with your offer.</p>
                         </form>
                     </div>
                 </div>
             );
 
+            // ── RENDER ──
             return (
-                <div className="min-h-screen flex flex-col relative selection:bg-brand-200">
-                    
-                    {/* Floating WhatsApp Button */}
-                    <a href={`https://wa.me/447912150397`} target="_blank" rel="noopener noreferrer" className="fixed bottom-6 right-6 bg-[#25D366] text-white w-16 h-16 rounded-full flex items-center justify-center text-3xl shadow-2xl hover:bg-[#1ebd5a] hover:scale-110 transition-all z-50 animate-bounce">
+                <div className="min-h-screen flex flex-col">
+
+                    {/* WhatsApp */}
+                    <a href={`https://wa.me/447912150397?text=${waMsg}`} target="_blank" rel="noopener noreferrer" className="whatsapp-btn">
                         <i className="fab fa-whatsapp"></i>
                     </a>
 
-                    {showExitIntent && (
-                        <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4 fade-in">
-                            <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl">
-                                <div className="bg-brand-500 p-6 text-center text-white relative">
-                                    <button onClick={() => setShowExitIntent(false)} className="absolute top-4 right-4 text-white/70 hover:text-white"><i className="fas fa-times text-xl"></i></button>
-                                    <h2 className="text-3xl font-black">Wait! Free Gift...</h2>
+                    {/* Mobile bottom CTA */}
+                    <div className="mobile-cta-bar" style={{ display: 'none' }}>
+                        <button onClick={() => setView('booking')} className="flex-1 bg-brand-500 hover:bg-brand-600 text-white font-black py-3 rounded-xl text-sm transition-colors">
+                            <i className="fas fa-wrench mr-1.5"></i> Book Repair
+                        </button>
+                        <button onClick={() => setView('sell')} className="flex-1 bg-gray-900 hover:bg-black text-white font-black py-3 rounded-xl text-sm transition-colors">
+                            <i className="fas fa-money-bill-wave mr-1.5"></i> Sell Device
+                        </button>
+                    </div>
+
+                    {/* Exit intent popup */}
+                    {showExit && (
+                        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center p-4 fade-in">
+                            <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl">
+                                <div className="bg-gradient-to-br from-brand-500 to-brand-600 p-7 text-center text-white relative">
+                                    <button onClick={() => setShowExit(false)} className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors">
+                                        <i className="fas fa-times text-lg"></i>
+                                    </button>
+                                    <div className="text-5xl mb-3">🎁</div>
+                                    <h2 className="font-display text-4xl font-black">Before You Go...</h2>
                                 </div>
                                 <div className="p-8 text-center">
-                                    <div className="text-6xl mb-4 animate-bounce">🎁</div>
-                                    <h3 className="text-2xl font-black mb-4">Get a <span className="text-brand-500">FREE</span> Screen Protector</h3>
-                                    <p className="text-gray-500 mb-8 font-medium">Book now and we'll fit a premium glass protector worth £15 for free.</p>
+                                    <h3 className="font-display text-3xl font-black text-gray-900 mb-3">Free <span className="text-brand-500">Screen Protector</span></h3>
+                                    <p className="text-gray-500 font-medium mb-7 text-sm leading-relaxed">Book a repair today and we'll fit a premium tempered glass protector (worth £15) for free.</p>
                                     <div className="space-y-3">
-                                        <button onClick={() => { setShowExitIntent(false); setView('booking'); }} className="w-full bg-gray-900 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-black transition-colors">Claim & Book Now</button>
-                                        <button onClick={() => setShowExitIntent(false)} className="w-full bg-gray-100 text-gray-500 font-bold py-4 rounded-xl hover:bg-gray-200 transition-colors">No thanks, I'll risk it</button>
+                                        <button onClick={() => { setShowExit(false); setView('booking'); }}
+                                            className="w-full bg-brand-500 hover:bg-brand-600 text-white font-black py-4 rounded-xl shadow-lg transition-colors">
+                                            Claim Offer & Book Now
+                                        </button>
+                                        <button onClick={() => setShowExit(false)} className="w-full text-gray-400 font-medium py-2 hover:text-gray-600 transition-colors text-sm">
+                                            No thanks, I'll pass
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     )}
 
+                    {/* NAV */}
                     <nav className="glass sticky top-0 z-50 border-b border-gray-100 shadow-sm">
-                        <div className="max-w-7xl mx-auto px-4 flex justify-between h-20 items-center">
-                            <div onClick={goToHome} className="flex items-center cursor-pointer group">
-                                <div className="w-10 h-10 bg-brand-500 rounded-lg flex items-center justify-center text-white mr-3 shadow-md group-hover:scale-105 transition-transform"><i className="fas fa-bolt"></i></div>
-                                <span className="text-2xl font-black tracking-tighter">WINDSOR <span className="text-brand-500">EXPRESS</span></span>
+                        <div className="max-w-7xl mx-auto px-4 flex justify-between h-16 md:h-20 items-center">
+                            <div onClick={goHome} className="flex items-center cursor-pointer group">
+                                <div className="w-9 h-9 bg-brand-500 rounded-lg flex items-center justify-center text-white mr-2.5 shadow group-hover:scale-105 transition-transform">
+                                    <i className="fas fa-bolt text-sm"></i>
+                                </div>
+                                <span className="font-display text-2xl font-black tracking-tight">WINDSOR <span className="text-brand-500">EXPRESS</span></span>
                             </div>
-                            <div className="flex items-center space-x-4 md:space-x-6">
-                                <button onClick={() => setView('sell')} className="text-gray-500 font-bold hover:text-gray-900 transition-colors text-sm md:text-base">Sell Device</button>
-                                <button onClick={() => setView('booking')} className="bg-brand-500 text-white font-bold px-5 md:px-6 py-2 md:py-2.5 rounded-full shadow-lg hover:bg-brand-600 transition-colors text-sm md:text-base">Book Repair</button>
+                            <div className="flex items-center gap-2 md:gap-4">
+                                <a href={`tel:${SHOP_PHONE}`} className="hidden md:flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors">
+                                    <i className="fas fa-phone text-brand-500 text-xs"></i> 07912 150397
+                                </a>
+                                <button onClick={() => setView('sell')} className="hidden md:block text-gray-500 font-bold hover:text-gray-900 transition-colors text-sm px-3 py-2">
+                                    Sell Device
+                                </button>
+                                <button onClick={() => setView('booking')}
+                                    className="bg-brand-500 hover:bg-brand-600 text-white font-black px-5 py-2.5 rounded-full shadow-lg transition-colors text-sm">
+                                    Book Repair
+                                </button>
                             </div>
                         </div>
                     </nav>
 
                     <TrustBar />
 
-                    {view === 'home' ? (
+                    {/* ── HOME ── */}
+                    {view === 'home' && (
                         <main className="flex-1">
-                            {/* REPAIR HERO */}
-                            <section className="bg-white py-12 px-4 text-center">
-                                <h1 className="text-5xl md:text-7xl font-black mb-6 text-gray-900">Drop it? <span className="text-brand-500">We fix it.</span></h1>
-                                <p className="text-lg text-gray-500 mb-12 max-w-2xl mx-auto font-medium">Peascod Street's favorite tech shop. Screens fixed in 30 minutes with the best local prices.</p>
-                                {renderFunnel()}
+
+                            {/* HERO */}
+                            <section className="bg-white py-16 md:py-24 px-4 text-center relative overflow-hidden">
+                                <div className="absolute inset-0 hero-dots opacity-[0.03]"></div>
+                                <div className="relative max-w-4xl mx-auto">
+                                    <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 text-sm font-bold px-4 py-2 rounded-full mb-8">
+                                        <span className="live-dot"></span>
+                                        Open now · Peascod Street, Windsor
+                                    </div>
+                                    <h1 className="font-display text-7xl md:text-8xl lg:text-[108px] font-black text-gray-900 leading-none mb-5">
+                                        Drop it?<br/>
+                                        <span className="text-brand-500">We fix it.</span>
+                                    </h1>
+                                    <p className="text-gray-500 text-lg md:text-xl font-medium mb-12 max-w-xl mx-auto leading-relaxed">
+                                        Screens fixed in <strong className="text-gray-800">under 30 minutes</strong>, right in the heart of Windsor. No fix, no fee — ever.
+                                    </p>
+                                    {renderFunnel()}
+                                </div>
                             </section>
 
-                            {/* SELL BANNER ADDED HERE */}
-                            <section className="py-12 bg-white border-t border-gray-100">
-                                <div className="max-w-4xl mx-auto px-4">
-                                    <div className="bg-gray-900 rounded-3xl p-8 md:p-12 text-center text-white flex flex-col md:flex-row items-center justify-between shadow-xl">
-                                        <div className="text-left mb-6 md:mb-0 md:mr-8">
-                                            <h2 className="text-3xl md:text-4xl font-black mb-3 text-brand-400">We Buy Old Phones</h2>
-                                            <p className="text-gray-300 text-lg">Upgrading? Need cash? We offer top market rates for your old or broken devices.</p>
+                            <StatsBar />
+                            <HowItWorks />
+
+                            {/* SELL BANNER */}
+                            <section className="py-16 bg-gray-50 px-4">
+                                <div className="max-w-5xl mx-auto">
+                                    <div className="bg-gray-900 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden shadow-xl">
+                                        <div className="absolute top-0 right-0 w-96 h-96 opacity-[0.06]"
+                                            style={{ background: "radial-gradient(circle, #10b981 0%, transparent 70%)", transform: "translate(30%, -30%)" }}></div>
+                                        <div className="relative text-center md:text-left">
+                                            <div className="text-brand-400 font-bold text-xs uppercase tracking-widest mb-2">💸 Top Prices Paid</div>
+                                            <h2 className="font-display text-4xl md:text-5xl font-black text-white mb-3">We Buy Old Phones</h2>
+                                            <p className="text-gray-400 font-medium max-w-md leading-relaxed">Upgrading? Need quick cash? We pay top market rates for old or broken devices — instant offer, no hassle.</p>
                                         </div>
-                                        <button onClick={() => setView('sell')} className="w-full md:w-auto bg-white text-gray-900 font-black px-8 py-4 rounded-xl hover:bg-gray-100 transition-colors whitespace-nowrap shadow-lg">Get Cash Quote</button>
+                                        <button onClick={() => setView('sell')}
+                                            className="relative flex-shrink-0 bg-white text-gray-900 font-display font-black text-xl px-8 py-4 rounded-2xl hover:bg-gray-100 transition-colors whitespace-nowrap shadow-lg">
+                                            Get Cash Quote →
+                                        </button>
                                     </div>
                                 </div>
                             </section>
 
-                            <section className="py-20 bg-gray-50 border-t border-gray-200">
-                                <div className="max-w-7xl mx-auto px-4 text-center">
-                                    <h2 className="text-3xl font-black mb-12 text-gray-900">While We Fix Your Phone...</h2>
-                                    <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-                                        <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-                                            <div className="w-16 h-16 bg-brand-50 text-brand-500 rounded-xl flex items-center justify-center text-3xl mx-auto mb-6"><i className="fas fa-smoking"></i></div>
-                                            <h3 className="text-2xl font-bold mb-4 text-gray-900">Premium Vapes</h3>
-                                            <p className="text-gray-500 font-medium">Huge selection of disposables and liquids available in-store.</p>
+                            {/* VAPE */}
+                            <section className="py-16 bg-white border-t border-gray-100 px-4">
+                                <div className="max-w-5xl mx-auto">
+                                    <div className="text-center mb-10">
+                                        <h2 className="font-display text-4xl md:text-5xl font-black text-gray-900 mb-2">While We Fix Your Phone...</h2>
+                                        <p className="text-gray-400 font-medium">Browse our in-store vape selection</p>
+                                    </div>
+                                    <div className="grid md:grid-cols-2 gap-6">
+                                        <div className="bg-gray-50 p-8 rounded-3xl border border-gray-100 flex flex-col justify-center">
+                                            <div className="w-14 h-14 bg-brand-50 text-brand-500 rounded-xl flex items-center justify-center text-2xl mb-5">
+                                                <i className="fas fa-smoking"></i>
+                                            </div>
+                                            <h3 className="font-display text-3xl font-black text-gray-900 mb-3">Premium Vapes</h3>
+                                            <p className="text-gray-500 font-medium leading-relaxed">Huge selection of disposables, e-liquids, coils, and kits. Something for every taste and budget.</p>
                                         </div>
-                                        <div className="bg-white p-8 rounded-3xl border border-indigo-100 bg-gradient-to-br from-white to-indigo-50/30">
-                                            <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-3xl mx-auto mb-6"><i className="fas fa-wand-magic-sparkles"></i></div>
-                                            <h3 className="text-2xl font-bold mb-4 text-indigo-900">Vape Matchmaker ✨</h3>
-                                            <form onSubmit={handleVapeMatch} className="flex flex-col gap-3">
-                                                <input type="text" value={vapeInput} onChange={(e) => setVapeInput(e.target.value)} placeholder="Flavors you like..." className="p-4 border-2 border-indigo-100 rounded-xl outline-none focus:border-indigo-400 bg-white" required />
-                                                <button type="submit" disabled={isVapeLoading} className="bg-indigo-600 text-white font-bold py-4 rounded-xl hover:bg-indigo-700 transition-colors">{isVapeLoading ? "Thinking..." : "Find My Flavor"}</button>
+                                        <div className="bg-gradient-to-br from-indigo-50 to-violet-50 p-8 rounded-3xl border border-indigo-100">
+                                            <div className="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-2xl mb-5">
+                                                <i className="fas fa-wand-magic-sparkles"></i>
+                                            </div>
+                                            <h3 className="font-display text-3xl font-black text-indigo-900 mb-1">Vape Matchmaker ✨</h3>
+                                            <p className="text-indigo-400 text-sm font-medium mb-5">Tell us what flavours you enjoy and our AI will find your perfect in-store match.</p>
+                                            <form onSubmit={handleVapeMatch} className="space-y-3">
+                                                <input type="text" value={vapeInput} onChange={e => setVapeInput(e.target.value)}
+                                                    placeholder="e.g. mango, mint, watermelon..." required
+                                                    className="w-full p-4 border-2 border-indigo-100 focus:border-indigo-400 rounded-xl outline-none bg-white font-medium text-gray-700 placeholder-indigo-200 transition-colors" />
+                                                <button type="submit" disabled={isVapeLoading}
+                                                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+                                                    {isVapeLoading
+                                                        ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> Finding...</>
+                                                        : "Find My Flavour →"}
+                                                </button>
                                             </form>
-                                            {vapeResult && <div className="mt-4 text-indigo-800 text-sm font-medium"><i className="fas fa-robot mr-2 opacity-70"></i>{vapeResult}</div>}
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
-                            
-                            {/* NEW: GOOGLE REVIEWS SECTION (WITH REAL REVIEWS) */}
-                            <section className="py-20 bg-white border-t border-gray-100">
-                                <div className="max-w-7xl mx-auto px-4">
-                                    <div className="text-center mb-12">
-                                        <h2 className="text-3xl font-black mb-4 text-gray-900">Trusted by Windsor</h2>
-                                        <div className="flex items-center justify-center text-yellow-400 text-2xl mb-2">
-                                            <i className="fas fa-star"></i><i className="fas fa-star"></i><i className="fas fa-star"></i><i className="fas fa-star"></i><i className="fas fa-star"></i>
-                                        </div>
-                                        <p className="text-gray-500 font-medium">5.0 Average Rating • Based on real customer reviews</p>
-                                    </div>
-                                    <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-                                        {/* Review 1: Jaipreet (Speed & High End Screen) */}
-                                        <div className="bg-gray-50 p-8 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                                            <div className="flex justify-between items-start mb-4">
-                                                <div className="flex items-center">
-                                                    <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-lg mr-3">J</div>
-                                                    <div>
-                                                        <div className="font-bold text-gray-900">Jaipreet Bains</div>
-                                                        <div className="text-xs text-gray-500">5 weeks ago</div>
-                                                    </div>
+                                            {vapeResult && (
+                                                <div className="mt-4 p-4 bg-white/70 rounded-xl text-indigo-800 text-sm font-medium leading-relaxed border border-indigo-100">
+                                                    <i className="fas fa-robot mr-2 text-indigo-400"></i>{vapeResult}
                                                 </div>
-                                                <i className="fab fa-google text-gray-400 text-xl"></i>
-                                            </div>
-                                            <div className="text-yellow-400 text-sm mb-3">
-                                                <i className="fas fa-star"></i><i className="fas fa-star"></i><i className="fas fa-star"></i><i className="fas fa-star"></i><i className="fas fa-star"></i>
-                                            </div>
-                                            <p className="text-gray-600">"i went in for a iphone 15 pro max screen repair after having a very bad experience. it was done within 20 minutes, very professional messaging and scheduling like booking a slot and overall very good customer service and great experience!!! 10/10!"</p>
-                                        </div>
-                                        
-                                        {/* Review 2: Shefak (Battery & Professionalism) */}
-                                        <div className="bg-gray-50 p-8 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                                            <div className="flex justify-between items-start mb-4">
-                                                <div className="flex items-center">
-                                                    <div className="w-10 h-10 bg-red-100 text-red-600 rounded-full flex items-center justify-center font-bold text-lg mr-3">S</div>
-                                                    <div>
-                                                        <div className="font-bold text-gray-900">Shefak Alis</div>
-                                                        <div className="text-xs text-gray-500">4 weeks ago</div>
-                                                    </div>
-                                                </div>
-                                                <i className="fab fa-google text-gray-400 text-xl"></i>
-                                            </div>
-                                            <div className="text-yellow-400 text-sm mb-3">
-                                                <i className="fas fa-star"></i><i className="fas fa-star"></i><i className="fas fa-star"></i><i className="fas fa-star"></i><i className="fas fa-star"></i>
-                                            </div>
-                                            <p className="text-gray-600">"I had a great experience at this mobile repair store. The staff were really friendly and knowledgeable, and they helped replace the battery in my iPhone quickly and professionally. I’d definitely recommend this shop!"</p>
-                                        </div>
-                                        
-                                        {/* Review 3: Agnes (Vape, Snacks, Tanish Shoutout) */}
-                                        <div className="bg-gray-50 p-8 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                                            <div className="flex justify-between items-start mb-4">
-                                                <div className="flex items-center">
-                                                    <div className="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center font-bold text-lg mr-3">A</div>
-                                                    <div>
-                                                        <div className="font-bold text-gray-900">Agnes Farrer</div>
-                                                        <div className="text-xs text-gray-500">Yesterday</div>
-                                                    </div>
-                                                </div>
-                                                <i className="fab fa-google text-gray-400 text-xl"></i>
-                                            </div>
-                                            <div className="text-yellow-400 text-sm mb-3">
-                                                <i className="fas fa-star"></i><i className="fas fa-star"></i><i className="fas fa-star"></i><i className="fas fa-star"></i><i className="fas fa-star"></i>
-                                            </div>
-                                            <p className="text-gray-600">"The best vape and food and drink and technology shop in the whole of Windsor very welcoming owner and lovely vibes all over and doesn’t scam, Tanish is the best!"</p>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
                             </section>
 
-                            <section className="py-20 bg-gray-50 border-t border-gray-100">
-                                <div className="max-w-7xl mx-auto px-4 text-center">
-                                    <h2 className="text-3xl font-black mb-6 text-gray-900">Find Us on Peascod Street</h2>
-                                    <p className="text-lg text-gray-500 mb-10 max-w-2xl mx-auto font-medium">Right in the heart of Windsor at Queen Annes Court, 3 Peascod St.</p>
-                                    <div className="max-w-5xl mx-auto h-[400px] rounded-3xl overflow-hidden shadow-xl border border-gray-100">
-                                        <iframe 
-                                            src="https://maps.google.com/maps?q=Windsor%20Express,%20Queen%20Annes%20Court,%203%20Peascod%20St,%20Windsor%20SL4%201DG&t=&z=19&ie=UTF8&iwloc=&output=embed" 
-                                            className="w-full h-full border-0" 
-                                            allowFullScreen={true}
-                                            loading="lazy"
-                                            referrerPolicy="no-referrer-when-downgrade">
-                                        </iframe>
+                            {/* REVIEWS */}
+                            <section className="py-16 bg-gray-50 border-t border-gray-100 px-4">
+                                <div className="max-w-7xl mx-auto">
+                                    <div className="text-center mb-10">
+                                        <h2 className="font-display text-4xl md:text-5xl font-black text-gray-900 mb-2">Trusted by Windsor</h2>
+                                        <div className="text-yellow-400 text-xl mb-1 tracking-wide">★★★★★</div>
+                                        <p className="text-gray-400 font-medium text-sm">5.0 · Based on real Google reviews</p>
+                                    </div>
+                                    <div className="grid md:grid-cols-3 gap-5 max-w-6xl mx-auto">
+                                        {[
+                                            { name: "Jaipreet Bains", initial: "J", col: "bg-blue-100 text-blue-700",  time: "5 weeks ago",
+                                              text: '"Done within 20 minutes, very professional messaging and scheduling like booking a slot and overall very good customer service and great experience!!! 10/10!"' },
+                                            { name: "Shefak Alis",    initial: "S", col: "bg-red-100 text-red-700",    time: "4 weeks ago",
+                                              text: '"The staff were really friendly and knowledgeable, and they helped replace the battery in my iPhone quickly and professionally. I\'d definitely recommend this shop!"' },
+                                            { name: "Agnes Farrer",   initial: "A", col: "bg-green-100 text-green-700",time: "Yesterday",
+                                              text: '"The best vape and food and drink and technology shop in the whole of Windsor — very welcoming owner and lovely vibes. Tanish is the best!"' }
+                                        ].map(({ name, initial, col, time, text }, i) => (
+                                            <div key={i} className="review-card bg-white p-7 rounded-2xl border border-gray-100 shadow-sm">
+                                                <div className="flex justify-between items-start mb-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-10 h-10 ${col} rounded-full flex items-center justify-center font-black text-lg`}>{initial}</div>
+                                                        <div>
+                                                            <div className="font-bold text-gray-900 text-sm">{name}</div>
+                                                            <div className="text-xs text-gray-400">{time}</div>
+                                                        </div>
+                                                    </div>
+                                                    <i className="fab fa-google text-gray-300 text-lg"></i>
+                                                </div>
+                                                <div className="text-yellow-400 text-sm mb-3">★★★★★</div>
+                                                <p className="text-gray-600 text-sm leading-relaxed font-medium">{text}</p>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             </section>
-                        </main>
-                    ) : view === 'booking' ? (
-                        <main className="py-12 bg-gray-50 flex-1 px-4">
-                            <div className="max-w-7xl mx-auto">
-                                {renderFunnel()}
-                            </div>
-                        </main>
-                    ) : (
-                        <main className="py-12 bg-gray-50 flex-1 px-4">
-                            <div className="max-w-7xl mx-auto">
-                                {renderSellPage()}
-                            </div>
+
+                            <FAQSection />
+
+                            {/* MAP */}
+                            <section className="py-16 bg-gray-50 border-t border-gray-100 px-4">
+                                <div className="max-w-6xl mx-auto text-center">
+                                    <h2 className="font-display text-4xl md:text-5xl font-black text-gray-900 mb-2">Find Us</h2>
+                                    <p className="text-gray-400 font-medium mb-8">Queen Annes Court, 3 Peascod St, Windsor SL4 1DG</p>
+                                    <div className="h-[380px] rounded-3xl overflow-hidden shadow-xl border border-gray-200">
+                                        <iframe src="https://maps.google.com/maps?q=Windsor%20Express,%20Queen%20Annes%20Court,%203%20Peascod%20St,%20Windsor%20SL4%201DG&t=&z=19&ie=UTF8&iwloc=&output=embed"
+                                            className="w-full h-full border-0" allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+                                    </div>
+                                </div>
+                            </section>
                         </main>
                     )}
 
-                    <footer className="bg-gray-900 text-white py-16 text-center md:text-left">
-                        <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-10">
+                    {view === 'booking' && (
+                        <main className="py-12 bg-gray-50 flex-1 px-4">
+                            <div className="max-w-7xl mx-auto">{renderFunnel()}</div>
+                        </main>
+                    )}
+
+                    {view === 'sell' && (
+                        <main className="py-12 bg-gray-50 flex-1 px-4">
+                            <div className="max-w-7xl mx-auto">{renderSellPage()}</div>
+                        </main>
+                    )}
+
+                    {/* FOOTER */}
+                    <footer className="bg-gray-900 text-white pt-16 pb-8">
+                        <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-10 mb-12">
                             <div>
-                                <h3 className="text-2xl font-black mb-4 text-brand-400">Windsor Express</h3>
-                                <p className="text-gray-400 font-medium">3 Peascod St, Windsor SL4 1DG</p>
-                                <a href={`tel:${SHOP_PHONE}`} className="inline-block mt-6 text-xl font-bold text-white hover:text-brand-400 transition-colors"><i className="fas fa-phone mr-2 text-brand-500"></i> 07912 150397</a>
+                                <div className="flex items-center mb-4">
+                                    <div className="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center mr-2 text-white text-xs"><i className="fas fa-bolt"></i></div>
+                                    <span className="font-display text-xl font-black">WINDSOR <span className="text-brand-400">EXPRESS</span></span>
+                                </div>
+                                <p className="text-gray-400 text-sm font-medium leading-relaxed">Windsor's most trusted phone repair shop. Fast, fair, and fully guaranteed.</p>
                             </div>
-                            <div className="md:text-right">
-                                <h3 className="text-xl font-bold mb-6">Opening Hours</h3>
-                                <div className="space-y-2 text-gray-400 font-medium">
-                                    <p>Mon - Sat: 10:00 AM - 8:00 PM</p>
-                                    <p>Sunday: 10:30 AM - 7:00 PM</p>
+                            <div>
+                                <h3 className="font-bold text-xs uppercase tracking-widest text-gray-500 mb-4">Contact</h3>
+                                <p className="text-gray-400 text-sm mb-2 font-medium">3 Peascod St, Windsor SL4 1DG</p>
+                                <a href={`tel:${SHOP_PHONE}`} className="text-white font-bold hover:text-brand-400 transition-colors flex items-center gap-2 text-sm">
+                                    <i className="fas fa-phone text-brand-500 text-xs"></i> 07912 150397
+                                </a>
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-xs uppercase tracking-widest text-gray-500 mb-4">Opening Hours</h3>
+                                <div className="space-y-2 text-sm text-gray-400 font-medium">
+                                    <p>Mon – Sat: 10:00 AM – 8:00 PM</p>
+                                    <p>Sunday: 10:30 AM – 7:00 PM</p>
                                 </div>
                             </div>
                         </div>
-                        
-                        {/* SEO Overload Footer Section */}
-                        <div className="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-gray-800 text-center text-gray-500 text-xs font-medium leading-relaxed">
-                            <h2 className="sr-only">Windsor Express Services & Service Areas</h2>
+                        <div className="max-w-7xl mx-auto px-4 border-t border-gray-800 pt-8 text-center text-gray-600 text-xs font-medium leading-relaxed">
                             <p className="mb-2">
-                                <strong className="text-gray-400">Our Windsor Services:</strong> Fast iPhone Screen Repair, Samsung Battery Replacement, iPad Repairs, Screen Fixes, Water Damage Repair, Charging Port Fixes. <strong className="text-gray-400">Sell & Trade:</strong> Cash for Phones, Sell Your Device, Trade-In Old iPhones, Buy Back Mobiles. <strong className="text-gray-400">Vape Shop:</strong> Premium Disposables, E-Liquids, Coils & Kits.
+                                <strong className="text-gray-500">Services:</strong> iPhone Screen Repair · Samsung Battery Replacement · iPad Repairs · Water Damage · Charging Port Fix · Cash for Phones · Device Trade-In · Premium Vapes
                             </p>
                             <p className="mb-4">
-                                <strong className="text-gray-400">Proudly Serving:</strong> Peascod Street, Windsor (SL4), Eton, Datchet, Old Windsor, Slough, and surrounding Berkshire areas.
+                                <strong className="text-gray-500">Areas Served:</strong> Windsor SL4 · Eton · Datchet · Old Windsor · Slough · Berkshire
                             </p>
                             <p>&copy; 2026 Windsor Express. All rights reserved.</p>
                         </div>
@@ -761,8 +1049,7 @@
             );
         };
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 </body>
 </html>
