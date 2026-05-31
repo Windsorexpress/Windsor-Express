@@ -7,7 +7,6 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-3ZJFVJ5NDH');
 </script>
     <link rel="icon" type="image/png" href="/favicon.png">
@@ -20,7 +19,6 @@
     <meta property="og:description" content="Get your phone fixed in 30 minutes, or sell your old device for instant cash. Located on Peascod Street, Windsor.">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="en_GB">
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -37,13 +35,13 @@
             }
         }
     </script>
-
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Supabase JS client (database) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -69,20 +67,16 @@
       ]
     }
     </script>
-
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'DM Sans', sans-serif; background: #f8fafc; color: #0f172a; }
         h1, h2, h3, .font-display { font-family: 'Barlow Condensed', sans-serif; }
-
         .glass { background: rgba(255,255,255,0.97); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
-
         /* Hero dot grid */
         .hero-dots {
             background-image: radial-gradient(circle, #10b981 1px, transparent 1px);
             background-size: 30px 30px;
         }
-
         /* Cards */
         .funnel-card {
             transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -95,7 +89,6 @@
             box-shadow: 0 16px 32px -8px rgba(16, 185, 129, 0.25);
         }
         .funnel-card:active { transform: scale(0.98); }
-
         /* Shine effect */
         .card-shine { position: relative; overflow: hidden; }
         .card-shine::after {
@@ -109,13 +102,10 @@
             pointer-events: none;
         }
         .card-shine:hover::after { left: 150%; }
-
         /* Animations */
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
         @keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-
         /* Live status dot */
         .live-dot {
             width: 8px; height: 8px; background: #10b981;
@@ -126,25 +116,20 @@
             0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
             50% { box-shadow: 0 0 0 5px rgba(16,185,129,0); }
         }
-
         /* Progress bar */
         .progress-bar-fill { transition: width 0.45s ease; }
-
         /* Stats */
         @keyframes countUp { from { opacity: 0; transform: scale(0.8) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         .stat-num { animation: countUp 0.6s ease-out both; }
-
         /* FAQ */
         .faq-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease, opacity 0.25s ease; opacity: 0; }
         .faq-body.open { max-height: 260px; opacity: 1; }
         .faq-icon { transition: transform 0.3s ease; }
         .faq-icon.rotated { transform: rotate(45deg); }
-
         /* Screen tier colour accents */
         .tier-lcd  { border-left: 4px solid #f59e0b; }
         .tier-fhd  { border-left: 4px solid #3b82f6; }
         .tier-oled { border-left: 4px solid #10b981; }
-
         /* WhatsApp */
         .whatsapp-btn {
             position: fixed; bottom: 24px; right: 24px;
@@ -157,7 +142,6 @@
             text-decoration: none;
         }
         .whatsapp-btn:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(37,211,102,0.6); }
-
         /* Mobile bottom CTA bar */
         .mobile-cta-bar {
             display: none;
@@ -172,11 +156,9 @@
             .whatsapp-btn { bottom: 88px; }
             body { padding-bottom: 72px; }
         }
-
         /* Review card */
         .review-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .review-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,0.08); }
-
         /* Scrollbar */
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: #f8fafc; }
@@ -185,14 +167,26 @@
 </head>
 <body>
     <div id="root"></div>
-
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
-
         // --- CONFIG ---
         const OWNER_EMAIL = "tanish.ratala@gmail.com";
         const SHOP_PHONE  = "+447912150397";
         const apiKey      = "AIzaSyCrIHWXBa5PnlzlxIsl8Qy2_gjuHaioteU";
+
+        // --- SUPABASE (database)  >>> PASTE YOUR PROJECT VALUES (see SETUP-GUIDE) <<< ---
+       const SUPABASE_URL      = "https://hqjnhwkkqctuymvzzszy.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_mbRgGL97wHJVQhYDBFJhmQ_63dFxWMH";
+        const CHECKOUT_FN_URL   = `${SUPABASE_URL}/functions/v1/create-checkout`;
+        const SB_READY = SUPABASE_URL.indexOf("YOUR-") === -1 && typeof window.supabase !== "undefined";
+        const sb = SB_READY ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+        // --- ADD-ONS (standard upsells) ---
+        const ADDONS = [
+            { id: 'screen_protector', label: 'Tempered Glass Screen Protector', price: 10, icon: 'fa-shield-halved', desc: 'Scratch & crack protection, fitted free' },
+            { id: 'clear_case',       label: 'Clear Protective Case',           price: 10, icon: 'fa-mobile-screen',  desc: 'Slim, see-through, shock-absorbing' }
+        ];
+        const POSTAGE_FEE = 4.99; // flat UK tracked postage for posted phone orders
 
         // --- IPHONE PRICING ---
         const IPHONE_PRICES = {
@@ -218,13 +212,11 @@
             "17 Pro":               { fhd: 179.99, oled: 279.99 },
             "17 Pro Max":           { fhd: 189.99, oled: 289.99 }
         };
-
         const TIER_META = {
             lcd:  { label: "LCD",  tagline: "Works perfectly – great value",       textColor: "text-amber-700", bg: "bg-amber-50",  border: "tier-lcd"  },
             fhd:  { label: "FHD",  tagline: "Better colour & brightness",           textColor: "text-blue-700",  bg: "bg-blue-50",   border: "tier-fhd"  },
             oled: { label: "OLED", tagline: "Original quality – best choice",       textColor: "text-brand-700", bg: "bg-brand-50",  border: "tier-oled" }
         };
-
         const TIME_SLOTS = [];
         for (let h = 10; h <= 19; h++) {
             const disp = h > 12 ? h - 12 : h;
@@ -233,7 +225,6 @@
             if (h < 19) TIME_SLOTS.push(`Today at ${disp}:30 ${ampm}`);
         }
         TIME_SLOTS.push("Tomorrow – Any Time");
-
         const FAQ_ITEMS = [
             { q: "How long does a repair take?",
               a: "Most iPhone and Samsung screen repairs are done in under 30 minutes. Battery replacements typically take 30–60 minutes. We'll give you an accurate time estimate when you drop in." },
@@ -244,11 +235,10 @@
             { q: "Can I send my phone by post?",
               a: "Yes! Book the mail-in option online and we'll email you secure prepaid postage instructions. Once repaired, we post it straight back to your door." },
             { q: "What payment methods do you accept?",
-              a: "Cash, all major credit and debit cards, Apple Pay, and Google Pay — whatever works best for you." },
+              a: "Pay online by card at checkout, or pay in store with cash, all major credit and debit cards, Apple Pay, and Google Pay — whatever works best for you." },
             { q: "Do you repair water-damaged phones?",
               a: "Yes — drop in or book online for a free diagnostic. We have a strong success rate with water damage, especially if you act quickly. Don't charge it first!" }
         ];
-
         // --- GEMINI ---
         const callGemini = async (prompt, isJson = false) => {
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
@@ -262,7 +252,31 @@
                 return isJson ? JSON.parse(text) : text;
             } catch { return null; }
         };
-
+        // --- HELPERS ---
+        const addonTotal = (ids) => (ids || []).reduce((s, id) => { const a = ADDONS.find(x => x.id === id); return s + (a ? a.price : 0); }, 0);
+        const addonLabels = (ids) => (ids || []).map(id => { const a = ADDONS.find(x => x.id === id); return a ? a.label : id; });
+        const gbp = (n) => `£${Number(n).toFixed(2)}`;
+        // --- DATABASE ---
+        const saveRow = async (table, row) => {
+            if (!sb) return { id: null, ok: false };
+            try {
+                const { data, error } = await sb.from(table).insert(row).select('id').single();
+                if (error) { console.warn('DB insert error:', error); return { id: null, ok: false }; }
+                return { id: data.id, ok: true };
+            } catch (e) { console.warn(e); return { id: null, ok: false }; }
+        };
+        // --- STRIPE CHECKOUT (via Supabase Edge Function) ---
+        const startCheckout = async (payload) => {
+            const res = await fetch(CHECKOUT_FN_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY },
+                body: JSON.stringify({ ...payload, returnUrl: window.location.origin + window.location.pathname })
+            });
+            if (!res.ok) throw new Error('checkout request failed');
+            const data = await res.json();
+            if (!data.url) throw new Error('no checkout url returned');
+            window.location.href = data.url;
+        };
         // --- EMAIL ---
         const sendEmail = async (data) => {
             try {
@@ -277,6 +291,9 @@
                         "Issue":              data.issue,
                         "Quality":            data.quality || "N/A",
                         "Price Quote":        data.quotedPrice || "Custom Quote Needed",
+                        "Add-ons":            (data.addons && data.addons.length) ? addonLabels(data.addons).join(', ') : "None",
+                        "Order Total":        data.total != null ? gbp(data.total) : (data.quotedPrice || "TBC"),
+                        "Payment":            data.paymentMethod === 'online' ? "💳 Paying online (Stripe)" : "🏬 Pay in store",
                         "Drop-off Time":      data.time || "N/A",
                         "Return Address":     data.address || "N/A",
                         "Customer":           `${data.name} | ${data.phone} | ${data.email}`
@@ -285,7 +302,6 @@
                 return res.ok;
             } catch { return false; }
         };
-
         const sendSellEmail = async (data) => {
             try {
                 const res = await fetch(`https://formsubmit.co/ajax/${OWNER_EMAIL}`, {
@@ -302,9 +318,28 @@
                 return res.ok;
             } catch { return false; }
         };
-
+        const sendOrderEmail = async (data) => {
+            try {
+                const res = await fetch(`https://formsubmit.co/ajax/${OWNER_EMAIL}`, {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({
+                        _subject: `🛒 PHONE ORDER: ${data.product_name}`,
+                        email: data.email, name: data.name,
+                        "Phone":        data.product_name,
+                        "Phone Price":  gbp(data.product_price),
+                        "Add-ons":      (data.addons && data.addons.length) ? addonLabels(data.addons).join(', ') : "None",
+                        "Fulfilment":   data.fulfillment === 'postage' ? `📮 UK Postage (${gbp(data.postage_fee)})` : "🏬 Collect in store",
+                        "Order Total":  gbp(data.total_amount),
+                        "Payment":      data.payment_method === 'online' ? "💳 Paying online (Stripe)" : "🏬 Pay on collection",
+                        "Delivery Address": data.address || "N/A",
+                        "Customer":     `${data.name} | ${data.phone} | ${data.email}`
+                    })
+                });
+                return res.ok;
+            } catch { return false; }
+        };
         // ─── STATIC SUB-COMPONENTS ─────────────────────────────────────────────
-
         const TrustBar = () => (
             <div className="bg-brand-500 text-white py-2.5">
                 <div className="max-w-7xl mx-auto px-4 flex items-center justify-center flex-wrap gap-x-6 gap-y-1 text-xs md:text-sm font-semibold">
@@ -318,7 +353,6 @@
                 </div>
             </div>
         );
-
         const StatsBar = () => (
             <div className="bg-gray-900 py-12">
                 <div className="max-w-4xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
@@ -337,7 +371,6 @@
                 </div>
             </div>
         );
-
         const HowItWorks = () => (
             <section className="py-20 bg-white">
                 <div className="max-w-5xl mx-auto px-4">
@@ -371,7 +404,6 @@
                 </div>
             </section>
         );
-
         const FAQSection = () => {
             const [open, setOpen] = useState(null);
             return (
@@ -399,39 +431,38 @@
                 </section>
             );
         };
-
         // ─── MAIN APP ──────────────────────────────────────────────────────────
-
         const App = () => {
             const [view, setView] = useState('home');
-
             // Repair
             const [funnelStep, setFunnelStep]   = useState(1);
             const [bookingData, setBookingData] = useState({
                 serviceType: 'walk-in', brand: '', model: '', issue: '',
-                quality: '', quotedPrice: '', time: '', phone: '', name: '', email: '', address: ''
+                quality: '', qualityKey: '', quotedPrice: '', time: '', phone: '', name: '', email: '', address: '',
+                addons: [], paymentMethod: 'in_store'
             });
             const [isSubmitting, setIsSubmitting] = useState(false);
-
             // Sell
             const [sellData, setSellData]           = useState({ device: '', condition: '', name: '', phone: '', email: '' });
             const [isSellSubmitting, setIsSell]     = useState(false);
-
+            // Shop (buy a phone)
+            const [phones, setPhones]               = useState([]);
+            const [phonesLoading, setPhonesLoading] = useState(true);
+            const [selectedPhone, setSelectedPhone] = useState(null);
+            const [purchaseData, setPurchaseData]   = useState({ addons: [], fulfillment: 'collect', paymentMethod: 'in_store', name: '', phone: '', email: '', address: '' });
+            const [isBuying, setIsBuying]           = useState(false);
             // AI
             const [showAIPrompt, setShowAIPrompt]   = useState(false);
             const [aiInput, setAiInput]             = useState('');
             const [isAILoading, setIsAILoading]     = useState(false);
             const [aiDiagnosisMsg, setAiMsg]        = useState('');
-
             // Vape
             const [vapeInput, setVapeInput]         = useState('');
             const [vapeResult, setVapeResult]       = useState('');
             const [isVapeLoading, setIsVapeLoading] = useState(false);
-
             // Exit intent
             const [showExit, setShowExit] = useState(false);
             const seenPopup = useRef(false);
-
             useEffect(() => {
                 const handler = (e) => {
                     if (e.clientY <= 0 && !seenPopup.current) { setShowExit(true); seenPopup.current = true; }
@@ -439,29 +470,46 @@
                 document.addEventListener('mouseleave', handler);
                 return () => document.removeEventListener('mouseleave', handler);
             }, []);
-
+            // Load phones for sale from database
+            useEffect(() => {
+                if (!sb) { setPhonesLoading(false); return; }
+                sb.from('phones').select('*').gt('stock', 0).order('price', { ascending: true })
+                  .then(({ data, error }) => { if (!error && data) setPhones(data); setPhonesLoading(false); })
+                  .catch(() => setPhonesLoading(false));
+            }, []);
+            // Post-payment redirect handling
+            useEffect(() => {
+                const q = new URLSearchParams(window.location.search);
+                const p = q.get('payment');
+                if (p === 'success') setTimeout(() => alert("✅ Payment received — thank you! A confirmation is on its way. See you at Windsor Express."), 250);
+                else if (p === 'cancelled') setTimeout(() => alert("Payment cancelled — nothing was charged. You can try again or choose pay in store."), 250);
+                if (p) window.history.replaceState({}, '', window.location.pathname);
+            }, []);
             const goHome = () => {
                 setView('home'); setFunnelStep(1); setShowAIPrompt(false); setAiMsg('');
-                setBookingData({ serviceType: 'walk-in', brand: '', model: '', issue: '', quality: '', quotedPrice: '', time: '', phone: '', name: '', email: '', address: '' });
+                setBookingData({ serviceType: 'walk-in', brand: '', model: '', issue: '', quality: '', qualityKey: '', quotedPrice: '', time: '', phone: '', name: '', email: '', address: '', addons: [], paymentMethod: 'in_store' });
                 setSellData({ device: '', condition: '', name: '', phone: '', email: '' });
+                setSelectedPhone(null);
+                setPurchaseData({ addons: [], fulfillment: 'collect', paymentMethod: 'in_store', name: '', phone: '', email: '', address: '' });
             };
-
             // Funnel logic
             const handleBrand = (brand) => {
-                setBookingData(p => ({ ...p, brand, model: '', issue: '', quality: '', quotedPrice: '', time: '', phone: '', name: '', email: '', address: '' }));
+                setBookingData(p => ({ ...p, brand, model: '', issue: '', quality: '', qualityKey: '', quotedPrice: '', time: '', phone: '', name: '', email: '', address: '', addons: [], paymentMethod: 'in_store' }));
                 setFunnelStep(2);
             };
             const handleIssue = (issue, aiMsg = '') => {
-                setBookingData(p => ({ ...p, issue, model: '', quality: '', quotedPrice: '' }));
+                setBookingData(p => ({ ...p, issue, model: '', quality: '', qualityKey: '', quotedPrice: '' }));
                 if (aiMsg) setAiMsg(aiMsg);
                 if (issue === 'Screen' && bookingData.brand === 'Apple iPhone') setFunnelStep(3);
                 else setFunnelStep(4);
             };
             const handleQualitySelect = (key, price) => {
                 const label = key === 'lcd' ? 'LCD (Gold Box)' : key === 'fhd' ? 'FHD (Black Box)' : 'OLED (Red Box)';
-                setBookingData({ ...bookingData, quality: label, quotedPrice: `£${price.toFixed(2)}` });
+                setBookingData({ ...bookingData, quality: label, qualityKey: key, quotedPrice: `£${price.toFixed(2)}` });
                 setFunnelStep(4);
             };
+            const toggleRepairAddon = (id) => setBookingData(p => ({ ...p, addons: p.addons.includes(id) ? p.addons.filter(x => x !== id) : [...p.addons, id] }));
+            const toggleBuyAddon    = (id) => setPurchaseData(p => ({ ...p, addons: p.addons.includes(id) ? p.addons.filter(x => x !== id) : [...p.addons, id] }));
             const handleAIDiagnosis = async (e) => {
                 e.preventDefault();
                 setIsAILoading(true);
@@ -470,11 +518,40 @@
                 if (result) handleIssue(result.category, result.diagnosis_message);
                 else handleIssue('Other', "Our technicians will diagnose this in-store for free!");
             };
+            const repairBase = bookingData.quotedPrice ? parseFloat(bookingData.quotedPrice.replace('£', '')) : null;
+            const repairTotal = (repairBase || 0) + addonTotal(bookingData.addons);
             const submitBooking = async (e) => {
                 e.preventDefault(); setIsSubmitting(true);
-                const ok = await sendEmail(bookingData); setIsSubmitting(false);
-                if (ok) { alert("✅ Booking Confirmed! See you at Windsor Express soon."); goHome(); }
-                else alert("❌ Something went wrong. Please call 07912 150397 to book.");
+                const aTotal = addonTotal(bookingData.addons);
+                const total  = (repairBase || 0) + aTotal;
+                const row = {
+                    type: 'repair', service_type: bookingData.serviceType,
+                    brand: bookingData.brand, model: bookingData.model, issue: bookingData.issue,
+                    quality: bookingData.quality || null, quoted_price: bookingData.quotedPrice || null,
+                    addons: bookingData.addons, addon_total: aTotal, total_amount: total,
+                    time_slot: bookingData.time || null, address: bookingData.address || null,
+                    name: bookingData.name, phone: bookingData.phone, email: bookingData.email,
+                    payment_method: bookingData.paymentMethod, payment_status: 'unpaid'
+                };
+                const { id } = await saveRow('bookings', row);
+                sendEmail({ ...bookingData, total });
+                if (bookingData.paymentMethod === 'online' && repairBase !== null && total > 0) {
+                    try {
+                        await startCheckout({
+                            kind: 'repair', recordId: id,
+                            customer: { name: bookingData.name, email: bookingData.email, phone: bookingData.phone },
+                            repair: { brand: bookingData.brand, model: bookingData.model, issue: bookingData.issue, qualityKey: bookingData.qualityKey },
+                            addons: bookingData.addons
+                        });
+                        return; // browser is redirecting to Stripe
+                    } catch {
+                        setIsSubmitting(false);
+                        alert("❌ Couldn't start online payment. Please choose 'Pay in store' or call 07912 150397.");
+                        return;
+                    }
+                }
+                setIsSubmitting(false);
+                alert("✅ Booking Confirmed! See you at Windsor Express soon."); goHome();
             };
             const submitSell = async (e) => {
                 e.preventDefault(); setIsSell(true);
@@ -482,17 +559,59 @@
                 if (ok) { alert("✅ Quote Request Sent! We'll be in touch shortly with your offer."); goHome(); }
                 else alert("❌ Something went wrong. Please call 07912 150397.");
             };
+            const openBuy = (phone) => {
+                setSelectedPhone(phone);
+                setPurchaseData({ addons: [], fulfillment: 'collect', paymentMethod: 'in_store', name: '', phone: '', email: '', address: '' });
+                setView('checkout');
+                window.scrollTo(0, 0);
+            };
+            const setFulfillment = (f) => setPurchaseData(p => ({ ...p, fulfillment: f, paymentMethod: f === 'postage' ? 'online' : p.paymentMethod }));
+            const buyAddonTotal = addonTotal(purchaseData.addons);
+            const buyPostage    = purchaseData.fulfillment === 'postage' ? POSTAGE_FEE : 0;
+            const buyTotal      = (selectedPhone ? parseFloat(selectedPhone.price) : 0) + buyAddonTotal + buyPostage;
+            const submitPurchase = async (e) => {
+                e.preventDefault(); setIsBuying(true);
+                const aTotal = addonTotal(purchaseData.addons);
+                const postage = purchaseData.fulfillment === 'postage' ? POSTAGE_FEE : 0;
+                const total = parseFloat(selectedPhone.price) + aTotal + postage;
+                const row = {
+                    type: 'phone_order', product_id: selectedPhone.id,
+                    product_name: `${selectedPhone.name}${selectedPhone.storage ? ' ' + selectedPhone.storage : ''}`,
+                    product_price: selectedPhone.price,
+                    addons: purchaseData.addons, addon_total: aTotal,
+                    fulfillment: purchaseData.fulfillment, postage_fee: postage, total_amount: total,
+                    name: purchaseData.name, phone: purchaseData.phone, email: purchaseData.email,
+                    address: purchaseData.fulfillment === 'postage' ? purchaseData.address : null,
+                    payment_method: purchaseData.paymentMethod, payment_status: 'unpaid'
+                };
+                const { id } = await saveRow('orders', row);
+                sendOrderEmail(row);
+                if (purchaseData.paymentMethod === 'online') {
+                    try {
+                        await startCheckout({
+                            kind: 'phone', recordId: id, phoneId: selectedPhone.id,
+                            addons: purchaseData.addons, fulfillment: purchaseData.fulfillment,
+                            customer: { name: purchaseData.name, email: purchaseData.email, phone: purchaseData.phone }
+                        });
+                        return;
+                    } catch {
+                        setIsBuying(false);
+                        alert("❌ Couldn't start online payment. Please choose 'Pay in store' or call 07912 150397.");
+                        return;
+                    }
+                }
+                setIsBuying(false);
+                alert("✅ Reserved! We'll have it ready for you. Pay when you collect in store."); goHome();
+            };
             const handleVapeMatch = async (e) => {
                 e.preventDefault(); setIsVapeLoading(true);
                 const res = await callGemini(`Give a short, enthusiastic vape flavour recommendation (2-3 sentences) for someone who likes "${vapeInput}".`);
                 setIsVapeLoading(false);
                 if (res) setVapeResult(res);
             };
-
             const stepLabels    = ['Device', 'Issue', 'Model & Quality', 'Confirm'];
             const progressPct   = ((funnelStep - 1) / 3) * 100;
             const waMsg         = encodeURIComponent("Hi Windsor Express! I'd like to book a repair / get a quote.");
-
             // ── FUNNEL ──
             const renderFunnel = () => (
                 <div className="max-w-2xl mx-auto bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden relative">
@@ -502,7 +621,6 @@
                             <p className="font-bold text-gray-700">Locking in your slot...</p>
                         </div>
                     )}
-
                     {/* Header + progress */}
                     <div className="bg-gray-50 border-b border-gray-100 p-5">
                         <div className="flex justify-between items-center mb-3">
@@ -518,9 +636,7 @@
                             ))}
                         </div>
                     </div>
-
                     <div className="p-6 md:p-8 min-h-[400px]">
-
                         {/* STEP 1 */}
                         {funnelStep === 1 && (
                             <div className="fade-in">
@@ -552,7 +668,6 @@
                                 </button>
                             </div>
                         )}
-
                         {/* STEP 2 — issue */}
                         {funnelStep === 2 && !showAIPrompt && (
                             <div className="fade-in">
@@ -560,14 +675,12 @@
                                     <i className="fas fa-arrow-left text-xs"></i> Back
                                 </button>
                                 <h4 className="font-display text-3xl font-black text-gray-900 text-center mb-7">What's the problem?</h4>
-
                                 {aiDiagnosisMsg && (
                                     <div className="mb-5 p-4 bg-indigo-50 rounded-xl border border-indigo-100 text-indigo-700 text-sm font-medium flex gap-3 items-start">
                                         <i className="fas fa-robot mt-0.5 flex-shrink-0"></i>
                                         <span>{aiDiagnosisMsg}</span>
                                     </div>
                                 )}
-
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
                                     {[
                                         { issue: 'Screen',  icon: 'fa-burst',          label: 'Broken Screen'   },
@@ -589,7 +702,6 @@
                                 </div>
                             </div>
                         )}
-
                         {/* STEP 2 — AI prompt */}
                         {funnelStep === 2 && showAIPrompt && (
                             <div className="fade-in">
@@ -611,7 +723,6 @@
                                 </form>
                             </div>
                         )}
-
                         {/* STEP 3 — model & quality */}
                         {funnelStep === 3 && (
                             <div className="fade-in">
@@ -619,16 +730,14 @@
                                     <i className="fas fa-arrow-left text-xs"></i> Back
                                 </button>
                                 <h4 className="font-display text-3xl font-black text-gray-900 text-center mb-6">Model & Screen Quality</h4>
-
                                 <div className="mb-6">
                                     <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">iPhone Model</label>
-                                    <select onChange={e => setBookingData({ ...bookingData, model: e.target.value, quality: '', quotedPrice: '' })} value={bookingData.model}
+                                    <select onChange={e => setBookingData({ ...bookingData, model: e.target.value, quality: '', qualityKey: '', quotedPrice: '' })} value={bookingData.model}
                                         className="w-full p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none bg-white font-medium text-gray-700 transition-colors">
                                         <option value="">— Choose your model —</option>
                                         {Object.keys(IPHONE_PRICES).map(m => <option key={m} value={m}>{m}</option>)}
                                     </select>
                                 </div>
-
                                 {bookingData.model && (
                                     <div className="space-y-3">
                                         <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Screen Quality</label>
@@ -649,7 +758,6 @@
                                 )}
                             </div>
                         )}
-
                         {/* STEP 4 — confirm */}
                         {funnelStep === 4 && (
                             <div className="fade-in">
@@ -658,7 +766,6 @@
                                     <i className="fas fa-arrow-left text-xs"></i> Back
                                 </button>
                                 <h4 className="font-display text-3xl font-black text-gray-900 text-center mb-5">Confirm Your Booking</h4>
-
                                 {/* Summary */}
                                 <div className="bg-gradient-to-br from-brand-50 to-green-50 border border-brand-100 rounded-2xl p-5 text-center mb-5">
                                     <div className="text-xs font-bold text-brand-600 uppercase tracking-widest mb-1">Your Repair</div>
@@ -678,7 +785,6 @@
                                           </div>
                                     }
                                 </div>
-
                                 <form onSubmit={submitBooking} className="space-y-3">
                                     {bookingData.brand !== 'Apple iPhone' && (
                                         <input type="text" value={bookingData.model} onChange={e => setBookingData({ ...bookingData, model: e.target.value })}
@@ -692,6 +798,35 @@
                                             {Object.keys(IPHONE_PRICES).map(m => <option key={m} value={m}>{m}</option>)}
                                         </select>
                                     )}
+                                    {/* ADD-ONS */}
+                                    <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+                                        <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Add Protection — optional</div>
+                                        <div className="space-y-2">
+                                            {ADDONS.map(a => {
+                                                const on = bookingData.addons.includes(a.id);
+                                                return (
+                                                    <div key={a.id} onClick={() => toggleRepairAddon(a.id)}
+                                                        className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${on ? 'border-brand-500 bg-brand-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
+                                                        <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 ${on ? 'bg-brand-500 border-brand-500' : 'border-gray-300'}`}>
+                                                            {on && <i className="fas fa-check text-white text-[10px]"></i>}
+                                                        </div>
+                                                        <i className={`fas ${a.icon} text-brand-500`}></i>
+                                                        <div className="flex-1">
+                                                            <div className="font-bold text-gray-800 text-sm">{a.label}</div>
+                                                            <div className="text-xs text-gray-400 font-medium">{a.desc}</div>
+                                                        </div>
+                                                        <div className="font-display font-black text-gray-800 whitespace-nowrap">+£{a.price}</div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                    {repairBase !== null && (
+                                        <div className="flex justify-between items-center px-1 pt-1">
+                                            <span className="font-bold text-gray-500 text-sm uppercase tracking-wider">Total</span>
+                                            <span className="font-display text-3xl font-black text-brand-600">{gbp(repairTotal)}</span>
+                                        </div>
+                                    )}
                                     <div className="grid grid-cols-2 gap-3">
                                         <input type="text" value={bookingData.name} onChange={e => setBookingData({ ...bookingData, name: e.target.value })} placeholder="Full name" required
                                             className="p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
@@ -700,7 +835,6 @@
                                     </div>
                                     <input type="email" value={bookingData.email} onChange={e => setBookingData({ ...bookingData, email: e.target.value })} placeholder="Email address" required
                                         className="w-full p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
-
                                     {bookingData.serviceType === 'walk-in' ? (
                                         <select value={bookingData.time} onChange={e => setBookingData({ ...bookingData, time: e.target.value })} required
                                             className="w-full p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none bg-white font-medium text-gray-700 transition-colors">
@@ -717,19 +851,36 @@
                                             </p>
                                         </div>
                                     )}
-
+                                    {/* PAYMENT METHOD */}
+                                    <div>
+                                        <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">How would you like to pay?</div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <button type="button" onClick={() => setBookingData({ ...bookingData, paymentMethod: 'in_store' })}
+                                                className={`p-4 rounded-xl border-2 font-bold text-sm transition-all ${bookingData.paymentMethod === 'in_store' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
+                                                <i className="fas fa-store block text-lg mb-1"></i>Pay in store
+                                            </button>
+                                            <button type="button" disabled={repairBase === null} onClick={() => setBookingData({ ...bookingData, paymentMethod: 'online' })}
+                                                className={`p-4 rounded-xl border-2 font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed ${bookingData.paymentMethod === 'online' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
+                                                <i className="fas fa-credit-card block text-lg mb-1"></i>Pay online
+                                            </button>
+                                        </div>
+                                        {repairBase === null && <p className="text-xs text-gray-400 font-medium mt-1.5">Online payment unlocks once your repair has a price — pay in store works perfectly for now.</p>}
+                                    </div>
                                     <button type="submit"
                                         className="w-full bg-brand-500 hover:bg-brand-600 text-white font-display font-black text-xl py-5 rounded-xl shadow-lg transition-colors mt-1">
-                                        {bookingData.serviceType === 'walk-in' ? '🔒 Book My 30-Min Repair' : '📦 Request Mail-In Repair'}
+                                        {bookingData.paymentMethod === 'online'
+                                            ? `💳 Pay ${gbp(repairTotal)} & Book`
+                                            : (bookingData.serviceType === 'walk-in' ? '🔒 Book My 30-Min Repair' : '📦 Request Mail-In Repair')}
                                     </button>
-                                    <p className="text-center text-xs text-gray-400 font-medium">No payment now — pay in-store on the day.</p>
+                                    <p className="text-center text-xs text-gray-400 font-medium">
+                                        {bookingData.paymentMethod === 'online' ? "Secure card payment via Stripe — you'll be redirected." : "No payment now — pay in-store on the day."}
+                                    </p>
                                 </form>
                             </div>
                         )}
                     </div>
                 </div>
             );
-
             // ── SELL PAGE ──
             const renderSellPage = () => (
                 <div className="max-w-2xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden fade-in relative">
@@ -755,7 +906,6 @@
                                     placeholder="e.g. iPhone 13 Pro 128GB, Samsung S22 256GB" required
                                     className="w-full p-4 border-2 border-gray-200 focus:border-gray-800 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
                             </div>
-
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Condition</label>
                                 <div className="grid grid-cols-3 gap-3">
@@ -773,9 +923,7 @@
                                     ))}
                                 </div>
                             </div>
-
                             <hr className="border-gray-100" />
-
                             <div className="grid grid-cols-2 gap-3">
                                 <input type="text" value={sellData.name} onChange={e => setSellData({ ...sellData, name: e.target.value })} placeholder="Full name" required
                                     className="p-4 border-2 border-gray-200 focus:border-gray-800 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
@@ -784,7 +932,6 @@
                             </div>
                             <input type="email" value={sellData.email} onChange={e => setSellData({ ...sellData, email: e.target.value })} placeholder="Email address" required
                                 className="w-full p-4 border-2 border-gray-200 focus:border-gray-800 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
-
                             <button type="submit"
                                 className="w-full bg-gray-900 hover:bg-black text-white font-display font-black text-xl py-5 rounded-xl shadow-lg transition-colors">
                                 💰 Get My Cash Quote
@@ -794,26 +941,191 @@
                     </div>
                 </div>
             );
-
+            // ── SHOP (buy a phone) ──
+            const conditionBadge = (c) => {
+                const map = { 'New': 'bg-brand-100 text-brand-700', 'Like New': 'bg-blue-100 text-blue-700', 'Excellent': 'bg-indigo-100 text-indigo-700', 'Good': 'bg-amber-100 text-amber-700', 'Fair': 'bg-gray-200 text-gray-600' };
+                return map[c] || 'bg-gray-100 text-gray-600';
+            };
+            const renderShop = () => (
+                <div className="max-w-6xl mx-auto fade-in">
+                    <div className="text-center mb-10">
+                        <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 text-sm font-bold px-4 py-2 rounded-full mb-5">
+                            <i className="fas fa-mobile-screen-button"></i> Refurbished & unlocked · 12-month warranty
+                        </div>
+                        <h2 className="font-display text-5xl md:text-6xl font-black text-gray-900 mb-2">Buy a Phone</h2>
+                        <p className="text-gray-400 font-medium text-lg">Quality handsets, fully tested, ready to go — collect in store or posted to you</p>
+                    </div>
+                    {phonesLoading ? (
+                        <div className="flex flex-col items-center justify-center py-20">
+                            <div className="w-12 h-12 border-4 border-brand-100 border-t-brand-500 rounded-full animate-spin mb-4"></div>
+                            <p className="font-bold text-gray-400">Loading phones...</p>
+                        </div>
+                    ) : phones.length === 0 ? (
+                        <div className="max-w-md mx-auto text-center bg-white rounded-3xl border border-gray-100 shadow-sm p-10">
+                            <div className="text-5xl mb-4">📱</div>
+                            <h3 className="font-display text-3xl font-black text-gray-900 mb-2">Fresh Stock Incoming</h3>
+                            <p className="text-gray-500 font-medium mb-6">We're updating our range right now. Call or message us for what's in stock today.</p>
+                            <a href={`tel:${SHOP_PHONE}`} className="inline-block bg-brand-500 hover:bg-brand-600 text-white font-black px-6 py-3 rounded-xl transition-colors">Call 07912 150397</a>
+                        </div>
+                    ) : (
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {phones.map(ph => (
+                                <div key={ph.id} className="funnel-card border-gray-200 bg-white rounded-3xl overflow-hidden flex flex-col" onClick={() => openBuy(ph)}>
+                                    <div className="h-48 bg-gray-50 flex items-center justify-center overflow-hidden">
+                                        {ph.image_url
+                                            ? <img src={ph.image_url} alt={ph.name} className="h-full w-full object-cover" />
+                                            : <i className="fas fa-mobile-screen-button text-6xl text-gray-200"></i>}
+                                    </div>
+                                    <div className="p-5 flex flex-col flex-1">
+                                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                            {ph.condition && <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${conditionBadge(ph.condition)}`}>{ph.condition}</span>}
+                                            {ph.storage && <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">{ph.storage}</span>}
+                                            {ph.color && <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">{ph.color}</span>}
+                                        </div>
+                                        <h3 className="font-display text-2xl font-black text-gray-900 leading-tight">{ph.name}</h3>
+                                        {ph.description && <p className="text-gray-400 text-sm font-medium mt-1 mb-3 line-clamp-2">{ph.description}</p>}
+                                        <div className="mt-auto flex items-center justify-between pt-3">
+                                            <div className="font-display text-3xl font-black text-brand-500">{gbp(ph.price)}</div>
+                                            <span className="bg-brand-500 group-hover:bg-brand-600 text-white font-black px-5 py-2.5 rounded-xl text-sm shadow">Buy →</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+            // ── CHECKOUT (phone purchase) ──
+            const renderCheckout = () => {
+                if (!selectedPhone) return null;
+                const ph = selectedPhone;
+                return (
+                    <div className="max-w-2xl mx-auto bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden fade-in relative">
+                        {isBuying && (
+                            <div className="absolute inset-0 bg-white/90 z-50 flex flex-col items-center justify-center">
+                                <div className="w-14 h-14 border-4 border-brand-100 border-t-brand-500 rounded-full animate-spin mb-4"></div>
+                                <p className="font-bold text-gray-700">Processing your order...</p>
+                            </div>
+                        )}
+                        <div className="bg-gray-50 border-b border-gray-100 p-5 flex items-center justify-between">
+                            <h3 className="font-display text-2xl font-black text-gray-900">Checkout</h3>
+                            <button onClick={() => setView('shop')} className="text-sm text-gray-400 font-semibold hover:text-brand-500 transition-colors">
+                                <i className="fas fa-arrow-left text-xs mr-1"></i> Back to shop
+                            </button>
+                        </div>
+                        <div className="p-6 md:p-8">
+                            {/* Phone summary */}
+                            <div className="flex gap-4 items-center bg-gradient-to-br from-brand-50 to-green-50 border border-brand-100 rounded-2xl p-4 mb-5">
+                                <div className="w-20 h-20 bg-white rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 border border-brand-100">
+                                    {ph.image_url ? <img src={ph.image_url} alt={ph.name} className="w-full h-full object-cover" /> : <i className="fas fa-mobile-screen-button text-3xl text-gray-200"></i>}
+                                </div>
+                                <div className="flex-1">
+                                    <div className="font-display text-2xl font-black text-gray-900 leading-tight">{ph.name}</div>
+                                    <div className="text-xs text-gray-500 font-semibold mt-0.5">{[ph.storage, ph.color, ph.condition].filter(Boolean).join(' · ')}</div>
+                                </div>
+                                <div className="font-display text-2xl font-black text-brand-500">{gbp(ph.price)}</div>
+                            </div>
+                            <form onSubmit={submitPurchase} className="space-y-4">
+                                {/* ADD-ONS */}
+                                <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+                                    <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Add Protection — optional</div>
+                                    <div className="space-y-2">
+                                        {ADDONS.map(a => {
+                                            const on = purchaseData.addons.includes(a.id);
+                                            return (
+                                                <div key={a.id} onClick={() => toggleBuyAddon(a.id)}
+                                                    className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${on ? 'border-brand-500 bg-brand-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
+                                                    <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 ${on ? 'bg-brand-500 border-brand-500' : 'border-gray-300'}`}>
+                                                        {on && <i className="fas fa-check text-white text-[10px]"></i>}
+                                                    </div>
+                                                    <i className={`fas ${a.icon} text-brand-500`}></i>
+                                                    <div className="flex-1">
+                                                        <div className="font-bold text-gray-800 text-sm">{a.label}</div>
+                                                        <div className="text-xs text-gray-400 font-medium">{a.desc}</div>
+                                                    </div>
+                                                    <div className="font-display font-black text-gray-800 whitespace-nowrap">+£{a.price}</div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                                {/* FULFILMENT */}
+                                <div>
+                                    <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">How do you want it?</div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <button type="button" onClick={() => setFulfillment('collect')}
+                                            className={`p-4 rounded-xl border-2 font-bold text-sm transition-all ${purchaseData.fulfillment === 'collect' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
+                                            <i className="fas fa-store block text-lg mb-1"></i>Collect in store<span className="block text-xs font-medium text-gray-400 mt-0.5">Free</span>
+                                        </button>
+                                        <button type="button" onClick={() => setFulfillment('postage')}
+                                            className={`p-4 rounded-xl border-2 font-bold text-sm transition-all ${purchaseData.fulfillment === 'postage' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
+                                            <i className="fas fa-truck-fast block text-lg mb-1"></i>UK Postage<span className="block text-xs font-medium text-gray-400 mt-0.5">+{gbp(POSTAGE_FEE)} tracked</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <input type="text" value={purchaseData.name} onChange={e => setPurchaseData({ ...purchaseData, name: e.target.value })} placeholder="Full name" required
+                                        className="p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
+                                    <input type="tel" value={purchaseData.phone} onChange={e => setPurchaseData({ ...purchaseData, phone: e.target.value })} placeholder="Phone number" required
+                                        className="p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
+                                </div>
+                                <input type="email" value={purchaseData.email} onChange={e => setPurchaseData({ ...purchaseData, email: e.target.value })} placeholder="Email address" required
+                                    className="w-full p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
+                                {purchaseData.fulfillment === 'postage' && (
+                                    <textarea value={purchaseData.address} onChange={e => setPurchaseData({ ...purchaseData, address: e.target.value })}
+                                        placeholder="Full delivery address (including postcode)" required
+                                        className="w-full p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none min-h-[90px] font-medium placeholder-gray-300 resize-none transition-colors" />
+                                )}
+                                {/* TOTAL */}
+                                <div className="bg-gray-50 rounded-2xl p-4 space-y-1.5 text-sm font-medium text-gray-500">
+                                    <div className="flex justify-between"><span>{ph.name}</span><span>{gbp(ph.price)}</span></div>
+                                    {purchaseData.addons.map(id => { const a = ADDONS.find(x => x.id === id); return <div key={id} className="flex justify-between"><span>{a.label}</span><span>{gbp(a.price)}</span></div>; })}
+                                    {buyPostage > 0 && <div className="flex justify-between"><span>UK tracked postage</span><span>{gbp(buyPostage)}</span></div>}
+                                    <div className="flex justify-between pt-2 border-t border-gray-200 text-gray-900"><span className="font-display text-xl font-black uppercase">Total</span><span className="font-display text-2xl font-black text-brand-600">{gbp(buyTotal)}</span></div>
+                                </div>
+                                {/* PAYMENT */}
+                                <div>
+                                    <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">How would you like to pay?</div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <button type="button" disabled={purchaseData.fulfillment === 'postage'} onClick={() => setPurchaseData({ ...purchaseData, paymentMethod: 'in_store' })}
+                                            className={`p-4 rounded-xl border-2 font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed ${purchaseData.paymentMethod === 'in_store' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
+                                            <i className="fas fa-store block text-lg mb-1"></i>Pay on collection
+                                        </button>
+                                        <button type="button" onClick={() => setPurchaseData({ ...purchaseData, paymentMethod: 'online' })}
+                                            className={`p-4 rounded-xl border-2 font-bold text-sm transition-all ${purchaseData.paymentMethod === 'online' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
+                                            <i className="fas fa-credit-card block text-lg mb-1"></i>Pay online
+                                        </button>
+                                    </div>
+                                    {purchaseData.fulfillment === 'postage' && <p className="text-xs text-gray-400 font-medium mt-1.5">Posted orders are paid online so we can ship straight away.</p>}
+                                </div>
+                                <button type="submit"
+                                    className="w-full bg-brand-500 hover:bg-brand-600 text-white font-display font-black text-xl py-5 rounded-xl shadow-lg transition-colors">
+                                    {purchaseData.paymentMethod === 'online' ? `💳 Pay ${gbp(buyTotal)} & Order` : '🛍️ Reserve & Pay on Collection'}
+                                </button>
+                                <p className="text-center text-xs text-gray-400 font-medium">
+                                    {purchaseData.paymentMethod === 'online' ? "Secure card payment via Stripe — you'll be redirected." : "Reserve now, pay when you pick it up in store."}
+                                </p>
+                            </form>
+                        </div>
+                    </div>
+                );
+            };
             // ── RENDER ──
             return (
                 <div className="min-h-screen flex flex-col">
-
                     {/* WhatsApp */}
                     <a href={`https://wa.me/447912150397?text=${waMsg}`} target="_blank" rel="noopener noreferrer" className="whatsapp-btn">
                         <i className="fab fa-whatsapp"></i>
                     </a>
-
                     {/* Mobile bottom CTA */}
                     <div className="mobile-cta-bar" style={{ display: 'none' }}>
                         <button onClick={() => setView('booking')} className="flex-1 bg-brand-500 hover:bg-brand-600 text-white font-black py-3 rounded-xl text-sm transition-colors">
                             <i className="fas fa-wrench mr-1.5"></i> Book Repair
                         </button>
-                        <button onClick={() => setView('sell')} className="flex-1 bg-gray-900 hover:bg-black text-white font-black py-3 rounded-xl text-sm transition-colors">
-                            <i className="fas fa-money-bill-wave mr-1.5"></i> Sell Device
+                        <button onClick={() => setView('shop')} className="flex-1 bg-gray-900 hover:bg-black text-white font-black py-3 rounded-xl text-sm transition-colors">
+                            <i className="fas fa-mobile-screen-button mr-1.5"></i> Buy Phone
                         </button>
                     </div>
-
                     {/* Exit intent popup */}
                     {showExit && (
                         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center p-4 fade-in">
@@ -841,7 +1153,6 @@
                             </div>
                         </div>
                     )}
-
                     {/* NAV */}
                     <nav className="glass sticky top-0 z-50 border-b border-gray-100 shadow-sm">
                         <div className="max-w-7xl mx-auto px-4 flex justify-between h-16 md:h-20 items-center">
@@ -855,6 +1166,9 @@
                                 <a href={`tel:${SHOP_PHONE}`} className="hidden md:flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors">
                                     <i className="fas fa-phone text-brand-500 text-xs"></i> 07912 150397
                                 </a>
+                                <button onClick={() => setView('shop')} className="hidden md:block text-gray-500 font-bold hover:text-gray-900 transition-colors text-sm px-3 py-2">
+                                    Buy a Phone
+                                </button>
                                 <button onClick={() => setView('sell')} className="hidden md:block text-gray-500 font-bold hover:text-gray-900 transition-colors text-sm px-3 py-2">
                                     Sell Device
                                 </button>
@@ -865,13 +1179,10 @@
                             </div>
                         </div>
                     </nav>
-
                     <TrustBar />
-
                     {/* ── HOME ── */}
                     {view === 'home' && (
                         <main className="flex-1">
-
                             {/* HERO */}
                             <section className="bg-white py-16 md:py-24 px-4 text-center relative overflow-hidden">
                                 <div className="absolute inset-0 hero-dots opacity-[0.03]"></div>
@@ -890,10 +1201,56 @@
                                     {renderFunnel()}
                                 </div>
                             </section>
-
                             <StatsBar />
                             <HowItWorks />
-
+                            {/* BUY A PHONE */}
+                            <section className="py-16 bg-white border-t border-gray-100 px-4">
+                                <div className="max-w-6xl mx-auto">
+                                    <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
+                                        <div>
+                                            <div className="text-brand-500 font-bold text-xs uppercase tracking-widest mb-2">📱 In Stock Now</div>
+                                            <h2 className="font-display text-4xl md:text-5xl font-black text-gray-900">Phones For Sale</h2>
+                                            <p className="text-gray-400 font-medium mt-1">Refurbished, unlocked & warrantied — collect in store or posted to you</p>
+                                        </div>
+                                        <button onClick={() => setView('shop')} className="bg-gray-900 hover:bg-black text-white font-display font-black text-lg px-6 py-3 rounded-2xl transition-colors whitespace-nowrap shadow-lg">
+                                            Shop All Phones →
+                                        </button>
+                                    </div>
+                                    {phonesLoading ? (
+                                        <div className="flex justify-center py-12"><div className="w-10 h-10 border-4 border-brand-100 border-t-brand-500 rounded-full animate-spin"></div></div>
+                                    ) : phones.length === 0 ? (
+                                        <div className="bg-gray-900 rounded-3xl p-8 md:p-10 text-center relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 w-80 h-80 opacity-[0.07]" style={{ background: "radial-gradient(circle, #10b981 0%, transparent 70%)", transform: "translate(30%, -30%)" }}></div>
+                                            <div className="relative">
+                                                <h3 className="font-display text-3xl font-black text-white mb-2">Fresh stock arriving</h3>
+                                                <p className="text-gray-400 font-medium mb-5 max-w-md mx-auto">We're refreshing our range. Tap below or call to see today's handsets.</p>
+                                                <button onClick={() => setView('shop')} className="bg-brand-500 hover:bg-brand-600 text-white font-black px-6 py-3 rounded-xl transition-colors">View Shop →</button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {phones.slice(0, 3).map(ph => (
+                                                <div key={ph.id} className="funnel-card border-gray-200 bg-white rounded-3xl overflow-hidden flex flex-col" onClick={() => openBuy(ph)}>
+                                                    <div className="h-48 bg-gray-50 flex items-center justify-center overflow-hidden">
+                                                        {ph.image_url ? <img src={ph.image_url} alt={ph.name} className="h-full w-full object-cover" /> : <i className="fas fa-mobile-screen-button text-6xl text-gray-200"></i>}
+                                                    </div>
+                                                    <div className="p-5 flex flex-col flex-1">
+                                                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                                            {ph.condition && <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${conditionBadge(ph.condition)}`}>{ph.condition}</span>}
+                                                            {ph.storage && <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">{ph.storage}</span>}
+                                                        </div>
+                                                        <h3 className="font-display text-2xl font-black text-gray-900 leading-tight">{ph.name}</h3>
+                                                        <div className="mt-auto flex items-center justify-between pt-3">
+                                                            <div className="font-display text-3xl font-black text-brand-500">{gbp(ph.price)}</div>
+                                                            <span className="bg-brand-500 text-white font-black px-5 py-2.5 rounded-xl text-sm shadow">Buy →</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </section>
                             {/* SELL BANNER */}
                             <section className="py-16 bg-gray-50 px-4">
                                 <div className="max-w-5xl mx-auto">
@@ -912,7 +1269,6 @@
                                     </div>
                                 </div>
                             </section>
-
                             {/* VAPE */}
                             <section className="py-16 bg-white border-t border-gray-100 px-4">
                                 <div className="max-w-5xl mx-auto">
@@ -954,7 +1310,6 @@
                                     </div>
                                 </div>
                             </section>
-
                             {/* REVIEWS */}
                             <section className="py-16 bg-gray-50 border-t border-gray-100 px-4">
                                 <div className="max-w-7xl mx-auto">
@@ -990,9 +1345,7 @@
                                     </div>
                                 </div>
                             </section>
-
                             <FAQSection />
-
                             {/* MAP */}
                             <section className="py-16 bg-gray-50 border-t border-gray-100 px-4">
                                 <div className="max-w-6xl mx-auto text-center">
@@ -1006,19 +1359,26 @@
                             </section>
                         </main>
                     )}
-
                     {view === 'booking' && (
                         <main className="py-12 bg-gray-50 flex-1 px-4">
                             <div className="max-w-7xl mx-auto">{renderFunnel()}</div>
                         </main>
                     )}
-
                     {view === 'sell' && (
                         <main className="py-12 bg-gray-50 flex-1 px-4">
                             <div className="max-w-7xl mx-auto">{renderSellPage()}</div>
                         </main>
                     )}
-
+                    {view === 'shop' && (
+                        <main className="py-12 bg-gray-50 flex-1 px-4">
+                            <div className="max-w-7xl mx-auto">{renderShop()}</div>
+                        </main>
+                    )}
+                    {view === 'checkout' && (
+                        <main className="py-12 bg-gray-50 flex-1 px-4">
+                            <div className="max-w-7xl mx-auto">{renderCheckout()}</div>
+                        </main>
+                    )}
                     {/* FOOTER */}
                     <footer className="bg-gray-900 text-white pt-16 pb-8">
                         <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-10 mb-12">
@@ -1046,7 +1406,7 @@
                         </div>
                         <div className="max-w-7xl mx-auto px-4 border-t border-gray-800 pt-8 text-center text-gray-600 text-xs font-medium leading-relaxed">
                             <p className="mb-2">
-                                <strong className="text-gray-500">Services:</strong> iPhone Screen Repair · Samsung Battery Replacement · iPad Repairs · Water Damage · Charging Port Fix · Cash for Phones · Device Trade-In · Premium Vapes
+                                <strong className="text-gray-500">Services:</strong> iPhone Screen Repair · Samsung Battery Replacement · iPad Repairs · Water Damage · Charging Port Fix · Buy Refurbished Phones · Cash for Phones · Device Trade-In · Premium Vapes
                             </p>
                             <p className="mb-4">
                                 <strong className="text-gray-500">Areas Served:</strong> Windsor SL4 · Eton · Datchet · Old Windsor · Slough · Berkshire
@@ -1057,7 +1417,6 @@
                 </div>
             );
         };
-
         ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 </body>
