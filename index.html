@@ -289,6 +289,17 @@
             fhd:  { label: "FHD",  tagline: "Better colour & brightness",           textColor: "text-blue-700",  bg: "bg-blue-50",   border: "tier-fhd"  },
             oled: { label: "OLED", tagline: "Original quality – best choice",       textColor: "text-brand-700", bg: "bg-brand-50",  border: "tier-oled" }
         };
+        // Repair types shown in the funnel. 'Screen' is tiered; the rest are a single price.
+        const REPAIR_TYPES = [
+            { issue: 'Screen',        label: 'Broken Screen',  icon: 'fa-burst',          tiered: true  },
+            { issue: 'Battery',       label: 'Battery',        icon: 'fa-battery-half',   key: 'battery' },
+            { issue: 'Back Glass',    label: 'Back Glass',     icon: 'fa-clone',          key: 'back_glass' },
+            { issue: 'Charging Port', label: 'Charging Port',  icon: 'fa-plug',           key: 'charging_port' },
+            { issue: 'Camera',        label: 'Camera',         icon: 'fa-camera',         key: 'rear_camera' },
+            { issue: 'Speaker',       label: 'Speaker / Mic',  icon: 'fa-volume-high',    key: 'speaker' }
+        ];
+        // Maps an issue name to its single-price DB column (Screen handled separately)
+        const ISSUE_KEY = REPAIR_TYPES.reduce((m, t) => { if (t.key) m[t.issue] = t.key; return m; }, {});
         const TIME_SLOTS = [];
         for (let h = 10; h <= 19; h++) {
             const disp = h > 12 ? h - 12 : h;
@@ -517,6 +528,10 @@
                 addons: [], paymentMethod: 'in_store'
             });
             const [isSubmitting, setIsSubmitting] = useState(false);
+            // Repair price list (loaded from DB; falls back to built-in iPhone list)
+            const [repairPrices, setRepairPrices] = useState({ "Apple iPhone": IPHONE_PRICES });
+            // Non-screen repair prices: { brand: { model: { battery, back_glass, charging_port, rear_camera, speaker } } }
+            const [extraPrices, setExtraPrices] = useState({});
             // Sell
             const [sellData, setSellData]           = useState({ device: '', condition: '', name: '', phone: '', email: '' });
             const [isSellSubmitting, setIsSell]     = useState(false);
@@ -552,6 +567,32 @@
                   .then(({ data, error }) => { if (!error && data) setPhones(data); setPhonesLoading(false); })
                   .catch(() => setPhonesLoading(false));
             }, []);
+            // Load the repair price list from database (admin-editable)
+            useEffect(() => {
+                if (!sb) return;
+                sb.from('repair_prices').select('*').eq('active', true).order('sort_order', { ascending: true })
+                  .then(({ data, error }) => {
+                      if (error || !data || !data.length) return; // keep built-in fallback
+                      const grouped = {};
+                      const extras = {};
+                      const num = v => (v != null && v !== '') ? Number(v) : null;
+                      data.forEach(r => {
+                          if (!grouped[r.brand]) { grouped[r.brand] = {}; extras[r.brand] = {}; }
+                          const tiers = {};
+                          if (r.lcd  != null) tiers.lcd  = Number(r.lcd);
+                          if (r.fhd  != null) tiers.fhd  = Number(r.fhd);
+                          if (r.oled != null) tiers.oled = Number(r.oled);
+                          grouped[r.brand][r.model] = tiers; // empty object = listed but quote-only
+                          extras[r.brand][r.model] = {
+                              battery: num(r.battery), back_glass: num(r.back_glass),
+                              charging_port: num(r.charging_port), rear_camera: num(r.rear_camera), speaker: num(r.speaker)
+                          };
+                      });
+                      setRepairPrices(grouped);
+                      setExtraPrices(extras);
+                  })
+                  .catch(() => {});
+            }, []);
             // Post-payment redirect handling
             useEffect(() => {
                 const q = new URLSearchParams(window.location.search);
@@ -572,10 +613,13 @@
                 setBookingData(p => ({ ...p, brand, model: '', issue: '', quality: '', qualityKey: '', quotedPrice: '', time: '', phone: '', name: '', email: '', address: '', addons: [], paymentMethod: 'in_store' }));
                 setFunnelStep(2);
             };
+            // A brand is "priced" if the DB has at least one model listed for it
+            const brandHasModels = (brand) => repairPrices[brand] && Object.keys(repairPrices[brand]).length > 0;
+            const modelHasTiers  = (brand, model) => repairPrices[brand] && repairPrices[brand][model] && Object.keys(repairPrices[brand][model]).length > 0;
             const handleIssue = (issue, aiMsg = '') => {
                 setBookingData(p => ({ ...p, issue, model: '', quality: '', qualityKey: '', quotedPrice: '' }));
                 if (aiMsg) setAiMsg(aiMsg);
-                if (issue === 'Screen' && bookingData.brand === 'Apple iPhone') setFunnelStep(3);
+                if ((issue === 'Screen' || ISSUE_KEY[issue]) && brandHasModels(bookingData.brand)) setFunnelStep(3);
                 else setFunnelStep(4);
             };
             const handleQualitySelect = (key, price) => {
@@ -583,6 +627,11 @@
                 setBookingData({ ...bookingData, quality: label, qualityKey: key, quotedPrice: `£${price.toFixed(2)}` });
                 setFunnelStep(4);
             };
+            const handleSingleSelect = (typeKey, label, price) => {
+                setBookingData({ ...bookingData, quality: label, qualityKey: typeKey, quotedPrice: price != null ? `£${price.toFixed(2)}` : '' });
+                setFunnelStep(4);
+            };
+            const singlePriceFor = (brand, model, typeKey) => (extraPrices[brand] && extraPrices[brand][model] && extraPrices[brand][model][typeKey] != null) ? extraPrices[brand][model][typeKey] : null;
             const toggleRepairAddon = (id) => setBookingData(p => ({ ...p, addons: p.addons.includes(id) ? p.addons.filter(x => x !== id) : [...p.addons, id] }));
             const toggleBuyAddon    = (id) => setPurchaseData(p => ({ ...p, addons: p.addons.includes(id) ? p.addons.filter(x => x !== id) : [...p.addons, id] }));
             const handleAIDiagnosis = async (e) => {
@@ -731,19 +780,21 @@
                                 <h4 className="font-display text-3xl font-black text-gray-900 text-center mb-7">What needs fixing?</h4>
                                 <div className="grid grid-cols-2 gap-4 mb-4">
                                     {[
-                                        { brand: 'Apple iPhone',  iconClass: 'fab fa-apple',           color: 'text-gray-800' },
-                                        { brand: 'Samsung',       iconClass: 'fas fa-mobile-android',  color: 'text-blue-600' }
-                                    ].map(({ brand, iconClass, color }) => (
+                                        { brand: 'Apple iPhone',  iconClass: 'fab fa-apple',           color: 'text-gray-800', label: 'iPhone'  },
+                                        { brand: 'Samsung',       iconClass: 'fas fa-mobile-android',  color: 'text-blue-600', label: 'Samsung' },
+                                        { brand: 'iPad',          iconClass: 'fas fa-tablet-screen-button', color: 'text-gray-800', label: 'iPad' },
+                                        { brand: 'Tablet',        iconClass: 'fas fa-tablet-screen-button', color: 'text-brand-600', label: 'Tablet' }
+                                    ].map(({ brand, iconClass, color, label }) => (
                                         <div key={brand} onClick={() => handleBrand(brand)}
-                                            className="funnel-card border-gray-200 rounded-2xl p-7 text-center bg-white card-shine">
-                                            <i className={`${iconClass} text-5xl mb-4 ${color} block`}></i>
-                                            <div className="font-bold text-gray-900">{brand}</div>
+                                            className="funnel-card border-gray-200 rounded-2xl p-6 text-center bg-white card-shine">
+                                            <i className={`${iconClass} text-4xl mb-3 ${color} block`}></i>
+                                            <div className="font-bold text-gray-900">{label}</div>
                                         </div>
                                     ))}
                                 </div>
-                                <button onClick={() => handleBrand('Other / iPad / Laptop')}
+                                <button onClick={() => handleBrand('Other Device')}
                                     className="w-full text-gray-400 text-sm font-semibold hover:text-brand-500 transition-colors py-3 underline underline-offset-2">
-                                    Other brand or device →
+                                    Laptop, console or other device →
                                 </button>
                             </div>
                         )}
@@ -760,18 +811,19 @@
                                         <span>{aiDiagnosisMsg}</span>
                                     </div>
                                 )}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-                                    {[
-                                        { issue: 'Screen',  icon: 'fa-burst',          label: 'Broken Screen'   },
-                                        { issue: 'Battery', icon: 'fa-battery-quarter', label: 'Battery Issue'   },
-                                        { issue: 'Other',   icon: 'fa-plug',            label: 'Something Else'  }
-                                    ].map(({ issue, icon, label }) => (
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
+                                    {REPAIR_TYPES.map(({ issue, icon, label }) => (
                                         <div key={issue} onClick={() => handleIssue(issue)}
-                                            className="funnel-card border-gray-200 rounded-2xl p-5 text-center card-shine">
-                                            <i className={`fas ${icon} text-3xl mb-3 text-brand-500 block`}></i>
+                                            className="funnel-card border-gray-200 rounded-2xl p-4 text-center card-shine">
+                                            <i className={`fas ${icon} text-2xl md:text-3xl mb-2 text-brand-500 block`}></i>
                                             <div className="font-bold text-gray-800 text-sm md:text-base">{label}</div>
                                         </div>
                                     ))}
+                                    <div onClick={() => handleIssue('Other')}
+                                        className="funnel-card border-gray-200 rounded-2xl p-4 text-center card-shine">
+                                        <i className="fas fa-screwdriver-wrench text-2xl md:text-3xl mb-2 text-brand-500 block"></i>
+                                        <div className="font-bold text-gray-800 text-sm md:text-base">Something Else</div>
+                                    </div>
                                 </div>
                                 <div onClick={() => setShowAIPrompt(true)}
                                     className="funnel-card border-indigo-200 bg-gradient-to-br from-indigo-50 to-violet-50 rounded-2xl p-5 text-center text-indigo-700 card-shine">
@@ -808,19 +860,20 @@
                                 <button onClick={() => setFunnelStep(2)} className="flex items-center gap-1.5 text-sm text-gray-400 font-semibold mb-6 hover:text-brand-500 transition-colors">
                                     <i className="fas fa-arrow-left text-xs"></i> Back
                                 </button>
-                                <h4 className="font-display text-3xl font-black text-gray-900 text-center mb-6">Model & Screen Quality</h4>
+                                <h4 className="font-display text-3xl font-black text-gray-900 text-center mb-6">{bookingData.issue === 'Screen' ? 'Model & Screen Quality' : `${bookingData.issue} Repair`}</h4>
                                 <div className="mb-6">
-                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">iPhone Model</label>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{bookingData.brand} Model</label>
                                     <select onChange={e => setBookingData({ ...bookingData, model: e.target.value, quality: '', qualityKey: '', quotedPrice: '' })} value={bookingData.model}
                                         className="w-full p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none bg-white font-medium text-gray-700 transition-colors">
                                         <option value="">— Choose your model —</option>
-                                        {Object.keys(IPHONE_PRICES).map(m => <option key={m} value={m}>{m}</option>)}
+                                        {Object.keys(repairPrices[bookingData.brand] || {}).map(m => <option key={m} value={m}>{m}</option>)}
                                     </select>
                                 </div>
-                                {bookingData.model && (
+                                {/* Screen: quality tiers */}
+                                {bookingData.model && bookingData.issue === 'Screen' && modelHasTiers(bookingData.brand, bookingData.model) && (
                                     <div className="space-y-3">
                                         <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Screen Quality</label>
-                                        {Object.entries(IPHONE_PRICES[bookingData.model]).map(([key, price]) => {
+                                        {Object.entries(repairPrices[bookingData.brand][bookingData.model]).map(([key, price]) => {
                                             const t = TIER_META[key];
                                             return (
                                                 <div key={key} onClick={() => handleQualitySelect(key, price)}
@@ -835,12 +888,37 @@
                                         })}
                                     </div>
                                 )}
+                                {/* Single-price repairs (battery, back glass, charging port, camera, speaker) */}
+                                {bookingData.model && bookingData.issue !== 'Screen' && (() => {
+                                    const key = ISSUE_KEY[bookingData.issue];
+                                    const price = singlePriceFor(bookingData.brand, bookingData.model, key);
+                                    return price != null ? (
+                                        <div onClick={() => handleSingleSelect(key, `${bookingData.issue} Repair`, price)}
+                                            className="funnel-card tier-oled border-gray-200 rounded-xl p-4 flex justify-between items-center bg-brand-50">
+                                            <div>
+                                                <div className="font-black text-base text-brand-700">{bookingData.issue} Repair</div>
+                                                <div className="text-gray-400 text-xs font-medium mt-0.5">12-month warranty included</div>
+                                            </div>
+                                            <div className="font-display text-3xl font-black text-gray-800">£{price.toFixed(2)}</div>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            <div className="bg-brand-50 border border-brand-100 rounded-xl p-4 text-center">
+                                                <p className="text-sm text-gray-600 font-medium">We'll confirm the exact price for your <span className="font-bold text-gray-800">{bookingData.model}</span> {bookingData.issue.toLowerCase()} repair — it's a quick free quote.</p>
+                                            </div>
+                                            <button type="button" onClick={() => handleSingleSelect(key, `${bookingData.issue} Repair`, null)}
+                                                className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-4 rounded-xl shadow-lg transition-colors">
+                                                Continue — get my quote →
+                                            </button>
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         )}
                         {/* STEP 4 — confirm */}
                         {funnelStep === 4 && (
                             <div className="fade-in">
-                                <button onClick={() => setFunnelStep(bookingData.brand === 'Apple iPhone' && bookingData.issue === 'Screen' ? 3 : 2)}
+                                <button onClick={() => setFunnelStep(brandHasModels(bookingData.brand) && (bookingData.issue === 'Screen' || ISSUE_KEY[bookingData.issue]) ? 3 : 2)}
                                     className="flex items-center gap-1.5 text-sm text-gray-400 font-semibold mb-5 hover:text-brand-500 transition-colors">
                                     <i className="fas fa-arrow-left text-xs"></i> Back
                                 </button>
@@ -865,17 +943,10 @@
                                     }
                                 </div>
                                 <form onSubmit={submitBooking} className="space-y-3">
-                                    {bookingData.brand !== 'Apple iPhone' && (
+                                    {!bookingData.model && (
                                         <input type="text" value={bookingData.model} onChange={e => setBookingData({ ...bookingData, model: e.target.value })}
-                                            placeholder="Device model (e.g. Galaxy S24 Ultra)" required
+                                            placeholder="Device model (e.g. Galaxy S24 Ultra, MacBook Air, PS5)" required
                                             className="w-full p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
-                                    )}
-                                    {bookingData.brand === 'Apple iPhone' && !bookingData.model && (
-                                        <select value={bookingData.model} onChange={e => setBookingData({ ...bookingData, model: e.target.value })} required
-                                            className="w-full p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none bg-white font-medium text-gray-700 transition-colors">
-                                            <option value="">Select iPhone model...</option>
-                                            {Object.keys(IPHONE_PRICES).map(m => <option key={m} value={m}>{m}</option>)}
-                                        </select>
                                     )}
                                     {/* ADD-ONS */}
                                     <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
