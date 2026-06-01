@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Windsor Express — Connection Test</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body { font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; background:#0f172a; color:#e2e8f0; margin:0; padding:24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color:#94a3b8; font-size: 14px; margin-bottom: 20px; }
+  .row { background:#1e293b; border:1px solid #334155; border-radius:12px; padding:14px 16px; margin-bottom:10px; }
+  .row b { font-size: 15px; }
+  .ok { color:#34d399; } .bad { color:#f87171; } .warn { color:#fbbf24; }
+  .msg { color:#94a3b8; font-size: 13px; margin-top:6px; white-space:pre-wrap; word-break:break-word; }
+  .big { font-size: 18px; font-weight: 800; padding:16px; border-radius:12px; margin: 18px 0; text-align:center; }
+  .big.good { background:#064e3b; color:#6ee7b7; }
+  .big.fail { background:#7f1d1d; color:#fecaca; }
+  code { background:#0b1220; padding:2px 6px; border-radius:6px; color:#93c5fd; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🔌 Windsor Express — Connection Test</h1>
+  <div class="sub">This page checks your Supabase database. It saves nothing and is hidden from Google. Delete it when you're done.</div>
+  <div id="summary" class="big">Running tests…</div>
+  <div id="results"></div>
+</div>
+
+<script>
+  // SAME values as your website
+  const SUPABASE_URL  = "https://hqjnhwkkqctuymvzzszy.supabase.co";
+  const SUPABASE_KEY  = "sb_publishable_mbRgGL97wHJVQhYDBFJhmQ_63dFxWMH";
+
+  const results = document.getElementById('results');
+  const summary = document.getElementById('summary');
+  const add = (title, status, msg) => {
+    const cls = status === 'ok' ? 'ok' : status === 'warn' ? 'warn' : 'bad';
+    const icon = status === 'ok' ? '✅' : status === 'warn' ? '⚠️' : '❌';
+    results.insertAdjacentHTML('beforeend',
+      `<div class="row"><b class="${cls}">${icon} ${title}</b>${msg ? `<div class="msg">${msg}</div>` : ''}</div>`);
+  };
+
+  (async () => {
+    // 0. library + client
+    if (typeof window.supabase === 'undefined') {
+      summary.className = 'big fail';
+      summary.textContent = '❌ Supabase library failed to load (check your internet / ad-blocker).';
+      return;
+    }
+    let sb;
+    try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); add('Supabase client created', 'ok', `URL: ${SUPABASE_URL}\nKey starts with: ${SUPABASE_KEY.slice(0,16)}…`); }
+    catch (e) { summary.className='big fail'; summary.textContent='❌ Could not create client: ' + e.message; return; }
+
+    const tables = ['phones', 'bookings', 'orders', 'sell_inquiries', 'repair_prices'];
+    let hardFail = false, missing = [], keyProblem = false;
+
+    for (const t of tables) {
+      try {
+        const { data, error, count } = await sb.from(t).select('*', { count: 'exact', head: false }).limit(3);
+        if (error) {
+          const m = (error.message || '') + ' ' + (error.code || '');
+          if (/JWT|api key|apikey|Invalid|Unauthorized|permission denied/i.test(m) && error.code !== 'PGRST205') { keyProblem = true; add(`Table "${t}"`, 'bad', `Auth/key error: ${error.message} (code ${error.code||'?'})`); }
+          else if (error.code === 'PGRST205' || /does not exist|find the table/i.test(m)) { missing.push(t); add(`Table "${t}"`, 'bad', `Table not found — the SQL hasn't been run for this table. (${error.message})`); }
+          else { add(`Table "${t}"`, 'warn', `${error.message} (code ${error.code||'?'})`); }
+        } else {
+          const n = (count != null) ? count : (data ? data.length : 0);
+          add(`Table "${t}"`, 'ok', `Readable. Rows: ${n}${t==='phones' && n===0 ? ' (table exists but no phones added yet)' : ''}`);
+        }
+      } catch (e) {
+        hardFail = true;
+        add(`Table "${t}"`, 'bad', `Network/blocked: ${e.message}`);
+      }
+    }
+
+    // verdict
+    if (keyProblem) {
+      summary.className = 'big fail';
+      summary.innerHTML = '❌ Your API key is being rejected.<br>Tell Claude: "key is rejected — switch me to the legacy anon key."';
+    } else if (hardFail) {
+      summary.className = 'big fail';
+      summary.innerHTML = '❌ The browser cannot reach Supabase (network blocked or wrong URL). Check the URL and try a different network / disable ad-blocker.';
+    } else if (missing.length) {
+      summary.className = 'big fail';
+      summary.innerHTML = `❌ Missing tables: <code>${missing.join(', ')}</code><br>Run <b>database_setup.sql</b> in Supabase → SQL Editor, then refresh this page.`;
+    } else {
+      summary.className = 'big good';
+      summary.innerHTML = '✅ Connection works and all tables exist. Your website will work — if the shop is empty, just add phones in the admin page.';
+    }
+  })();
+</script>
+</body>
+</html>
