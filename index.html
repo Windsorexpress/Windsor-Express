@@ -361,12 +361,19 @@
             window.location.href = data.url;
         };
         // --- EMAIL ---
+        // Send via FormData (a "simple" request) so the browser skips the CORS
+        // preflight that FormSubmit's /ajax endpoint rejects.
+        const fsPost = async (payload) => {
+            try {
+                const fd = new FormData();
+                Object.entries(payload).forEach(([k, v]) => fd.append(k, v == null ? '' : String(v)));
+                const res = await fetch(`https://formsubmit.co/ajax/${OWNER_EMAIL}`, { method: "POST", body: fd });
+                return res.ok;
+            } catch { return false; }
+        };
         const sendEmail = async (data) => {
             try {
-                const res = await fetch(`https://formsubmit.co/ajax/${OWNER_EMAIL}`, {
-                    method: "POST",
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({
+                return await fsPost({
                         _subject: `🚨 NEW ${data.serviceType.toUpperCase()} BOOKING: ${data.brand} ${data.model || ''}`,
                         _autoresponse: `Hi ${data.name || 'there'},\n\nThank you for booking your repair with Windsor Express. We've received your request and a member of our team will be in touch shortly to confirm everything.\n\nYOUR BOOKING\n----------------------------------------\nDevice:   ${data.brand} ${data.model || ''}\nIssue:    ${data.issue}\nService:  ${data.serviceType === 'mail-in' ? 'Mail-in repair' : 'Walk-in / in-store'}\nEstimate: ${data.total != null ? gbp(data.total) : (data.quotedPrice || 'To be confirmed')}\nPayment:  ${data.paymentMethod === 'online' ? 'Paid online' : 'Pay in store'}\n----------------------------------------\n\n${data.serviceType === 'mail-in' ? "As you chose mail-in, we'll email your prepaid postage instructions shortly so you can send your device to us safely." : "Please drop in at your selected time and we'll take care of the rest."}\n\nIf you need anything in the meantime, just call us on 07912 150397 and we'll be happy to help.\n\nThank you for choosing us,\nThe Windsor Express Team\nPhone Repairs & Sales\nwindsor-express.co.uk`,
                         email: data.email, name: data.name,
@@ -381,34 +388,24 @@
                         "Drop-off Time":      data.time || "N/A",
                         "Return Address":     data.address || "N/A",
                         "Customer":           `${data.name} | ${data.phone} | ${data.email}`
-                    })
                 });
-                return res.ok;
             } catch { return false; }
         };
         const sendSellEmail = async (data) => {
             try {
-                const res = await fetch(`https://formsubmit.co/ajax/${OWNER_EMAIL}`, {
-                    method: "POST",
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({
+                return await fsPost({
                         _subject: `💰 SELL INQUIRY: ${data.device}`,
                         _autoresponse: `Hi ${data.name || 'there'},\n\nThank you for your enquiry to sell your ${data.device} to Windsor Express.\n\nWe've received your details and our team will call or email you within a few hours with our best offer. There's no obligation — if you're happy with the price, we'll arrange the rest.\n\nIf you'd like to chat sooner, just call us on 07912 150397.\n\nThank you,\nThe Windsor Express Team\nPhone Repairs & Sales\nwindsor-express.co.uk`,
                         email: data.email, name: data.name,
                         "Device":    data.device,
                         "Condition": data.condition,
                         "Customer":  `${data.name} | ${data.phone} | ${data.email}`
-                    })
                 });
-                return res.ok;
             } catch { return false; }
         };
         const sendOrderEmail = async (data) => {
             try {
-                const res = await fetch(`https://formsubmit.co/ajax/${OWNER_EMAIL}`, {
-                    method: "POST",
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({
+                return await fsPost({
                         _subject: `🛒 PHONE ORDER: ${data.product_name}`,
                         _autoresponse: `Hi ${data.name || 'there'},\n\nThank you for your order with Windsor Express. We've received it and it's now being prepared.\n\nYOUR ORDER\n----------------------------------------\nPhone:    ${data.product_name}\nAdd-ons:  ${(data.addons && data.addons.length) ? addonLabels(data.addons).join(', ') : 'None'}\nDelivery: ${data.fulfillment === 'postage' ? 'UK postage (' + gbp(data.postage_fee) + ')' : 'Collect in store'}\nTotal:    ${gbp(data.total_amount)}\nPayment:  ${data.payment_method === 'online' ? 'Paid online' : 'Pay on collection'}\n----------------------------------------\n\n${data.fulfillment === 'postage' ? "We'll get your phone packed and posted, and let you know once it's on its way." : "We'll have your phone ready for collection in store and let you know as soon as it's ready."}\n\nIf you have any questions, just call us on 07912 150397.\n\nThank you for your custom,\nThe Windsor Express Team\nPhone Repairs & Sales\nwindsor-express.co.uk`,
                         email: data.email, name: data.name,
@@ -420,9 +417,7 @@
                         "Payment":      data.payment_method === 'online' ? "💳 Paying online (Stripe)" : "🏬 Pay on collection",
                         "Delivery Address": data.address || "N/A",
                         "Customer":     `${data.name} | ${data.phone} | ${data.email}`
-                    })
                 });
-                return res.ok;
             } catch { return false; }
         };
         // ─── STATIC SUB-COMPONENTS ─────────────────────────────────────────────
