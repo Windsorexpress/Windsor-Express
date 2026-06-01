@@ -58,6 +58,7 @@
       <button data-tab="orders"   class="tabbtn text-sm font-bold px-4 py-2.5 rounded-t-lg whitespace-nowrap text-gray-500">Phone Orders <span class="badge"></span></button>
       <button data-tab="sells"    class="tabbtn text-sm font-bold px-4 py-2.5 rounded-t-lg whitespace-nowrap text-gray-500">Sell Enquiries <span class="badge"></span></button>
       <button data-tab="phones"   class="tabbtn text-sm font-bold px-4 py-2.5 rounded-t-lg whitespace-nowrap text-gray-500">Phones for Sale <span class="badge"></span></button>
+      <button data-tab="prices"   class="tabbtn text-sm font-bold px-4 py-2.5 rounded-t-lg whitespace-nowrap text-gray-500">Repair Prices <span class="badge"></span></button>
     </div>
   </header>
 
@@ -68,12 +69,13 @@
     <div id="tab-orders" class="hidden"></div>
     <div id="tab-sells" class="hidden"></div>
     <div id="tab-phones" class="hidden"></div>
+    <div id="tab-prices" class="hidden"></div>
   </main>
 </div>
 
 <script>
 const $ = (s) => document.querySelector(s);
-let STORE = { bookings:[], orders:[], sell_inquiries:[], phones:[] };
+let STORE = { bookings:[], orders:[], sell_inquiries:[], phones:[], repair_prices:[] };
 let PW = sessionStorage.getItem("we_admin_pw") || "";
 
 const gbp = (n) => "£" + (Number(n)||0).toFixed(2);
@@ -135,12 +137,12 @@ function updateBadges(){
 document.querySelectorAll(".tabbtn").forEach(btn => btn.addEventListener("click", () => {
   document.querySelectorAll(".tabbtn").forEach(b => { b.classList.remove("tab-active"); b.classList.add("text-gray-500"); });
   btn.classList.add("tab-active"); btn.classList.remove("text-gray-500");
-  ["bookings","orders","sells","phones"].forEach(t => $("#tab-"+t).classList.add("hidden"));
+  ["bookings","orders","sells","phones","prices"].forEach(t => $("#tab-"+t).classList.add("hidden"));
   $("#tab-"+btn.dataset.tab).classList.remove("hidden");
 }));
 
 /* ---------- RENDER ---------- */
-function renderAll(){ renderStats(); renderBookings(); renderOrders(); renderSells(); renderPhones(); }
+function renderAll(){ renderStats(); renderBookings(); renderOrders(); renderSells(); renderPhones(); renderPrices(); }
 
 function isToday(s){ const d=new Date(s), n=new Date(); return d.getFullYear()===n.getFullYear()&&d.getMonth()===n.getMonth()&&d.getDate()===n.getDate(); }
 function statCard(label, value, sub, icon, color){
@@ -282,6 +284,50 @@ function renderPhones(){
     <div id="phoneList">${STORE.phones.map(p => phoneForm(p)).join("")}</div>`;
 }
 
+/* ---------- REPAIR PRICES (manage screen-repair prices) ---------- */
+const PRICE_BRANDS = ['Apple iPhone','Samsung','iPad','Tablet'];
+function priceRow(p, brandPreset){
+  const v = p || { id:"", brand:brandPreset||"", model:"", lcd:"", fhd:"", oled:"", battery:"", back_glass:"", charging_port:"", rear_camera:"", speaker:"" };
+  const f = (k, lbl) => `<label class="block"><span class="block text-[10px] font-bold uppercase text-gray-400 mb-0.5">${lbl}</span><input data-k="${k}" value="${esc(v[k]??'')}" type="number" step="0.01" placeholder="—" class="border border-gray-300 rounded-md px-2 py-1.5 text-sm w-full" /></label>`;
+  return `<div class="price-row bg-white border rounded-lg p-3 mb-2" data-id="${esc(v.id)}" data-brand="${esc(v.brand||brandPreset||'')}">
+    <div class="flex flex-wrap md:flex-nowrap items-end gap-2">
+      <label class="block w-full md:flex-1 min-w-[150px]"><span class="block text-[10px] font-bold uppercase text-gray-400 mb-0.5">Model</span>
+        <input data-k="model" value="${esc(v.model??'')}" placeholder="Model name" class="border border-gray-300 rounded-md px-2 py-1.5 text-sm w-full" /></label>
+      <div class="flex gap-1.5">
+        <button onclick="savePrice(this)" class="text-xs font-bold text-white bg-brand-500 hover:bg-brand-600 px-3 py-2 rounded-md">Save</button>
+        ${v.id?`<button onclick="deletePrice('${esc(v.id)}')" class="text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 px-2.5 py-2 rounded-md"><i class="fas fa-trash"></i></button>`:''}
+      </div>
+    </div>
+    <div class="grid grid-cols-4 md:grid-cols-8 gap-2 mt-2">
+      ${f('lcd','Scr LCD')}${f('fhd','Scr FHD')}${f('oled','Scr OLED')}${f('battery','Battery')}${f('back_glass','Back Glass')}${f('charging_port','Charging')}${f('rear_camera','Camera')}${f('speaker','Speaker')}
+    </div>
+  </div>`;
+}
+function renderPrices(){
+  const el = $("#tab-prices");
+  const byBrand = {};
+  STORE.repair_prices.forEach(r => { (byBrand[r.brand] = byBrand[r.brand] || []).push(r); });
+  const brands = [...PRICE_BRANDS, ...Object.keys(byBrand).filter(b => !PRICE_BRANDS.includes(b))];
+  el.innerHTML = `
+    <div class="mb-4">
+      <h2 class="font-extrabold text-gray-900">Repair prices</h2>
+      <p class="text-sm text-gray-500">Set a price (£) per repair for each model. Screen has three quality tiers (LCD / FHD / OLED); the rest are a single price. Leave a box blank for "call for quote". Changes go live instantly.</p>
+    </div>
+    ${brands.map(b => {
+      const rows = byBrand[b] || [];
+      return `<details ${b==='Apple iPhone'?'open':''} class="mb-3 bg-gray-50 border rounded-xl p-3">
+        <summary class="cursor-pointer font-bold text-gray-800 select-none">${esc(b)} <span class="text-gray-400 font-medium text-sm">(${rows.length})</span></summary>
+        <div class="mt-3">
+          ${rows.map(r => priceRow(r)).join("")}
+          <div class="bg-brand-50 border border-brand-100 rounded-lg p-2 mt-2">
+            <p class="text-xs font-bold text-brand-700 mb-1"><i class="fas fa-plus"></i> Add a ${esc(b)} model</p>
+            ${priceRow(null, b)}
+          </div>
+        </div>
+      </details>`;
+    }).join("")}`;
+}
+
 /* ---------- ACTIONS ---------- */
 async function markPaid(table, id){ await api("mark_paid", { table, id }); await loadAll(true); }
 async function setDone(table, id, value){ await api("set_done", { table, id, value }); await loadAll(true); }
@@ -293,6 +339,17 @@ async function savePhone(btn){
   if(!phone.name){ alert("Please enter a phone name."); return; }
   btn.disabled = true; btn.textContent = "Saving…";
   await api("phone_save", { phone });
+  await loadAll(true);
+}
+async function deletePrice(id){ if(!confirm("Delete this model from the price list?")) return; await api("repair_delete", { id }); await loadAll(true); }
+async function savePrice(btn){
+  const row = btn.closest(".price-row");
+  const repair = { id: row.dataset.id || null, brand: row.dataset.brand || "" };
+  row.querySelectorAll("[data-k]").forEach(i => repair[i.dataset.k] = i.value);
+  if(!repair.model){ alert("Please enter a model name."); return; }
+  if(!repair.brand){ alert("Missing brand."); return; }
+  btn.disabled = true; btn.textContent = "…";
+  await api("repair_save", { repair });
   await loadAll(true);
 }
 
