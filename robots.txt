@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Private admin dashboard - not for search engines
+Disallow: /admin.html
+
+Sitemap: https://windsor-express.co.uk/sitemap.xml
