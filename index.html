@@ -343,9 +343,15 @@
         const saveRow = async (table, row) => {
             if (!sb) return { id: null, ok: false };
             try {
-                const { data, error } = await sb.from(table).insert(row).select('id').single();
+                // Generate the id in the browser so we never need to read the row
+                // back. bookings/orders/sell_inquiries are insert-only for the
+                // public (no read policy, for privacy), so .select() after insert
+                // would be blocked by RLS and fail the whole insert.
+                const id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : null;
+                const payload = id ? { ...row, id } : row;
+                const { error } = await sb.from(table).insert(payload);
                 if (error) { console.warn('DB insert error:', error); return { id: null, ok: false }; }
-                return { id: data.id, ok: true };
+                return { id, ok: true };
             } catch (e) { console.warn(e); return { id: null, ok: false }; }
         };
         // --- STRIPE CHECKOUT (via Supabase Edge Function) ---
