@@ -240,6 +240,14 @@
         /* Review card */
         .review-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .review-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,0.08); }
+        /* Services marquee ticker */
+        .marquee { overflow: hidden; white-space: nowrap; }
+        .marquee-track { display: inline-block; animation: marqueeMove 26s linear infinite; }
+        @keyframes marqueeMove { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        @media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
+        /* Mobile offer banner */
+        @keyframes slideUpIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .slide-up-in { animation: slideUpIn 0.35s ease-out both; }
         /* Scrollbar */
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: #f8fafc; }
@@ -495,6 +503,22 @@
                 </div>
             </div>
         );
+        const ServicesTicker = () => {
+            const items = ["iPhone screens fixed in ~30 min", "Samsung battery swaps", "PS5 & Xbox HDMI repair", "Joy-Con drift sorted", "Cash for old phones", "Trade-in & upgrade deals", "iPad & tablet repairs", "Water damage rescue", "12-month warranty on everything"];
+            const row = items.map((t, i) => (
+                <span key={i} className="inline-flex items-center">
+                    <span className="mx-5">{t}</span>
+                    <i className="fas fa-bolt text-white/40 text-xs"></i>
+                </span>
+            ));
+            return (
+                <div className="marquee bg-brand-500 text-white py-3.5 font-display font-bold text-lg tracking-wide select-none" aria-hidden="true">
+                    <div className="marquee-track">
+                        {row}{row}
+                    </div>
+                </div>
+            );
+        };
         const HowItWorks = () => (
             <section className="py-20 bg-white">
                 <div className="max-w-5xl mx-auto px-4">
@@ -502,14 +526,14 @@
                         <h2 className="font-display text-5xl md:text-6xl font-black text-gray-900 mb-2">How It Works</h2>
                         <p className="text-gray-400 font-medium text-lg">Three steps from broken to fixed</p>
                     </div>
-                    <div className="flex flex-col md:flex-row items-start gap-6 md:gap-0">
+                    <div className="flex flex-col md:flex-row items-center md:items-start gap-10 md:gap-0">
                         {[
                             { n: "01", title: "Book Online",      body: "Pick your device, describe the issue, and choose a time slot. Takes under 2 minutes.",           icon: "fa-calendar-check",       bg: "bg-brand-500"  },
                             { n: "02", title: "Drop It Off",      body: "Walk in at your chosen time on Peascod Street. No queuing — we're expecting you.",               icon: "fa-store",                bg: "bg-gray-800"   },
                             { n: "03", title: "Collect It Fixed", body: "Most repairs done in 30 minutes. We text you when it's ready — good as new and fully tested.",  icon: "fa-mobile-screen-button", bg: "bg-brand-600"  }
                         ].map(({ n, title, body, icon, bg }, i) => (
                             <React.Fragment key={i}>
-                                <div className="flex-1 flex flex-col items-center text-center px-6">
+                                <div className="flex-1 w-full md:w-auto flex flex-col items-center text-center px-6">
                                     <div className={`w-16 h-16 ${bg} rounded-2xl flex items-center justify-center text-white text-2xl mb-4 shadow-lg`}>
                                         <i className={`fas ${icon}`}></i>
                                     </div>
@@ -594,8 +618,9 @@
             const [freeProtector, setFreeProtector] = useState(false);
             // Non-blocking notice (e.g. cancelled payment)
             const [payNotice, setPayNotice] = useState('');
-            // Exit intent
+            // Exit intent (desktop) + timed offer banner (mobile)
             const [showExit, setShowExit] = useState(false);
+            const [showMobileOffer, setShowMobileOffer] = useState(false);
             const seenPopup = useRef(false);
             useEffect(() => {
                 const handler = (e) => {
@@ -604,6 +629,19 @@
                 document.addEventListener('mouseleave', handler);
                 return () => document.removeEventListener('mouseleave', handler);
             }, []);
+            useEffect(() => {
+                const t = setTimeout(() => {
+                    if (window.innerWidth < 768 && !seenPopup.current) { setShowMobileOffer(true); seenPopup.current = true; }
+                }, 25000);
+                return () => clearTimeout(t);
+            }, []);
+            const claimOffer = (source) => {
+                setShowExit(false); setShowMobileOffer(false);
+                setFreeProtector(true);
+                setBookingData(p => ({ ...p, addons: p.addons.filter(a => a !== 'screen_protector') }));
+                track('exit_offer_claimed', { source });
+                setView('booking'); window.scrollTo(0, 0);
+            };
             // Load phones for sale from database
             useEffect(() => {
                 if (!sb) { setPhonesLoading(false); return; }
@@ -1076,6 +1114,12 @@
                                           </div>
                                     }
                                 </div>
+                                {/* Confidence nudge at the form */}
+                                <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 flex items-center gap-3 mb-3">
+                                    <div className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0">J</div>
+                                    <p className="text-xs text-gray-500 font-medium leading-relaxed flex-1">"Done within 20 minutes... very good customer service. 10/10!" <span className="text-gray-400">— Jaipreet, Google review</span></p>
+                                    <span className="text-yellow-400 text-xs whitespace-nowrap">★★★★★</span>
+                                </div>
                                 <form onSubmit={submitBooking} className="space-y-3">
                                     {!bookingData.model && (
                                         <input type="text" value={bookingData.model} onChange={e => setBookingData({ ...bookingData, model: e.target.value })}
@@ -1168,6 +1212,9 @@
                                     </button>
                                     <p className="text-center text-xs text-gray-400 font-medium">
                                         {bookingData.paymentMethod === 'online' ? "Secure card payment via Stripe — you'll be redirected." : "No payment now — pay in-store on the day."}
+                                    </p>
+                                    <p className="text-center text-xs text-gray-400 font-medium">
+                                        Questions first? <a href={`https://wa.me/447912150397?text=${waMsg}`} target="_blank" rel="noopener noreferrer" className="text-brand-600 font-bold underline underline-offset-2 hover:text-brand-700 transition-colors">WhatsApp us</a> — we reply fast.
                                     </p>
                                 </form>
                             </div>
@@ -1561,6 +1608,24 @@
                             <i className="fas fa-arrows-rotate mr-1"></i> Trade-In
                         </button>
                     </div>
+                    {/* Timed mobile offer banner */}
+                    {showMobileOffer && view === 'home' && (
+                        <div className="md:hidden fixed left-3 right-3 z-[60] slide-up-in" style={{ bottom: '84px' }}>
+                            <div className="bg-gray-900 text-white rounded-2xl shadow-2xl p-4 flex items-center gap-3">
+                                <div className="text-2xl">🎁</div>
+                                <div className="flex-1">
+                                    <div className="font-bold text-sm leading-tight">Free screen protector</div>
+                                    <div className="text-xs text-gray-400 font-medium">with any repair booked online today</div>
+                                </div>
+                                <button onClick={() => claimOffer('mobile_banner')} className="bg-brand-500 hover:bg-brand-600 text-white text-xs font-black px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap">
+                                    Claim
+                                </button>
+                                <button onClick={() => setShowMobileOffer(false)} className="text-gray-500 hover:text-gray-300 px-1 transition-colors" aria-label="Dismiss">
+                                    <i className="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    )}
                     {/* Exit intent popup */}
                     {showExit && (
                         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center p-4 fade-in">
@@ -1576,13 +1641,7 @@
                                     <h3 className="font-display text-3xl font-black text-gray-900 mb-3">Free <span className="text-brand-500">Screen Protector</span></h3>
                                     <p className="text-gray-500 font-medium mb-7 text-sm leading-relaxed">Book a repair today and we'll fit a premium tempered glass protector (worth £10) for free — applied automatically when you book.</p>
                                     <div className="space-y-3">
-                                        <button onClick={() => {
-                                                setShowExit(false);
-                                                setFreeProtector(true);
-                                                setBookingData(p => ({ ...p, addons: p.addons.filter(a => a !== 'screen_protector') }));
-                                                track('exit_offer_claimed');
-                                                setView('booking'); window.scrollTo(0, 0);
-                                            }}
+                                        <button onClick={() => claimOffer('exit_popup')}
                                             className="w-full bg-brand-500 hover:bg-brand-600 text-white font-black py-4 rounded-xl shadow-lg transition-colors">
                                             Claim Offer & Book Now
                                         </button>
@@ -1666,9 +1725,16 @@
                                         ))}
                                     </div>
                                     {renderFunnel()}
+                                    <div className="mt-6 flex items-center justify-center gap-2 text-sm font-semibold text-gray-400 flex-wrap">
+                                        <span className="text-yellow-400 tracking-wider">★★★★★</span>
+                                        <span>5.0 on Google</span>
+                                        <span className="text-gray-300">·</span>
+                                        <a href={GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-brand-600 transition-colors">500+ devices fixed for Windsor locals</a>
+                                    </div>
                                 </div>
                             </section>
                             <StatsBar />
+                            <ServicesTicker />
                             <HowItWorks />
                             {/* BUY A PHONE */}
                             <section className="py-16 bg-white border-t border-gray-100 px-4">
