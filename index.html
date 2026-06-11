@@ -377,7 +377,7 @@
         };
         // --- HELPERS ---
         const addonTotal = (ids) => (ids || []).reduce((s, id) => { const a = ADDONS.find(x => x.id === id); return s + (a ? a.price : 0); }, 0);
-        const addonLabels = (ids) => (ids || []).map(id => { const a = ADDONS.find(x => x.id === id); return a ? a.label : (id === 'free_screen_protector' ? 'FREE Screen Protector (exit offer)' : id); });
+        const addonLabels = (ids) => (ids || []).map(id => { const a = ADDONS.find(x => x.id === id); if (a) return a.label; if (id === 'free_screen_protector') return 'FREE Screen Protector (exit offer)'; if (id === 'first_repair_discount_10') return '10% First-Repair Discount'; return id; });
         const gbp = (n) => `£${Number(n).toFixed(2)}`;
         // GA4 event helper (safe if gtag is blocked)
         const track = (name, params) => { try { if (window.gtag) window.gtag('event', name, params || {}); } catch (e) {} };
@@ -423,7 +423,7 @@
             try {
                 return await fsPost({
                         _subject: `🚨 NEW ${data.serviceType.toUpperCase()} BOOKING: ${data.brand} ${data.model || ''}`,
-                        _autoresponse: `Hi ${data.name || 'there'},\n\nThank you for booking your repair with Windsor Express. We've received your request and a member of our team will be in touch shortly to confirm everything.\n\nYOUR BOOKING\n----------------------------------------\nDevice:   ${data.brand} ${data.model || ''}\nIssue:    ${data.issue}\nService:  ${data.serviceType === 'mail-in' ? 'Mail-in repair' : 'Walk-in / in-store'}\nEstimate: ${data.total != null ? gbp(data.total) : (data.quotedPrice || 'To be confirmed')}\n${data.freeProtector ? 'Freebie:  FREE tempered glass screen protector (worth £10)\n' : ''}Payment:  ${data.paymentMethod === 'online' ? 'Paid online' : 'Pay in store'}\n----------------------------------------\n\n${data.serviceType === 'mail-in' ? "As you chose mail-in, we'll email your prepaid postage instructions shortly so you can send your device to us safely." : "Please drop in at your selected time and we'll take care of the rest."}\n\nIf you need anything in the meantime, just call us on 07912 150397 and we'll be happy to help.\n\nThank you for choosing us,\nThe Windsor Express Team\nPhone Repairs & Sales\nwindsor-express.co.uk`,
+                        _autoresponse: `Hi ${data.name || 'there'},\n\nThank you for booking your repair with Windsor Express. We've received your request and a member of our team will be in touch shortly to confirm everything.\n\nYOUR BOOKING\n----------------------------------------\nDevice:   ${data.brand} ${data.model || ''}\nIssue:    ${data.issue}\nService:  ${data.serviceType === 'mail-in' ? 'Mail-in repair' : 'Walk-in / in-store'}\nEstimate: ${data.total != null ? gbp(data.total) : (data.quotedPrice || 'To be confirmed')}\n${data.freeProtector ? 'Freebie:  FREE tempered glass screen protector (worth £10)\n' : ''}${data.discount > 0 ? 'Discount: 10% first-repair discount (-' + gbp(data.discount) + ')\n' : ''}Payment:  ${data.paymentMethod === 'online' ? 'Paid online' : 'Pay in store'}\n----------------------------------------\n\n${data.serviceType === 'mail-in' ? "As you chose mail-in, we'll email your prepaid postage instructions shortly so you can send your device to us safely." : "Please drop in at your selected time and we'll take care of the rest."}\n\nIf you need anything in the meantime, just call us on 07912 150397 and we'll be happy to help.\n\nThank you for choosing us,\nThe Windsor Express Team\nPhone Repairs & Sales\nwindsor-express.co.uk`,
                         email: data.email, name: data.name,
                         "Service Type":       data.serviceType === 'mail-in' ? "📦 Mail-In" : "🏬 Walk-in",
                         "Device":             `${data.brand} ${data.model || ''}`,
@@ -432,6 +432,7 @@
                         "Price Quote":        data.quotedPrice || "Custom Quote Needed",
                         "Add-ons":            (data.addons && data.addons.length) ? addonLabels(data.addons).join(', ') : "None",
                         "Free Offer":         data.freeProtector ? "🎁 FREE screen protector (exit offer — fit at no charge)" : "None",
+                        "Discount":           data.discount > 0 ? `🏷️ 10% FIRST-REPAIR (-${gbp(data.discount)}) — verify first visit before charging` : "None",
                         "Order Total":        data.total != null ? gbp(data.total) : (data.quotedPrice || "TBC"),
                         "Payment":            data.paymentMethod === 'online' ? "💳 Paying online (Stripe)" : "🏬 Pay in store",
                         "Drop-off Time":      data.time || "N/A",
@@ -590,6 +591,9 @@
                 addons: [], paymentMethod: 'in_store'
             });
             const [isSubmitting, setIsSubmitting] = useState(false);
+            // First-repair discount: 10% off, redeemed in store. Pre-ticked for devices
+            // that have never completed a booking (localStorage flag set on booking).
+            const [firstTimer, setFirstTimer] = useState(() => { try { return !window.localStorage.getItem('we_booked'); } catch (e) { return true; } });
             // Repair price list (loaded from DB; falls back to built-in iPhone list)
             const [repairPrices, setRepairPrices] = useState({ "Apple iPhone": IPHONE_PRICES });
             // Non-screen repair prices: { brand: { model: { battery, back_glass, charging_port, rear_camera, speaker } } }
@@ -695,6 +699,7 @@
             }, []);
             const resetForms = () => {
                 setFunnelStep(1); setShowAIPrompt(false); setAiMsg('');
+                try { setFirstTimer(!window.localStorage.getItem('we_booked')); } catch (e) { setFirstTimer(true); }
                 setBookingData({ serviceType: 'walk-in', brand: '', model: '', issue: '', quality: '', qualityKey: '', quotedPrice: '', time: '', phone: '', name: '', email: '', address: '', addons: [], paymentMethod: 'in_store' });
                 setSellData({ device: '', condition: '', name: '', phone: '', email: '', intent: 'cash' });
                 setSelectedPhone(null);
@@ -751,23 +756,27 @@
                 else handleIssue('Other', "Our technicians will diagnose this in-store for free!");
             };
             const repairBase = bookingData.quotedPrice ? parseFloat(bookingData.quotedPrice.replace('£', '')) : null;
-            const repairTotal = (repairBase || 0) + addonTotal(bookingData.addons);
+            // 10% first-repair discount — redeemed when paying in store
+            const firstDiscount = (firstTimer && repairBase !== null && bookingData.paymentMethod === 'in_store') ? Math.round(repairBase * 10) / 100 : 0;
+            const repairTotal = (repairBase || 0) + addonTotal(bookingData.addons) - firstDiscount;
             const submitBooking = async (e) => {
                 e.preventDefault(); setIsSubmitting(true);
                 const aTotal = addonTotal(bookingData.addons);
-                const total  = (repairBase || 0) + aTotal;
+                const discount = (firstTimer && repairBase !== null && bookingData.paymentMethod === 'in_store') ? Math.round(repairBase * 10) / 100 : 0;
+                const total  = (repairBase || 0) + aTotal - discount;
                 const row = {
                     type: 'repair', service_type: bookingData.serviceType,
                     brand: bookingData.brand, model: bookingData.model, issue: bookingData.issue,
                     quality: bookingData.quality || null, quoted_price: bookingData.quotedPrice || null,
-                    addons: [...bookingData.addons, ...(freeProtector ? ['free_screen_protector'] : [])],
+                    addons: [...bookingData.addons, ...(freeProtector ? ['free_screen_protector'] : []), ...(discount > 0 ? ['first_repair_discount_10'] : [])],
                     addon_total: aTotal, total_amount: total,
                     time_slot: bookingData.time || null, address: bookingData.address || null,
                     name: bookingData.name, phone: bookingData.phone, email: bookingData.email,
                     payment_method: bookingData.paymentMethod, payment_status: 'unpaid'
                 };
                 const { id } = await saveRow('bookings', row);
-                sendEmail({ ...bookingData, total, freeProtector });
+                try { window.localStorage.setItem('we_booked', '1'); } catch (err) {}
+                sendEmail({ ...bookingData, total, freeProtector, discount });
                 track('repair_booking_submit', { value: total, currency: 'GBP', service_type: bookingData.serviceType });
                 track('generate_lead', { value: total, currency: 'GBP', lead_type: 'repair' });
                 if (bookingData.paymentMethod === 'online' && repairBase !== null && total > 0) {
@@ -795,6 +804,7 @@
                     detail: bookingData.serviceType === 'walk-in' ? (bookingData.time || 'Walk in any time') : 'Mail-in repair',
                     total: repairBase !== null ? gbp(total) : "Free quote — we'll confirm your price",
                     freebie: wasFree,
+                    tradeNote: discount > 0 ? `🏷️ 10% first-repair discount applied (−${gbp(discount)}) — we'll confirm your first visit in store.` : null,
                     next: bookingData.serviceType === 'walk-in'
                         ? ["Drop in at your chosen time — we're expecting you, no queuing", "Most repairs are done in about 30 minutes while you wait", "We'll text you the moment your device is ready"]
                         : ["Check your email — prepaid postage instructions are on their way", "Post your device to us, fully tracked and insured", "We repair it within 24 hours of arrival and post it straight back"]
@@ -924,9 +934,13 @@
                                 <span key={i} className={`text-xs font-medium ${i + 1 <= funnelStep ? 'text-brand-600' : 'text-gray-300'}`}>{l}</span>
                             ))}
                         </div>
-                        {freeProtector && (
+                        {freeProtector ? (
                             <div className="mt-3 bg-brand-500 text-white text-xs font-bold px-3 py-2 rounded-lg text-center">
                                 🎁 FREE screen protector locked in — complete your booking to claim it
+                            </div>
+                        ) : (
+                            <div className="mt-3 bg-gray-900 text-white text-xs font-bold px-3 py-2 rounded-lg text-center">
+                                🏷️ First repair with us? <span className="text-brand-400">10% off</span> when you book online & pay in store
                             </div>
                         )}
                     </div>
@@ -1159,6 +1173,27 @@
                                             })}
                                         </div>
                                     </div>
+                                    {/* FIRST-REPAIR DISCOUNT */}
+                                    {repairBase !== null && (
+                                        <div onClick={() => setFirstTimer(!firstTimer)}
+                                            className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${firstTimer ? 'border-brand-500 bg-brand-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
+                                            <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 ${firstTimer ? 'bg-brand-500 border-brand-500' : 'border-gray-300'}`}>
+                                                {firstTimer && <i className="fas fa-check text-white text-[10px]"></i>}
+                                            </div>
+                                            <i className="fas fa-tag text-brand-500"></i>
+                                            <div className="flex-1">
+                                                <div className="font-bold text-gray-800 text-sm">This is my first repair with Windsor Express</div>
+                                                <div className="text-xs text-gray-400 font-medium">10% off your repair — we confirm it's your first visit in store</div>
+                                            </div>
+                                            <div className="font-display font-black text-brand-600 whitespace-nowrap">−10%</div>
+                                        </div>
+                                    )}
+                                    {firstDiscount > 0 && (
+                                        <div className="flex justify-between items-center px-1">
+                                            <span className="text-xs font-bold text-brand-600">🏷️ First-repair discount (10%)</span>
+                                            <span className="font-bold text-brand-600">−{gbp(firstDiscount)}</span>
+                                        </div>
+                                    )}
                                     {repairBase !== null && (
                                         <div className="flex justify-between items-center px-1 pt-1">
                                             <span className="font-bold text-gray-500 text-sm uppercase tracking-wider">Total</span>
@@ -1203,6 +1238,9 @@
                                             </button>
                                         </div>
                                         {repairBase === null && <p className="text-xs text-gray-400 font-medium mt-1.5">Online payment unlocks once your repair has a price — pay in store works perfectly for now.</p>}
+                                        {firstTimer && repairBase !== null && bookingData.paymentMethod === 'online' && (
+                                            <p className="text-xs text-amber-600 font-semibold mt-1.5"><i className="fas fa-circle-info mr-1"></i>Your 10% first-repair discount is redeemed in store — choose "Pay in store" to keep it.</p>
+                                        )}
                                     </div>
                                     <button type="submit"
                                         className="w-full bg-brand-500 hover:bg-brand-600 text-white font-display font-black text-xl py-5 rounded-xl shadow-lg transition-colors mt-1">
@@ -1913,14 +1951,23 @@
                                     </div>
                                 </div>
                             </section>
-                            {/* MAP */}
+                            {/* MAP + SHOPFRONT */}
                             <section className="py-16 bg-gray-50 border-t border-gray-100 px-4">
-                                <div className="max-w-6xl mx-auto text-center">
-                                    <h2 className="font-display text-4xl md:text-5xl font-black text-gray-900 mb-2">Find Us</h2>
-                                    <p className="text-gray-400 font-medium mb-8">Queen Annes Court, 3 Peascod St, Windsor SL4 1DG</p>
-                                    <div className="h-[380px] rounded-3xl overflow-hidden shadow-xl border border-gray-200">
-                                        <iframe src="https://maps.google.com/maps?q=Windsor%20Express,%20Queen%20Annes%20Court,%203%20Peascod%20St,%20Windsor%20SL4%201DG&t=&z=19&ie=UTF8&iwloc=&output=embed"
-                                            className="w-full h-full border-0" allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+                                <div className="max-w-6xl mx-auto">
+                                    <div className="text-center mb-8">
+                                        <h2 className="font-display text-4xl md:text-5xl font-black text-gray-900 mb-2">Find Us</h2>
+                                        <p className="text-gray-400 font-medium">Queen Annes Court, 3 Peascod St, Windsor SL4 1DG — look for the green glow</p>
+                                    </div>
+                                    <div className="grid md:grid-cols-2 gap-6">
+                                        <div className="h-[380px] rounded-3xl overflow-hidden shadow-xl border border-gray-200 bg-gray-900">
+                                            <img src="/shopfront.jpg" alt="Windsor Express shop front on Peascod Street, Windsor — phone repairs, accessories and refurbished phones"
+                                                className="w-full h-full object-cover" loading="lazy"
+                                                onError={e => { const col = e.currentTarget.parentElement; if (col) col.style.display = 'none'; }} />
+                                        </div>
+                                        <div className="h-[380px] rounded-3xl overflow-hidden shadow-xl border border-gray-200">
+                                            <iframe src="https://maps.google.com/maps?q=Windsor%20Express,%20Queen%20Annes%20Court,%203%20Peascod%20St,%20Windsor%20SL4%201DG&t=&z=19&ie=UTF8&iwloc=&output=embed"
+                                                className="w-full h-full border-0" allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+                                        </div>
                                     </div>
                                 </div>
                             </section>
