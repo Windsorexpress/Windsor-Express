@@ -3,5 +3,6 @@ Allow: /
 
 # Private admin dashboard - not for search engines
 Disallow: /admin.html
+Disallow: /connection-test.html
 
 Sitemap: https://www.windsor-express.co.uk/sitemap.xml
