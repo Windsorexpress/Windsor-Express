@@ -183,15 +183,27 @@ const { useState, useEffect, useRef } = React;
         };
         // --- STRIPE CHECKOUT (via Supabase Edge Function) ---
         const startCheckout = async (payload) => {
-            const res = await fetch(CHECKOUT_FN_URL, {
+            const request = () => fetch(CHECKOUT_FN_URL, {
                 method: 'POST',
+                mode: 'cors',
+                cache: 'no-store',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY },
-                body: JSON.stringify({ ...payload, returnUrl: window.location.origin + window.location.pathname })
+                body: JSON.stringify({ ...payload, returnUrl: `${window.location.origin}/` })
             });
-            if (!res.ok) throw new Error('checkout request failed');
-            const data = await res.json();
-            if (!data.url) throw new Error('no checkout url returned');
-            window.location.href = data.url;
+            let res = await request();
+            // Retry one transient server/network failure before showing an error.
+            if (!res.ok && res.status >= 500) {
+                await new Promise(resolve => setTimeout(resolve, 450));
+                res = await request();
+            }
+            const raw = await res.text();
+            let data = {};
+            try { data = raw ? JSON.parse(raw) : {}; } catch (e) {}
+            if (!res.ok) throw new Error(data.error || `checkout request failed (${res.status})`);
+            const checkoutUrl = String(data.url || '');
+            if (!checkoutUrl.startsWith('https://checkout.stripe.com/')) throw new Error('invalid checkout url returned');
+            window.location.assign(checkoutUrl);
+            return checkoutUrl;
         };
         // --- EMAIL ---
         // Send via FormData (a "simple" request) so the browser skips the CORS
@@ -1566,13 +1578,17 @@ const { useState, useEffect, useRef } = React;
                                 <div>
                                     <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">How would you like to pay?</div>
                                     <div className="grid grid-cols-2 gap-3">
-                                        <button type="button" onClick={() => setPurchaseData({ ...purchaseData, paymentMethod: 'online' })}
+                                        <button type="button" aria-pressed={purchaseData.paymentMethod === 'online'} onClick={() => setPurchaseData({ ...purchaseData, paymentMethod: 'online' })}
                                             className={`relative p-4 rounded-xl border-2 font-bold text-sm transition-all ${purchaseData.paymentMethod === 'online' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
-                                            <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-brand-500 text-white text-[9px] uppercase tracking-wide px-2 py-0.5 rounded-full">Recommended</span>
-                                            <i className="fas fa-lock block text-lg mb-1"></i>Secure Stripe checkout
-                                            <span className="block text-[10px] font-semibold text-gray-400 mt-1">Pay now · stock secured</span>
+                                            <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-brand-500 text-white text-[9px] uppercase tracking-wide px-2 py-0.5 rounded-full">
+                                                {purchaseData.paymentMethod === 'online' ? 'Selected' : 'Pay online'}
+                                            </span>
+                                            <i className="fas fa-lock block text-lg mb-1"></i>Pay online with Stripe
+                                            <span className="block text-[10px] font-semibold text-gray-400 mt-1">
+                                                {purchaseData.paymentMethod === 'online' ? 'Selected · continue below' : 'Select secure checkout'}
+                                            </span>
                                         </button>
-                                        <button type="button" disabled={purchaseData.fulfillment === 'postage'} onClick={() => setPurchaseData({ ...purchaseData, paymentMethod: 'in_store' })}
+                                        <button type="button" aria-pressed={purchaseData.paymentMethod === 'in_store'} disabled={purchaseData.fulfillment === 'postage'} onClick={() => setPurchaseData({ ...purchaseData, paymentMethod: 'in_store' })}
                                             className={`p-4 rounded-xl border-2 font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed ${purchaseData.paymentMethod === 'in_store' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
                                             <i className="fas fa-store block text-lg mb-1"></i>Reserve only
                                             <span className="block text-[10px] font-semibold text-gray-400 mt-1">Pay on collection</span>
@@ -1580,12 +1596,18 @@ const { useState, useEffect, useRef } = React;
                                     </div>
                                     {purchaseData.fulfillment === 'postage' && <p className="text-xs text-gray-400 font-medium mt-1.5">Posted orders are paid online so we can ship straight away.</p>}
                                 </div>
-                                <button type="submit"
-                                    className="w-full bg-brand-500 hover:bg-brand-600 text-white font-display font-black text-xl py-5 rounded-xl shadow-lg transition-colors">
-                                    {purchaseData.paymentMethod === 'online' ? `🔒 Buy Securely for ${gbp(buyTotal)}` : '🛍️ Reserve & Pay on Collection'}
+                                <button type="submit" disabled={isBuying}
+                                    className="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-70 disabled:cursor-wait text-white font-display font-black text-xl py-5 rounded-xl shadow-lg transition-colors">
+                                    {isBuying
+                                        ? 'Opening secure checkout…'
+                                        : purchaseData.paymentMethod === 'online'
+                                            ? `Continue to Stripe · ${gbp(buyTotal)}`
+                                            : 'Reserve & Pay on Collection'}
                                 </button>
                                 <p className="text-center text-xs text-gray-400 font-medium">
-                                    {purchaseData.paymentMethod === 'online' ? "Your card details are handled securely by Stripe. Windsor Express does not see or store them." : "No payment now. We'll confirm the reservation before you collect."}
+                                    {purchaseData.paymentMethod === 'online'
+                                        ? "Tap the green button to open Stripe's secure payment page. Windsor Express never sees or stores your card details."
+                                        : "No payment now. We'll confirm the reservation before you collect."}
                                 </p>
                             </form>
                         </div>
