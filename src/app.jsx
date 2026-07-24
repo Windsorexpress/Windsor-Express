@@ -2,6 +2,7 @@ const { useState, useEffect, useRef } = React;
         // --- CONFIG ---
         const OWNER_EMAIL = "tanish.ratala@gmail.com";
         const SHOP_PHONE  = "+447912150397";
+        const INITIAL_PHONE_ID = new URLSearchParams(window.location.search).get('phone');
         // Google Maps listing (reviews live here) — opens the business profile
         const GOOGLE_MAPS_URL = "https://www.google.com/maps/search/?api=1&query=Windsor%20Express%2C%20Queen%20Annes%20Court%2C%203%20Peascod%20St%2C%20Windsor%20SL4%201DG";
         const apiKey      = "AIzaSyCrIHWXBa5PnlzlxIsl8Qy2_gjuHaioteU";
@@ -276,7 +277,7 @@ const { useState, useEffect, useRef } = React;
             </div>
         );
         const ServicesTicker = () => {
-            const items = ["iPhone screens fixed in ~30 min", "Samsung battery swaps", "PS5 & Xbox HDMI repair", "Joy-Con drift sorted", "Cash for old phones", "Trade-in & upgrade deals", "iPad & tablet repairs", "Water damage rescue", "12-month warranty on everything"];
+            const items = ["iPhone screens fixed in ~30 min", "Samsung battery swaps", "PS5 & Xbox HDMI repair", "Joy-Con drift sorted", "Cash for old phones", "Trade-in & upgrade deals", "iPad & tablet repairs", "Water damage rescue", "3-year warranty on phones"];
             const row = items.map((t, i) => (
                 <span key={i} className="inline-flex items-center">
                     <span className="mx-5">{t}</span>
@@ -324,6 +325,84 @@ const { useState, useEffect, useRef } = React;
                 </div>
             </section>
         );
+        const PhoneImage = ({ phone, compact = false, eager = false }) => {
+            const [failed, setFailed] = useState(false);
+            const alt = [phone.name, phone.storage, phone.color].filter(Boolean).join(' ');
+            return phone.image_url && !failed ? (
+                <img
+                    src={phone.image_url}
+                    alt={alt || 'Phone for sale'}
+                    className={`w-full h-full object-contain ${compact ? 'p-1.5' : 'p-5 md:p-6'}`}
+                    loading={eager ? 'eager' : 'lazy'}
+                    decoding="async"
+                    onError={() => setFailed(true)}
+                />
+            ) : (
+                <div className="h-full w-full flex flex-col items-center justify-center text-gray-300 gap-2">
+                    <i className={`fas fa-mobile-screen-button ${compact ? 'text-3xl' : 'text-6xl'}`}></i>
+                    {!compact && <span className="text-xs font-bold text-gray-400">Photo coming soon</span>}
+                </div>
+            );
+        };
+        const phoneSoftwareSupportFor = (phone) => {
+            const name = String(phone?.name || '').trim();
+            if (/(?:samsung\s+)?(?:galaxy\s+)?s25(?:\s|$)/i.test(name)) {
+                return {
+                    platform: 'Android 16 / One UI 8 supported',
+                    updates: '7 OS generations · security promised to 2032',
+                    sourceUrl: 'https://news.samsung.com/uk/samsung-galaxy-s25-series-sets-the-standard-of-ai-phone-as-a-true-ai-companion'
+                };
+            }
+            if (/(?:samsung\s+)?(?:galaxy\s+)?s24(?:\s|$)/i.test(name)) {
+                return {
+                    platform: 'Android 16 / One UI 8 supported',
+                    updates: '7 OS generations · security promised to 2031',
+                    sourceUrl: 'https://security.samsungmobile.com/workScope.smsb'
+                };
+            }
+            if (/(?:samsung\s+)?(?:galaxy\s+)?s23(?:\s|$)/i.test(name)) {
+                return {
+                    platform: 'Android 16 / One UI 8 supported',
+                    updates: 'Security support originally promised for 5 years',
+                    sourceUrl: 'https://news.samsung.com/uk/samsung-begins-official-rollout-of-one-ui-8-to-galaxy-devices'
+                };
+            }
+            if (/iphone\s+(?:1[1-7]e?(?:\s|$)|air(?:\s|$)|se\s*(?:\(|2|3))/i.test(name)) {
+                return {
+                    platform: 'iOS 26 supported',
+                    updates: 'Compatible with iOS 27, coming autumn 2026',
+                    sourceUrl: 'https://www.apple.com/uk/os/ios/'
+                };
+            }
+            if (/iphone\s+(?:xs|xr)/i.test(name)) {
+                return {
+                    platform: 'Up to iOS 18',
+                    updates: 'Not compatible with iOS 26 or iOS 27',
+                    sourceUrl: 'https://support.apple.com/en-gb/guide/iphone/iphe3fa5df43/ios'
+                };
+            }
+            return {
+                platform: 'Software version checked before sale',
+                updates: 'Ask us to confirm this model’s remaining update support',
+                sourceUrl: null
+            };
+        };
+        const PhoneSoftware = ({ phone, showSource = false }) => {
+            const software = phoneSoftwareSupportFor(phone);
+            return (
+                <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 mt-4 text-left">
+                    <div className="text-[10px] uppercase tracking-wider text-gray-400 font-black mb-1.5">Software &amp; security</div>
+                    <div className="text-xs font-bold text-gray-700"><i className="fas fa-mobile-screen text-brand-500 mr-1.5"></i>{software.platform}</div>
+                    <div className="text-[11px] font-semibold text-gray-500 mt-1"><i className="fas fa-shield-halved text-brand-500 mr-1.5"></i>{software.updates}</div>
+                    {showSource && software.sourceUrl && (
+                        <a href={software.sourceUrl} target="_blank" rel="noopener noreferrer" className="inline-block text-[10px] font-bold text-brand-600 underline underline-offset-2 mt-2">
+                            Manufacturer support details
+                        </a>
+                    )}
+                    {showSource && <div className="text-[10px] text-gray-400 font-medium mt-1.5">Exact installed version checked before sale; rollout timing can vary.</div>}
+                </div>
+            );
+        };
         const FAQSection = () => {
             const [open, setOpen] = useState(null);
             return (
@@ -353,7 +432,7 @@ const { useState, useEffect, useRef } = React;
         };
         // ─── MAIN APP ──────────────────────────────────────────────────────────
         const App = () => {
-            const [view, setView] = useState('home');
+            const [view, setView] = useState(INITIAL_PHONE_ID ? 'shop' : 'home');
             // Repair
             const [funnelStep, setFunnelStep]   = useState(1);
             const [bookingData, setBookingData] = useState({
@@ -376,8 +455,9 @@ const { useState, useEffect, useRef } = React;
             const [phones, setPhones]               = useState([]);
             const [phonesLoading, setPhonesLoading] = useState(true);
             const [selectedPhone, setSelectedPhone] = useState(null);
-            const [purchaseData, setPurchaseData]   = useState({ addons: [], fulfillment: 'collect', paymentMethod: 'in_store', name: '', phone: '', email: '', address: '', tradeIn: false, tradeDevice: '', tradeCondition: '' });
+            const [purchaseData, setPurchaseData]   = useState({ addons: [], fulfillment: 'collect', paymentMethod: 'online', name: '', phone: '', email: '', address: '', tradeIn: false, tradeDevice: '', tradeCondition: '' });
             const [isBuying, setIsBuying]           = useState(false);
+            const openedInitialPhone = useRef(false);
             // AI
             const [showAIPrompt, setShowAIPrompt]   = useState(false);
             const [aiInput, setAiInput]             = useState('');
@@ -421,6 +501,55 @@ const { useState, useEffect, useRef } = React;
                   .then(({ data, error }) => { if (!error && data) setPhones(data); setPhonesLoading(false); })
                   .catch(() => setPhonesLoading(false));
             }, []);
+            // Keep live inventory understandable to search engines without
+            // duplicating stock data in the static HTML.
+            useEffect(() => {
+                const id = 'phone-inventory-schema';
+                document.getElementById(id)?.remove();
+                if (!phones.length) return;
+                const script = document.createElement('script');
+                script.id = id;
+                script.type = 'application/ld+json';
+                script.textContent = JSON.stringify({
+                    '@context': 'https://schema.org',
+                    '@type': 'ItemList',
+                    name: 'Phones for sale at Windsor Express',
+                    itemListElement: phones.map((phone, index) => ({
+                        '@type': 'ListItem',
+                        position: index + 1,
+                        item: {
+                            '@type': 'Product',
+                            name: [phone.name, phone.storage, phone.color].filter(Boolean).join(' '),
+                            description: phone.description || `${phone.condition || 'Refurbished'} unlocked phone with a 3-year Windsor Express warranty.`,
+                            image: phone.image_url || undefined,
+                            itemCondition: phone.condition === 'New'
+                                ? 'https://schema.org/NewCondition'
+                                : 'https://schema.org/UsedCondition',
+                            offers: {
+                                '@type': 'Offer',
+                                priceCurrency: 'GBP',
+                                price: Number(phone.price).toFixed(2),
+                                availability: 'https://schema.org/InStock',
+                                seller: { '@id': 'https://www.windsor-express.co.uk/#business' },
+                                url: `https://www.windsor-express.co.uk/?phone=${encodeURIComponent(phone.id)}`
+                            }
+                        }
+                    }))
+                }).replace(/</g, '\\u003c');
+                document.head.appendChild(script);
+                return () => script.remove();
+            }, [phones]);
+            useEffect(() => {
+                if (!INITIAL_PHONE_ID || openedInitialPhone.current || !phones.length) return;
+                openedInitialPhone.current = true;
+                const phone = phones.find(item => String(item.id) === String(INITIAL_PHONE_ID));
+                if (!phone) return;
+                setSelectedPhone(phone);
+                setPurchaseData({ addons: [], fulfillment: 'collect', paymentMethod: 'online', name: '', phone: '', email: '', address: '', tradeIn: false, tradeDevice: '', tradeCondition: '' });
+                setView('checkout');
+                window.scrollTo(0, 0);
+                track('phone_deep_link_open', { product_id: phone.id });
+            }, [phones]);
             // Load the repair price list from database (admin-editable)
             useEffect(() => {
                 if (!sb) return;
@@ -476,7 +605,7 @@ const { useState, useEffect, useRef } = React;
                 setBookingData({ serviceType: 'walk-in', brand: '', model: '', issue: '', quality: '', qualityKey: '', quotedPrice: '', time: '', phone: '', name: '', email: '', address: '', addons: [], paymentMethod: 'in_store' });
                 setSellData({ device: '', condition: '', name: '', phone: '', email: '', intent: 'cash' });
                 setSelectedPhone(null);
-                setPurchaseData({ addons: [], fulfillment: 'collect', paymentMethod: 'in_store', name: '', phone: '', email: '', address: '', tradeIn: false, tradeDevice: '', tradeCondition: '' });
+                setPurchaseData({ addons: [], fulfillment: 'collect', paymentMethod: 'online', name: '', phone: '', email: '', address: '', tradeIn: false, tradeDevice: '', tradeCondition: '' });
             };
             const goHome = () => {
                 resetForms(); setConfirmation(null); setView('home');
@@ -619,8 +748,9 @@ const { useState, useEffect, useRef } = React;
             };
             const openBuy = (phone) => {
                 setSelectedPhone(phone);
-                setPurchaseData({ addons: [], fulfillment: 'collect', paymentMethod: 'in_store', name: '', phone: '', email: '', address: '', tradeIn: false, tradeDevice: '', tradeCondition: '' });
+                setPurchaseData({ addons: [], fulfillment: 'collect', paymentMethod: 'online', name: '', phone: '', email: '', address: '', tradeIn: false, tradeDevice: '', tradeCondition: '' });
                 setView('checkout');
+                try { window.history.replaceState({}, '', `/?phone=${encodeURIComponent(phone.id)}`); } catch (err) {}
                 window.scrollTo(0, 0);
             };
             const setFulfillment = (f) => setPurchaseData(p => ({ ...p, fulfillment: f, paymentMethod: f === 'postage' ? 'online' : p.paymentMethod }));
@@ -686,7 +816,14 @@ const { useState, useEffect, useRef } = React;
             };
             const stepLabels    = ['Device', 'Issue', 'Model & Quality', 'Confirm'];
             const progressPct   = ((funnelStep - 1) / 3) * 100;
-            const waMsg         = encodeURIComponent("Hi Windsor Express! I'd like to book a repair / get a quote.");
+            const waMessage = view === 'checkout' && selectedPhone
+                ? `Hi Windsor Express! I'm interested in the ${selectedPhone.name}${selectedPhone.storage ? ` ${selectedPhone.storage}` : ''} listed for ${gbp(selectedPhone.price)}. Is it still available?`
+                : view === 'shop'
+                    ? "Hi Windsor Express! I'd like some help choosing a phone from your current stock."
+                    : view === 'sell'
+                        ? "Hi Windsor Express! I'd like a cash or trade-in value for my phone."
+                        : "Hi Windsor Express! I'd like to book a repair / get a quote.";
+            const waMsg = encodeURIComponent(waMessage);
             // ── FUNNEL ──
             const renderFunnel = () => (
                 <div id="repair-funnel" className="max-w-2xl mx-auto bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden relative">
@@ -755,7 +892,7 @@ const { useState, useEffect, useRef } = React;
                                 {/* Cross-sell: not here to fix something */}
                                 <div className="flex items-center justify-center gap-4 mt-3 pt-4 border-t border-gray-100 text-xs font-bold flex-wrap">
                                     <span className="text-gray-300 uppercase tracking-wider">Not here for a repair?</span>
-                                    <button onClick={() => { track('funnel_crosslink', { to: 'shop' }); setView('shop'); window.scrollTo(0, 0); }} className="text-brand-600 hover:text-brand-700 transition-colors">Buy a phone →</button>
+                                    <a href="/phones-for-sale-windsor.html" onClick={() => track('funnel_crosslink', { to: 'shop' })} className="text-brand-600 hover:text-brand-700 transition-colors">Buy a phone →</a>
                                     <button onClick={() => { track('funnel_crosslink', { to: 'sell' }); goSell('cash'); }} className="text-brand-600 hover:text-brand-700 transition-colors">Sell / trade in →</button>
                                 </div>
                             </div>
@@ -1088,10 +1225,10 @@ const { useState, useEffect, useRef } = React;
                                     ))}
                                 </div>
                                 {sellData.intent === 'trade' && (
-                                    <button type="button" onClick={() => { setView('shop'); window.scrollTo(0, 0); }}
-                                        className="mt-3 w-full text-sm font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 border border-brand-100 rounded-xl py-3 transition-colors">
+                                    <a href="/phones-for-sale-windsor.html"
+                                        className="block mt-3 w-full text-center text-sm font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 border border-brand-100 rounded-xl py-3 transition-colors">
                                         Browse the phones you could trade against →
-                                    </button>
+                                    </a>
                                 )}
                             </div>
                             <div>
@@ -1141,17 +1278,32 @@ const { useState, useEffect, useRef } = React;
             );
             // ── SHOP (buy a phone) ──
             const conditionBadge = (c) => {
-                const map = { 'New': 'bg-brand-100 text-brand-700', 'Like New': 'bg-blue-100 text-blue-700', 'Excellent': 'bg-indigo-100 text-indigo-700', 'Good': 'bg-amber-100 text-amber-700', 'Fair': 'bg-gray-200 text-gray-600' };
-                return map[c] || 'bg-gray-100 text-gray-600';
+                const value = String(c || '').toLowerCase();
+                if (value === 'new') return 'bg-brand-100 text-brand-700';
+                if (value.includes('like new') || value.includes('a+')) return 'bg-blue-100 text-blue-700';
+                if (value.includes('excellent')) return 'bg-indigo-100 text-indigo-700';
+                if (value.includes('good')) return 'bg-amber-100 text-amber-700';
+                return 'bg-gray-100 text-gray-600';
             };
+            const phoneGridClass = (count) => count <= 1
+                ? 'grid gap-6 max-w-sm mx-auto'
+                : count === 2
+                    ? 'grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto'
+                    : 'grid sm:grid-cols-2 lg:grid-cols-3 gap-6';
             const renderShop = () => (
                 <div className="max-w-6xl mx-auto fade-in">
                     <div className="text-center mb-8">
                         <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 text-sm font-bold px-4 py-2 rounded-full mb-5">
-                            <i className="fas fa-mobile-screen-button"></i> Refurbished & unlocked · 12-month warranty
+                            <i className="fas fa-mobile-screen-button"></i> Refurbished & unlocked · 3-year warranty
                         </div>
                         <h2 className="font-display text-5xl md:text-6xl font-black text-gray-900 mb-2">Buy a Phone</h2>
-                        <p className="text-gray-400 font-medium text-lg">Quality handsets, fully tested, ready to go — collect in store or posted to you</p>
+                        <p className="text-gray-500 font-medium text-lg">See the complete handset, compare the details and reserve in a few taps.</p>
+                        <div className="mt-5 flex items-center justify-center gap-x-5 gap-y-2 flex-wrap text-xs font-bold text-gray-500">
+                            <span><i className="fas fa-circle-check text-brand-500 mr-1.5"></i>3-year phone warranty</span>
+                            <span><i className="fas fa-lock-open text-brand-500 mr-1.5"></i>Unlocked</span>
+                            <span><i className="fas fa-clipboard-check text-brand-500 mr-1.5"></i>Fully tested</span>
+                            <span><i className="fas fa-store text-brand-500 mr-1.5"></i>Reserve &amp; pay on collection</span>
+                        </div>
                     </div>
                     {/* TRADE-IN STRIP */}
                     <div className="max-w-3xl mx-auto mb-10 bg-gray-900 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden shadow-lg">
@@ -1178,13 +1330,17 @@ const { useState, useEffect, useRef } = React;
                             <a href={`tel:${SHOP_PHONE}`} className="inline-block bg-brand-500 hover:bg-brand-600 text-white font-black px-6 py-3 rounded-xl transition-colors">Call 07912 150397</a>
                         </div>
                     ) : (
-                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className={phoneGridClass(phones.length)}>
                             {phones.map(ph => (
-                                <div key={ph.id} className="funnel-card border-gray-200 bg-white rounded-3xl overflow-hidden flex flex-col" onClick={() => openBuy(ph)}>
-                                    <div className="h-48 bg-gray-50 flex items-center justify-center overflow-hidden">
-                                        {ph.image_url
-                                            ? <img src={ph.image_url} alt={ph.name} className="h-full w-full object-cover" loading="lazy" />
-                                            : <i className="fas fa-mobile-screen-button text-6xl text-gray-200"></i>}
+                                <button type="button" key={ph.id}
+                                    aria-label={`View ${ph.name}${ph.storage ? ` ${ph.storage}` : ''} for ${gbp(ph.price)}`}
+                                    className="funnel-card group w-full text-left border-gray-200 bg-white rounded-3xl overflow-hidden flex flex-col"
+                                    onClick={() => openBuy(ph)}>
+                                    <div className="h-64 md:h-72 bg-gradient-to-b from-gray-50 to-white flex items-center justify-center overflow-hidden relative border-b border-gray-100">
+                                        <PhoneImage phone={ph} />
+                                        <span className="absolute top-3 right-3 bg-white/90 border border-gray-200 text-gray-700 text-[10px] font-black uppercase tracking-wide px-2.5 py-1.5 rounded-full shadow-sm">
+                                            {Number(ph.stock) === 1 ? 'Last one' : 'In stock'}
+                                        </span>
                                     </div>
                                     <div className="p-5 flex flex-col flex-1">
                                         <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -1194,12 +1350,17 @@ const { useState, useEffect, useRef } = React;
                                         </div>
                                         <h3 className="font-display text-2xl font-black text-gray-900 leading-tight">{ph.name}</h3>
                                         {ph.description && <p className="text-gray-400 text-sm font-medium mt-1 mb-3 line-clamp-2">{ph.description}</p>}
+                                        <PhoneSoftware phone={ph} />
+                                        <div className="grid grid-cols-2 gap-2 mt-4 text-[11px] font-bold text-gray-500">
+                                            <span><i className="fas fa-circle-check text-brand-500 mr-1"></i>3-year warranty</span>
+                                            <span><i className="fas fa-lock-open text-brand-500 mr-1"></i>Unlocked</span>
+                                        </div>
                                         <div className="mt-auto flex items-center justify-between pt-3">
                                             <div className="font-display text-3xl font-black text-brand-500">{gbp(ph.price)}</div>
-                                            <span className="bg-brand-500 group-hover:bg-brand-600 text-white font-black px-5 py-2.5 rounded-xl text-sm shadow">Buy →</span>
+                                            <span className="bg-brand-500 group-hover:bg-brand-600 text-white font-black px-5 py-2.5 rounded-xl text-sm shadow">View &amp; reserve →</span>
                                         </div>
                                     </div>
-                                </div>
+                                </button>
                             ))}
                         </div>
                     )}
@@ -1227,7 +1388,7 @@ const { useState, useEffect, useRef } = React;
                             {/* Phone summary */}
                             <div className="flex gap-4 items-center bg-gradient-to-br from-brand-50 to-green-50 border border-brand-100 rounded-2xl p-4 mb-5">
                                 <div className="w-20 h-20 bg-white rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 border border-brand-100">
-                                    {ph.image_url ? <img src={ph.image_url} alt={ph.name} className="w-full h-full object-cover" /> : <i className="fas fa-mobile-screen-button text-3xl text-gray-200"></i>}
+                                    <PhoneImage phone={ph} compact eager />
                                 </div>
                                 <div className="flex-1">
                                     <div className="font-display text-2xl font-black text-gray-900 leading-tight">{ph.name}</div>
@@ -1235,6 +1396,16 @@ const { useState, useEffect, useRef } = React;
                                 </div>
                                 <div className="font-display text-2xl font-black text-brand-500">{gbp(ph.price)}</div>
                             </div>
+                            <div className="grid grid-cols-3 gap-2 mb-5 text-center text-[10px] sm:text-xs font-bold text-gray-600">
+                                <div className="bg-gray-50 border border-gray-100 rounded-xl px-2 py-2.5"><i className="fas fa-shield-halved text-brand-500 block mb-1"></i>3-year phone warranty</div>
+                                <div className="bg-gray-50 border border-gray-100 rounded-xl px-2 py-2.5"><i className="fas fa-lock-open text-brand-500 block mb-1"></i>Unlocked</div>
+                                <div className="bg-gray-50 border border-gray-100 rounded-xl px-2 py-2.5"><i className="fas fa-clipboard-check text-brand-500 block mb-1"></i>Fully tested</div>
+                            </div>
+                            <a href={`https://wa.me/447912150397?text=${waMsg}`} target="_blank" rel="noopener noreferrer"
+                                className="mb-5 flex items-center justify-center gap-2 bg-[#25D366] hover:opacity-90 text-white text-sm font-black px-4 py-3 rounded-xl transition-opacity">
+                                <i className="fab fa-whatsapp text-lg"></i> Ask about this phone on WhatsApp
+                            </a>
+                            <PhoneSoftware phone={ph} showSource />
                             <form onSubmit={submitPurchase} className="space-y-4">
                                 {/* ADD-ONS */}
                                 <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
@@ -1334,23 +1505,26 @@ const { useState, useEffect, useRef } = React;
                                 <div>
                                     <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">How would you like to pay?</div>
                                     <div className="grid grid-cols-2 gap-3">
+                                        <button type="button" onClick={() => setPurchaseData({ ...purchaseData, paymentMethod: 'online' })}
+                                            className={`relative p-4 rounded-xl border-2 font-bold text-sm transition-all ${purchaseData.paymentMethod === 'online' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
+                                            <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-brand-500 text-white text-[9px] uppercase tracking-wide px-2 py-0.5 rounded-full">Recommended</span>
+                                            <i className="fas fa-lock block text-lg mb-1"></i>Secure Stripe checkout
+                                            <span className="block text-[10px] font-semibold text-gray-400 mt-1">Pay now · stock secured</span>
+                                        </button>
                                         <button type="button" disabled={purchaseData.fulfillment === 'postage'} onClick={() => setPurchaseData({ ...purchaseData, paymentMethod: 'in_store' })}
                                             className={`p-4 rounded-xl border-2 font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed ${purchaseData.paymentMethod === 'in_store' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
-                                            <i className="fas fa-store block text-lg mb-1"></i>Pay on collection
-                                        </button>
-                                        <button type="button" onClick={() => setPurchaseData({ ...purchaseData, paymentMethod: 'online' })}
-                                            className={`p-4 rounded-xl border-2 font-bold text-sm transition-all ${purchaseData.paymentMethod === 'online' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
-                                            <i className="fas fa-credit-card block text-lg mb-1"></i>Pay online
+                                            <i className="fas fa-store block text-lg mb-1"></i>Reserve only
+                                            <span className="block text-[10px] font-semibold text-gray-400 mt-1">Pay on collection</span>
                                         </button>
                                     </div>
                                     {purchaseData.fulfillment === 'postage' && <p className="text-xs text-gray-400 font-medium mt-1.5">Posted orders are paid online so we can ship straight away.</p>}
                                 </div>
                                 <button type="submit"
                                     className="w-full bg-brand-500 hover:bg-brand-600 text-white font-display font-black text-xl py-5 rounded-xl shadow-lg transition-colors">
-                                    {purchaseData.paymentMethod === 'online' ? `💳 Pay ${gbp(buyTotal)} & Order` : '🛍️ Reserve & Pay on Collection'}
+                                    {purchaseData.paymentMethod === 'online' ? `🔒 Buy Securely for ${gbp(buyTotal)}` : '🛍️ Reserve & Pay on Collection'}
                                 </button>
                                 <p className="text-center text-xs text-gray-400 font-medium">
-                                    {purchaseData.paymentMethod === 'online' ? "Secure card payment via Stripe — you'll be redirected." : "Reserve now, pay when you pick it up in store."}
+                                    {purchaseData.paymentMethod === 'online' ? "Your card details are handled securely by Stripe. Windsor Express does not see or store them." : "No payment now. We'll confirm the reservation before you collect."}
                                 </p>
                             </form>
                         </div>
@@ -1431,9 +1605,9 @@ const { useState, useEffect, useRef } = React;
                         <button onClick={() => setView('booking')} className="flex-1 bg-brand-500 hover:bg-brand-600 text-white font-black py-3 rounded-xl text-xs transition-colors">
                             <i className="fas fa-wrench mr-1"></i> Repair
                         </button>
-                        <button onClick={() => { setView('shop'); window.scrollTo(0, 0); }} className="flex-1 bg-gray-900 hover:bg-black text-white font-black py-3 rounded-xl text-xs transition-colors">
+                        <a href="/phones-for-sale-windsor.html" className="flex-1 bg-gray-900 hover:bg-black text-white font-black py-3 rounded-xl text-xs transition-colors text-center">
                             <i className="fas fa-mobile-screen-button mr-1"></i> Buy Phone
-                        </button>
+                        </a>
                         <button onClick={() => goSell('trade')} className="flex-1 bg-white border-2 border-gray-900 text-gray-900 font-black py-3 rounded-xl text-xs transition-colors">
                             <i className="fas fa-arrows-rotate mr-1"></i> Trade-In
                         </button>
@@ -1496,9 +1670,9 @@ const { useState, useEffect, useRef } = React;
                                 <a href={`tel:${SHOP_PHONE}`} className="hidden md:flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors">
                                     <i className="fas fa-phone text-brand-500 text-xs"></i> 07912 150397
                                 </a>
-                                <button onClick={() => { setView('shop'); window.scrollTo(0, 0); }} className="hidden md:block text-gray-500 font-bold hover:text-gray-900 transition-colors text-sm px-3 py-2">
+                                <a href="/phones-for-sale-windsor.html" className="hidden md:block text-gray-500 font-bold hover:text-gray-900 transition-colors text-sm px-3 py-2">
                                     Buy a Phone
-                                </button>
+                                </a>
                                 <button onClick={() => goSell('cash')} className="hidden md:block text-gray-500 font-bold hover:text-gray-900 transition-colors text-sm px-3 py-2">
                                     Sell / Trade-In
                                 </button>
@@ -1542,8 +1716,8 @@ const { useState, useEffect, useRef } = React;
                                         {[
                                             { icon: 'fa-screwdriver-wrench',   title: 'Repair My Device',  sub: 'Screens from £39.99 · fixed in ~30 min',          cta: 'Book below ↓',
                                               onClick: () => { track('hero_path_click', { path: 'repair' }); const el = document.getElementById('repair-funnel'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } },
-                                            { icon: 'fa-mobile-screen-button', title: 'Buy a Used Phone',  sub: 'Refurbished & unlocked · 12-month warranty',      cta: 'Shop phones →',
-                                              onClick: () => { track('hero_path_click', { path: 'buy' }); setView('shop'); window.scrollTo(0, 0); } },
+                                            { icon: 'fa-mobile-screen-button', title: 'Buy a Used Phone',  sub: 'Refurbished & unlocked · 3-year warranty',       cta: 'Shop phones →',
+                                              onClick: () => { track('hero_path_click', { path: 'buy' }); window.location.href = '/phones-for-sale-windsor.html'; } },
                                             { icon: 'fa-arrows-rotate',        title: 'Sell or Trade In',  sub: 'Instant cash, or money off any phone we sell',    cta: 'Get a quote →',
                                               onClick: () => { track('hero_path_click', { path: 'sell' }); goSell('cash'); } }
                                         ].map(({ icon, title, sub, cta, onClick }, i) => (
@@ -1576,9 +1750,9 @@ const { useState, useEffect, useRef } = React;
                                             <h2 className="font-display text-4xl md:text-5xl font-black text-gray-900">Phones For Sale</h2>
                                             <p className="text-gray-400 font-medium mt-1">Refurbished, unlocked & warrantied — trade in your old phone and pay less</p>
                                         </div>
-                                        <button onClick={() => { setView('shop'); window.scrollTo(0, 0); }} className="bg-gray-900 hover:bg-black text-white font-display font-black text-lg px-6 py-3 rounded-2xl transition-colors whitespace-nowrap shadow-lg">
+                                        <a href="/phones-for-sale-windsor.html" className="bg-gray-900 hover:bg-black text-white font-display font-black text-lg px-6 py-3 rounded-2xl transition-colors whitespace-nowrap shadow-lg">
                                             Shop All Phones →
-                                        </button>
+                                        </a>
                                     </div>
                                     {phonesLoading ? (
                                         <div className="flex justify-center py-12"><div className="w-10 h-10 border-4 border-brand-100 border-t-brand-500 rounded-full animate-spin"></div></div>
@@ -1588,28 +1762,40 @@ const { useState, useEffect, useRef } = React;
                                             <div className="relative">
                                                 <h3 className="font-display text-3xl font-black text-white mb-2">Fresh stock arriving</h3>
                                                 <p className="text-gray-400 font-medium mb-5 max-w-md mx-auto">We're refreshing our range. Tap below or call to see today's handsets.</p>
-                                                <button onClick={() => { setView('shop'); window.scrollTo(0, 0); }} className="bg-brand-500 hover:bg-brand-600 text-white font-black px-6 py-3 rounded-xl transition-colors">View Shop →</button>
+                                                <a href="/phones-for-sale-windsor.html" className="inline-block bg-brand-500 hover:bg-brand-600 text-white font-black px-6 py-3 rounded-xl transition-colors">View Shop →</a>
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        <div className={phoneGridClass(Math.min(phones.length, 3))}>
                                             {phones.slice(0, 3).map(ph => (
-                                                <div key={ph.id} className="funnel-card border-gray-200 bg-white rounded-3xl overflow-hidden flex flex-col" onClick={() => openBuy(ph)}>
-                                                    <div className="h-48 bg-gray-50 flex items-center justify-center overflow-hidden">
-                                                        {ph.image_url ? <img src={ph.image_url} alt={ph.name} className="h-full w-full object-cover" loading="lazy" /> : <i className="fas fa-mobile-screen-button text-6xl text-gray-200"></i>}
+                                                <button type="button" key={ph.id}
+                                                    aria-label={`View ${ph.name}${ph.storage ? ` ${ph.storage}` : ''} for ${gbp(ph.price)}`}
+                                                    className="funnel-card group w-full text-left border-gray-200 bg-white rounded-3xl overflow-hidden flex flex-col"
+                                                    onClick={() => openBuy(ph)}>
+                                                    <div className="h-64 bg-gradient-to-b from-gray-50 to-white flex items-center justify-center overflow-hidden relative border-b border-gray-100">
+                                                        <PhoneImage phone={ph} />
+                                                        <span className="absolute top-3 right-3 bg-white/90 border border-gray-200 text-gray-700 text-[10px] font-black uppercase tracking-wide px-2.5 py-1.5 rounded-full shadow-sm">
+                                                            {Number(ph.stock) === 1 ? 'Last one' : 'In stock'}
+                                                        </span>
                                                     </div>
                                                     <div className="p-5 flex flex-col flex-1">
                                                         <div className="flex items-center gap-2 mb-2 flex-wrap">
                                                             {ph.condition && <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${conditionBadge(ph.condition)}`}>{ph.condition}</span>}
                                                             {ph.storage && <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">{ph.storage}</span>}
+                                                            {ph.color && <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">{ph.color}</span>}
                                                         </div>
                                                         <h3 className="font-display text-2xl font-black text-gray-900 leading-tight">{ph.name}</h3>
+                                                        <PhoneSoftware phone={ph} />
+                                                        <div className="flex gap-3 mt-3 text-[11px] font-bold text-gray-500">
+                                                            <span><i className="fas fa-circle-check text-brand-500 mr-1"></i>3-year warranty</span>
+                                                            <span><i className="fas fa-lock-open text-brand-500 mr-1"></i>Unlocked</span>
+                                                        </div>
                                                         <div className="mt-auto flex items-center justify-between pt-3">
                                                             <div className="font-display text-3xl font-black text-brand-500">{gbp(ph.price)}</div>
-                                                            <span className="bg-brand-500 text-white font-black px-5 py-2.5 rounded-xl text-sm shadow">Buy →</span>
+                                                            <span className="bg-brand-500 group-hover:bg-brand-600 text-white font-black px-5 py-2.5 rounded-xl text-sm shadow">View →</span>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </button>
                                             ))}
                                         </div>
                                     )}
@@ -1722,7 +1908,7 @@ const { useState, useEffect, useRef } = React;
                                         </div>
                                         <div>
                                             <h3 className="font-display text-2xl font-bold text-gray-800 mb-2">Buy refurbished phones with warranty</h3>
-                                            <p>Looking for a second-hand phone in Windsor you can actually trust? Every refurbished handset we sell is fully tested, unlocked to all networks and backed by a 12-month warranty. Collect in store the same day or have it posted to your door, tracked. Trade in your old phone at checkout and pay only the difference.</p>
+                                            <p>Looking for a second-hand phone in Windsor you can actually trust? Every refurbished handset we sell is fully tested, unlocked to all networks and backed by a 3-year Windsor Express warranty. Collect in store the same day or have it posted to your door, tracked. Trade in your old phone at checkout and pay only the difference.</p>
                                         </div>
                                         <div>
                                             <h3 className="font-display text-2xl font-bold text-gray-800 mb-2">Sell your phone for cash in Windsor</h3>
@@ -1813,7 +1999,7 @@ const { useState, useEffect, useRef } = React;
                         </div>
                         <div className="max-w-7xl mx-auto px-4 border-t border-gray-800 pt-8 text-center text-gray-600 text-xs font-medium leading-relaxed">
                             <p className="mb-2">
-                                <strong className="text-gray-500">Services:</strong> <a href="/iphone-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">iPhone Repair Windsor</a> · <a href="/samsung-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Samsung Repair</a> · iPad Repairs · <a href="/console-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Games Console Repair</a> · Water Damage · Charging Port Fix · Buy Refurbished Phones · <a href="/sell-my-phone-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Sell My Phone for Cash</a> · Device Trade-In
+                                <strong className="text-gray-500">Services:</strong> <a href="/iphone-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">iPhone Repair Windsor</a> · <a href="/samsung-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Samsung Repair</a> · iPad Repairs · <a href="/console-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Games Console Repair</a> · Water Damage · Charging Port Fix · <a href="/phones-for-sale-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Buy Refurbished Phones</a> · <a href="/sell-my-phone-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Sell My Phone for Cash</a> · Device Trade-In
                             </p>
                             <p className="mb-4">
                                 <strong className="text-gray-500">Areas Served:</strong> Windsor SL4 · <a href="/phone-repair-eton.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Eton</a> · <a href="/phone-repair-slough.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Slough</a> · <a href="/phone-repair-maidenhead.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Maidenhead</a> · <a href="/phone-repair-ascot.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Ascot</a> · <a href="/phone-repair-staines.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Staines</a> · <a href="/phone-repair-egham.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Egham</a> · <a href="/phone-repair-datchet.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Datchet &amp; Old Windsor</a> · <a href="/areas-we-cover.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors font-bold">All areas →</a>
