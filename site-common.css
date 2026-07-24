@@ -1,0 +1,93 @@
+.we-cookie-banner {
+  position: fixed;
+  z-index: 1000;
+  right: 16px;
+  bottom: 16px;
+  left: 16px;
+  color: #e5e7eb;
+  font-family: "DM Sans", system-ui, sans-serif;
+}
+
+.we-cookie-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: min(920px, 100%);
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #334155;
+  border-radius: 18px;
+  background: #0f172a;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, .35);
+}
+
+.we-cookie-copy {
+  max-width: 620px;
+}
+
+.we-cookie-copy h2 {
+  margin: 0 0 6px;
+  color: #fff;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.we-cookie-copy p {
+  margin: 0 0 8px;
+  color: #cbd5e1;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.we-cookie-copy a {
+  color: #6ee7b7;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.we-cookie-actions {
+  display: flex;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.we-cookie-actions button {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.we-cookie-reject {
+  color: #e2e8f0;
+  background: #334155;
+}
+
+.we-cookie-accept {
+  color: #fff;
+  background: #059669;
+}
+
+.we-cookie-actions button:focus-visible {
+  outline: 3px solid #a7f3d0;
+  outline-offset: 2px;
+}
+
+@media (max-width: 700px) {
+  .we-cookie-banner {
+    right: 10px;
+    bottom: 82px;
+    left: 10px;
+  }
+
+  .we-cookie-inner,
+  .we-cookie-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
