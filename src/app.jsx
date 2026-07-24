@@ -151,6 +151,19 @@ const { useState, useEffect, useRef } = React;
         const addonTotal = (ids) => (ids || []).reduce((s, id) => { const a = ADDONS.find(x => x.id === id); return s + (a ? a.price : 0); }, 0);
         const addonLabels = (ids) => (ids || []).map(id => { const a = ADDONS.find(x => x.id === id); if (a) return a.label; if (id === 'free_screen_protector') return 'FREE Screen Protector (exit offer)'; if (id === 'first_repair_discount_10') return '10% First-Repair Discount'; return id; });
         const gbp = (n) => `£${Number(n).toFixed(2)}`;
+        const phonePricingFor = (phone) => {
+            const regular = Number(phone?.price) || 0;
+            const candidate = Number(phone?.sale_price);
+            const onSale = Number.isFinite(candidate) && candidate > 0 && candidate < regular;
+            const current = onSale ? candidate : regular;
+            return {
+                regular,
+                current,
+                onSale,
+                saving: onSale ? regular - current : 0,
+                percent: onSale && regular ? Math.round((1 - (current / regular)) * 100) : 0
+            };
+        };
         // GA4 event helper (safe if gtag is blocked)
         const track = (name, params) => { try { if (window.gtag) window.gtag('event', name, params || {}); } catch (e) {} };
         // --- DATABASE ---
@@ -346,46 +359,51 @@ const { useState, useEffect, useRef } = React;
         };
         const phoneSoftwareSupportFor = (phone) => {
             const name = String(phone?.name || '').trim();
+            const withOverrides = (automatic) => ({
+                platform: String(phone?.software_version || '').trim() || automatic.platform,
+                updates: String(phone?.software_support || '').trim() || automatic.updates,
+                sourceUrl: String(phone?.software_source_url || '').trim() || automatic.sourceUrl
+            });
             if (/(?:samsung\s+)?(?:galaxy\s+)?s25(?:\s|$)/i.test(name)) {
-                return {
+                return withOverrides({
                     platform: 'Android 16 / One UI 8 supported',
                     updates: '7 OS generations · security promised to 2032',
                     sourceUrl: 'https://news.samsung.com/uk/samsung-galaxy-s25-series-sets-the-standard-of-ai-phone-as-a-true-ai-companion'
-                };
+                });
             }
             if (/(?:samsung\s+)?(?:galaxy\s+)?s24(?:\s|$)/i.test(name)) {
-                return {
+                return withOverrides({
                     platform: 'Android 16 / One UI 8 supported',
                     updates: '7 OS generations · security promised to 2031',
                     sourceUrl: 'https://security.samsungmobile.com/workScope.smsb'
-                };
+                });
             }
             if (/(?:samsung\s+)?(?:galaxy\s+)?s23(?:\s|$)/i.test(name)) {
-                return {
+                return withOverrides({
                     platform: 'Android 16 / One UI 8 supported',
                     updates: 'Security support originally promised for 5 years',
                     sourceUrl: 'https://news.samsung.com/uk/samsung-begins-official-rollout-of-one-ui-8-to-galaxy-devices'
-                };
+                });
             }
             if (/iphone\s+(?:1[1-7]e?(?:\s|$)|air(?:\s|$)|se\s*(?:\(|2|3))/i.test(name)) {
-                return {
+                return withOverrides({
                     platform: 'iOS 26 supported',
                     updates: 'Compatible with iOS 27, coming autumn 2026',
                     sourceUrl: 'https://www.apple.com/uk/os/ios/'
-                };
+                });
             }
             if (/iphone\s+(?:xs|xr)/i.test(name)) {
-                return {
+                return withOverrides({
                     platform: 'Up to iOS 18',
                     updates: 'Not compatible with iOS 26 or iOS 27',
                     sourceUrl: 'https://support.apple.com/en-gb/guide/iphone/iphe3fa5df43/ios'
-                };
+                });
             }
-            return {
+            return withOverrides({
                 platform: 'Software version checked before sale',
                 updates: 'Ask us to confirm this model’s remaining update support',
                 sourceUrl: null
-            };
+            });
         };
         const PhoneSoftware = ({ phone, showSource = false }) => {
             const software = phoneSoftwareSupportFor(phone);
@@ -400,6 +418,41 @@ const { useState, useEffect, useRef } = React;
                         </a>
                     )}
                     {showSource && <div className="text-[10px] text-gray-400 font-medium mt-1.5">Exact installed version checked before sale; rollout timing can vary.</div>}
+                </div>
+            );
+        };
+        const PhoneSalePrice = ({ phone, compact = false }) => {
+            const pricing = phonePricingFor(phone);
+            return (
+                <div className={compact ? 'text-right' : ''}>
+                    {pricing.onSale && (
+                        <div className="text-xs font-bold text-gray-400 line-through">{gbp(pricing.regular)}</div>
+                    )}
+                    <div className={`font-display font-black ${compact ? 'text-2xl' : 'text-3xl'} ${pricing.onSale ? 'text-red-600' : 'text-brand-500'}`}>
+                        {gbp(pricing.current)}
+                    </div>
+                    {pricing.onSale && (
+                        <div className="text-[11px] font-black text-red-600">Save {gbp(pricing.saving)}</div>
+                    )}
+                </div>
+            );
+        };
+        const PhoneConditionDetails = ({ phone }) => {
+            const battery = Number(phone?.battery_health);
+            const hasBattery = phone?.battery_health !== null && phone?.battery_health !== '' && Number.isFinite(battery);
+            if (!phone?.professionally_refurbished && !hasBattery) return null;
+            return (
+                <div className="flex flex-wrap gap-2 mt-3">
+                    {phone?.professionally_refurbished && (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-[11px] font-black px-2.5 py-1">
+                            <i className="fas fa-circle-check"></i> Professionally refurbished
+                        </span>
+                    )}
+                    {hasBattery && (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-50 border border-gray-200 text-gray-600 text-[11px] font-black px-2.5 py-1">
+                            <i className="fas fa-battery-three-quarters text-brand-500"></i> Battery health {Math.round(battery)}%
+                        </span>
+                    )}
                 </div>
             );
         };
@@ -528,7 +581,7 @@ const { useState, useEffect, useRef } = React;
                             offers: {
                                 '@type': 'Offer',
                                 priceCurrency: 'GBP',
-                                price: Number(phone.price).toFixed(2),
+                                price: phonePricingFor(phone).current.toFixed(2),
                                 availability: 'https://schema.org/InStock',
                                 seller: { '@id': 'https://www.windsor-express.co.uk/#business' },
                                 url: `https://www.windsor-express.co.uk/?phone=${encodeURIComponent(phone.id)}`
@@ -756,19 +809,20 @@ const { useState, useEffect, useRef } = React;
             const setFulfillment = (f) => setPurchaseData(p => ({ ...p, fulfillment: f, paymentMethod: f === 'postage' ? 'online' : p.paymentMethod }));
             const buyAddonTotal = addonTotal(purchaseData.addons);
             const buyPostage    = purchaseData.fulfillment === 'postage' ? POSTAGE_FEE : 0;
-            const buyTotal      = (selectedPhone ? parseFloat(selectedPhone.price) : 0) + buyAddonTotal + buyPostage;
+            const buyTotal      = (selectedPhone ? phonePricingFor(selectedPhone).current : 0) + buyAddonTotal + buyPostage;
             const submitPurchase = async (e) => {
                 e.preventDefault(); setIsBuying(true);
                 const aTotal = addonTotal(purchaseData.addons);
                 const postage = purchaseData.fulfillment === 'postage' ? POSTAGE_FEE : 0;
-                const total = parseFloat(selectedPhone.price) + aTotal + postage;
+                const currentPhonePrice = phonePricingFor(selectedPhone).current;
+                const total = currentPhonePrice + aTotal + postage;
                 const tradeInfo = purchaseData.tradeIn && purchaseData.tradeDevice
                     ? `${purchaseData.tradeDevice} (${purchaseData.tradeCondition || 'condition TBC'})`
                     : null;
                 const row = {
                     type: 'phone_order', product_id: selectedPhone.id,
                     product_name: `${selectedPhone.name}${selectedPhone.storage ? ' ' + selectedPhone.storage : ''}`,
-                    product_price: selectedPhone.price,
+                    product_price: currentPhonePrice,
                     addons: purchaseData.addons, addon_total: aTotal,
                     fulfillment: purchaseData.fulfillment, postage_fee: postage, total_amount: total,
                     name: purchaseData.name, phone: purchaseData.phone, email: purchaseData.email,
@@ -817,7 +871,7 @@ const { useState, useEffect, useRef } = React;
             const stepLabels    = ['Device', 'Issue', 'Model & Quality', 'Confirm'];
             const progressPct   = ((funnelStep - 1) / 3) * 100;
             const waMessage = view === 'checkout' && selectedPhone
-                ? `Hi Windsor Express! I'm interested in the ${selectedPhone.name}${selectedPhone.storage ? ` ${selectedPhone.storage}` : ''} listed for ${gbp(selectedPhone.price)}. Is it still available?`
+                ? `Hi Windsor Express! I'm interested in the ${selectedPhone.name}${selectedPhone.storage ? ` ${selectedPhone.storage}` : ''} listed for ${gbp(phonePricingFor(selectedPhone).current)}. Is it still available?`
                 : view === 'shop'
                     ? "Hi Windsor Express! I'd like some help choosing a phone from your current stock."
                     : view === 'sell'
@@ -1333,11 +1387,16 @@ const { useState, useEffect, useRef } = React;
                         <div className={phoneGridClass(phones.length)}>
                             {phones.map(ph => (
                                 <button type="button" key={ph.id}
-                                    aria-label={`View ${ph.name}${ph.storage ? ` ${ph.storage}` : ''} for ${gbp(ph.price)}`}
+                                    aria-label={`View ${ph.name}${ph.storage ? ` ${ph.storage}` : ''} for ${gbp(phonePricingFor(ph).current)}`}
                                     className="funnel-card group w-full text-left border-gray-200 bg-white rounded-3xl overflow-hidden flex flex-col"
                                     onClick={() => openBuy(ph)}>
                                     <div className="h-64 md:h-72 bg-gradient-to-b from-gray-50 to-white flex items-center justify-center overflow-hidden relative border-b border-gray-100">
                                         <PhoneImage phone={ph} />
+                                        {phonePricingFor(ph).onSale && (
+                                            <span className="absolute top-3 left-3 bg-red-600 text-white text-[10px] font-black uppercase tracking-wide px-3 py-1.5 rounded-full shadow-lg">
+                                                Sale · {phonePricingFor(ph).percent}% off
+                                            </span>
+                                        )}
                                         <span className="absolute top-3 right-3 bg-white/90 border border-gray-200 text-gray-700 text-[10px] font-black uppercase tracking-wide px-2.5 py-1.5 rounded-full shadow-sm">
                                             {Number(ph.stock) === 1 ? 'Last one' : 'In stock'}
                                         </span>
@@ -1351,12 +1410,13 @@ const { useState, useEffect, useRef } = React;
                                         <h3 className="font-display text-2xl font-black text-gray-900 leading-tight">{ph.name}</h3>
                                         {ph.description && <p className="text-gray-400 text-sm font-medium mt-1 mb-3 line-clamp-2">{ph.description}</p>}
                                         <PhoneSoftware phone={ph} />
+                                        <PhoneConditionDetails phone={ph} />
                                         <div className="grid grid-cols-2 gap-2 mt-4 text-[11px] font-bold text-gray-500">
                                             <span><i className="fas fa-circle-check text-brand-500 mr-1"></i>3-year warranty</span>
                                             <span><i className="fas fa-lock-open text-brand-500 mr-1"></i>Unlocked</span>
                                         </div>
                                         <div className="mt-auto flex items-center justify-between pt-3">
-                                            <div className="font-display text-3xl font-black text-brand-500">{gbp(ph.price)}</div>
+                                            <PhoneSalePrice phone={ph} />
                                             <span className="bg-brand-500 group-hover:bg-brand-600 text-white font-black px-5 py-2.5 rounded-xl text-sm shadow">View &amp; reserve →</span>
                                         </div>
                                     </div>
@@ -1394,8 +1454,9 @@ const { useState, useEffect, useRef } = React;
                                     <div className="font-display text-2xl font-black text-gray-900 leading-tight">{ph.name}</div>
                                     <div className="text-xs text-gray-500 font-semibold mt-0.5">{[ph.storage, ph.color, ph.condition].filter(Boolean).join(' · ')}</div>
                                 </div>
-                                <div className="font-display text-2xl font-black text-brand-500">{gbp(ph.price)}</div>
+                                <PhoneSalePrice phone={ph} compact />
                             </div>
+                            <PhoneConditionDetails phone={ph} />
                             <div className="grid grid-cols-3 gap-2 mb-5 text-center text-[10px] sm:text-xs font-bold text-gray-600">
                                 <div className="bg-gray-50 border border-gray-100 rounded-xl px-2 py-2.5"><i className="fas fa-shield-halved text-brand-500 block mb-1"></i>3-year phone warranty</div>
                                 <div className="bg-gray-50 border border-gray-100 rounded-xl px-2 py-2.5"><i className="fas fa-lock-open text-brand-500 block mb-1"></i>Unlocked</div>
@@ -1490,7 +1551,7 @@ const { useState, useEffect, useRef } = React;
                                 )}
                                 {/* TOTAL */}
                                 <div className="bg-gray-50 rounded-2xl p-4 space-y-1.5 text-sm font-medium text-gray-500">
-                                    <div className="flex justify-between"><span>{ph.name}</span><span>{gbp(ph.price)}</span></div>
+                                    <div className="flex justify-between"><span>{ph.name}</span><span>{gbp(phonePricingFor(ph).current)}</span></div>
                                     {purchaseData.addons.map(id => { const a = ADDONS.find(x => x.id === id); return <div key={id} className="flex justify-between"><span>{a.label}</span><span>{gbp(a.price)}</span></div>; })}
                                     {buyPostage > 0 && <div className="flex justify-between"><span>UK tracked postage</span><span>{gbp(buyPostage)}</span></div>}
                                     {purchaseData.tradeIn && purchaseData.tradeDevice && (
@@ -1769,11 +1830,16 @@ const { useState, useEffect, useRef } = React;
                                         <div className={phoneGridClass(Math.min(phones.length, 3))}>
                                             {phones.slice(0, 3).map(ph => (
                                                 <button type="button" key={ph.id}
-                                                    aria-label={`View ${ph.name}${ph.storage ? ` ${ph.storage}` : ''} for ${gbp(ph.price)}`}
+                                                    aria-label={`View ${ph.name}${ph.storage ? ` ${ph.storage}` : ''} for ${gbp(phonePricingFor(ph).current)}`}
                                                     className="funnel-card group w-full text-left border-gray-200 bg-white rounded-3xl overflow-hidden flex flex-col"
                                                     onClick={() => openBuy(ph)}>
                                                     <div className="h-64 bg-gradient-to-b from-gray-50 to-white flex items-center justify-center overflow-hidden relative border-b border-gray-100">
                                                         <PhoneImage phone={ph} />
+                                                        {phonePricingFor(ph).onSale && (
+                                                            <span className="absolute top-3 left-3 bg-red-600 text-white text-[10px] font-black uppercase tracking-wide px-3 py-1.5 rounded-full shadow-lg">
+                                                                Sale · {phonePricingFor(ph).percent}% off
+                                                            </span>
+                                                        )}
                                                         <span className="absolute top-3 right-3 bg-white/90 border border-gray-200 text-gray-700 text-[10px] font-black uppercase tracking-wide px-2.5 py-1.5 rounded-full shadow-sm">
                                                             {Number(ph.stock) === 1 ? 'Last one' : 'In stock'}
                                                         </span>
@@ -1786,12 +1852,13 @@ const { useState, useEffect, useRef } = React;
                                                         </div>
                                                         <h3 className="font-display text-2xl font-black text-gray-900 leading-tight">{ph.name}</h3>
                                                         <PhoneSoftware phone={ph} />
+                                                        <PhoneConditionDetails phone={ph} />
                                                         <div className="flex gap-3 mt-3 text-[11px] font-bold text-gray-500">
                                                             <span><i className="fas fa-circle-check text-brand-500 mr-1"></i>3-year warranty</span>
                                                             <span><i className="fas fa-lock-open text-brand-500 mr-1"></i>Unlocked</span>
                                                         </div>
                                                         <div className="mt-auto flex items-center justify-between pt-3">
-                                                            <div className="font-display text-3xl font-black text-brand-500">{gbp(ph.price)}</div>
+                                                            <PhoneSalePrice phone={ph} />
                                                             <span className="bg-brand-500 group-hover:bg-brand-600 text-white font-black px-5 py-2.5 rounded-xl text-sm shadow">View →</span>
                                                         </div>
                                                     </div>

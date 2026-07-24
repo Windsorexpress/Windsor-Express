@@ -80,6 +80,7 @@
     .photo img{width:100%;height:100%;object-fit:contain;padding:24px}
     .photo-fallback{color:#cbd5e1;text-align:center;font-weight:700;font-size:12px}
     .photo-fallback b{display:block;font-size:55px;line-height:1;margin-bottom:9px}
+    .sale-pill{position:absolute;top:13px;left:13px;background:#dc2626;color:#fff;border-radius:999px;padding:7px 11px;font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:900;box-shadow:0 6px 18px rgba(220,38,38,.25)}
     .stock-pill{position:absolute;top:13px;right:13px;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:999px;padding:6px 9px;font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:900}
     .body{padding:20px;display:flex;flex-direction:column;flex:1}
     .badges{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
@@ -92,9 +93,16 @@
     .software span{display:block;color:#374151;font-size:12px;font-weight:700}
     .software span+span{color:#64748b;font-size:11px;margin-top:3px}
     .software a{display:inline-block;color:#047857;font-size:10px;font-weight:800;margin-top:6px}
+    .quality{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 10px}
+    .quality span{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:6px 9px;font-size:10px;font-weight:900;background:#f8fafc;border:1px solid var(--line);color:#475569}
+    .quality .refurbished{background:#ecfdf5;border-color:#d1fae5;color:#047857}
     .assurances{display:flex;gap:14px;flex-wrap:wrap;color:#475569;font-size:11px;font-weight:700;margin-top:auto;padding-top:9px}
     .assurances span::before{content:'✓';color:var(--brand);margin-right:5px;font-weight:900}
-    .price{font-family:'Barlow Condensed',sans-serif;color:var(--brand-dark);font-size:38px;font-weight:900;margin:14px 0 10px}
+    .price-wrap{margin:14px 0 10px}
+    .price{font-family:'Barlow Condensed',sans-serif;color:var(--brand-dark);font-size:38px;font-weight:900;line-height:1}
+    .sale-price{color:#dc2626}
+    .regular-price{font-size:13px;color:#94a3b8;text-decoration:line-through;font-weight:800;margin-bottom:2px}
+    .saving{font-size:11px;color:#dc2626;font-weight:900;margin-top:3px}
     .actions{display:grid;grid-template-columns:1fr auto;gap:9px}
     .reserve{background:var(--brand);color:#fff;text-align:center;text-decoration:none;padding:12px 14px;border-radius:11px;font-size:13px;font-weight:900}
     .reserve:hover{background:var(--brand-dark)}
@@ -205,48 +213,67 @@
       container.appendChild(text("span", value, `badge${condition ? " condition" : ""}`));
     }
 
+    function pricingFor(phone) {
+      const regular = Number(phone.price || 0);
+      const candidate = Number(phone.sale_price);
+      const onSale = Number.isFinite(candidate) && candidate > 0 && candidate < regular;
+      const current = onSale ? candidate : regular;
+      return {
+        regular,
+        current,
+        onSale,
+        saving: onSale ? regular - current : 0,
+        percent: onSale && regular ? Math.round((1 - (current / regular)) * 100) : 0
+      };
+    }
+
     function softwareFor(phone) {
       const name = String(phone.name || "").trim();
+      const withOverrides = automatic => ({
+        platform: String(phone.software_version || "").trim() || automatic.platform,
+        updates: String(phone.software_support || "").trim() || automatic.updates,
+        source: String(phone.software_source_url || "").trim() || automatic.source
+      });
       if (/(?:samsung\s+)?(?:galaxy\s+)?s25(?:\s|$)/i.test(name)) {
-        return {
+        return withOverrides({
           platform: "Android 16 / One UI 8 supported",
           updates: "7 OS generations · security promised to 2032",
           source: "https://news.samsung.com/uk/samsung-galaxy-s25-series-sets-the-standard-of-ai-phone-as-a-true-ai-companion"
-        };
+        });
       }
       if (/(?:samsung\s+)?(?:galaxy\s+)?s24(?:\s|$)/i.test(name)) {
-        return {
+        return withOverrides({
           platform: "Android 16 / One UI 8 supported",
           updates: "7 OS generations · security promised to 2031",
           source: "https://security.samsungmobile.com/workScope.smsb"
-        };
+        });
       }
       if (/(?:samsung\s+)?(?:galaxy\s+)?s23(?:\s|$)/i.test(name)) {
-        return {
+        return withOverrides({
           platform: "Android 16 / One UI 8 supported",
           updates: "Security support originally promised for 5 years",
           source: "https://news.samsung.com/uk/samsung-begins-official-rollout-of-one-ui-8-to-galaxy-devices"
-        };
+        });
       }
       if (/iphone\s+(?:1[1-7]e?(?:\s|$)|air(?:\s|$)|se\s*(?:\(|2|3))/i.test(name)) {
-        return {
+        return withOverrides({
           platform: "iOS 26 supported",
           updates: "Compatible with iOS 27, coming autumn 2026",
           source: "https://www.apple.com/uk/os/ios/"
-        };
+        });
       }
       if (/iphone\s+(?:xs|xr)/i.test(name)) {
-        return {
+        return withOverrides({
           platform: "Up to iOS 18",
           updates: "Not compatible with iOS 26 or iOS 27",
           source: "https://support.apple.com/en-gb/guide/iphone/iphe3fa5df43/ios"
-        };
+        });
       }
-      return {
+      return withOverrides({
         platform: "Software version checked before sale",
         updates: "Ask us to confirm this model's remaining update support",
         source: ""
-      };
+      });
     }
 
     function phoneCard(phone) {
@@ -269,6 +296,8 @@
       } else {
         photo.appendChild(fallback);
       }
+      const pricing = pricingFor(phone);
+      if (pricing.onSale) photo.appendChild(text("span", `Sale · ${pricing.percent}% off`, "sale-pill"));
       photo.appendChild(text("span", Number(phone.stock) === 1 ? "Last one" : "In stock", "stock-pill"));
       card.appendChild(photo);
 
@@ -298,12 +327,28 @@
       }
       body.appendChild(software);
 
+      const quality = document.createElement("div");
+      quality.className = "quality";
+      if (phone.professionally_refurbished) {
+        quality.appendChild(text("span", "✓ Professionally refurbished", "refurbished"));
+      }
+      const battery = Number(phone.battery_health);
+      if (phone.battery_health !== null && phone.battery_health !== "" && Number.isFinite(battery)) {
+        quality.appendChild(text("span", `Battery health ${Math.round(battery)}%`));
+      }
+      if (quality.childElementCount) body.appendChild(quality);
+
       const assurances = document.createElement("div");
       assurances.className = "assurances";
       assurances.appendChild(text("span", "3-year warranty"));
       assurances.appendChild(text("span", "Unlocked"));
       body.appendChild(assurances);
-      body.appendChild(text("div", `£${Number(phone.price || 0).toFixed(2)}`, "price"));
+      const priceWrap = document.createElement("div");
+      priceWrap.className = "price-wrap";
+      if (pricing.onSale) priceWrap.appendChild(text("div", `£${pricing.regular.toFixed(2)}`, "regular-price"));
+      priceWrap.appendChild(text("div", `£${pricing.current.toFixed(2)}`, `price${pricing.onSale ? " sale-price" : ""}`));
+      if (pricing.onSale) priceWrap.appendChild(text("div", `Save £${pricing.saving.toFixed(2)}`, "saving"));
+      body.appendChild(priceWrap);
 
       const actions = document.createElement("div");
       actions.className = "actions";
@@ -313,7 +358,7 @@
       reserve.textContent = "Buy securely →";
       const whatsapp = document.createElement("a");
       whatsapp.className = "whatsapp";
-      whatsapp.href = `https://wa.me/447912150397?text=${encodeURIComponent(`Hi Windsor Express! I'm interested in the ${phone.name}${phone.storage ? ` ${phone.storage}` : ""} listed for £${Number(phone.price || 0).toFixed(2)}. Is it still available?`)}`;
+      whatsapp.href = `https://wa.me/447912150397?text=${encodeURIComponent(`Hi Windsor Express! I'm interested in the ${phone.name}${phone.storage ? ` ${phone.storage}` : ""} listed for £${pricing.current.toFixed(2)}. Is it still available?`)}`;
       whatsapp.target = "_blank";
       whatsapp.rel = "noopener noreferrer";
       whatsapp.setAttribute("aria-label", `Ask about ${phone.name} on WhatsApp`);
@@ -341,7 +386,7 @@
             "offers": {
               "@type": "Offer",
               "priceCurrency": "GBP",
-              "price": Number(phone.price || 0).toFixed(2),
+              "price": pricingFor(phone).current.toFixed(2),
               "availability": "https://schema.org/InStock",
               "url": `https://www.windsor-express.co.uk/?phone=${encodeURIComponent(phone.id)}`,
               "seller": { "@id": "https://www.windsor-express.co.uk/#business" }
