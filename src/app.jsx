@@ -70,6 +70,44 @@ const { useState, useEffect, useRef } = React;
             (IPHONE_MODEL_EXPANSIONS[group] || [group]).forEach(model => { models[model] = { ...prices }; });
             return models;
         }, {});
+        // Apple UK out-of-warranty "Screen damage" estimates, checked 24 July
+        // 2026. Windsor Express's original-spec option is exactly 10% lower.
+        // Apple no longer publishes an estimate for every older iPhone model,
+        // so those models remain quote-only.
+        const APPLE_SCREEN_ESTIMATES_UK = Object.freeze({
+            "iPhone XR": 219,
+            "iPhone 11": 219,
+            "iPhone 12 mini": 225,
+            "iPhone 12": 289,
+            "iPhone 12 Pro": 289,
+            "iPhone 12 Pro Max": 349,
+            "iPhone 13 mini": 225,
+            "iPhone 13": 289,
+            "iPhone 13 Pro": 289,
+            "iPhone 13 Pro Max": 349,
+            "iPhone 14": 289,
+            "iPhone 14 Plus": 349,
+            "iPhone 14 Pro": 349,
+            "iPhone 14 Pro Max": 389,
+            "iPhone 15": 289,
+            "iPhone 15 Plus": 349,
+            "iPhone 15 Pro": 349,
+            "iPhone 15 Pro Max": 389,
+            "iPhone 16": 289,
+            "iPhone 16 Plus": 349,
+            "iPhone 16 Pro": 349,
+            "iPhone 16 Pro Max": 389,
+            "iPhone 17": 349,
+            "iPhone 17 Pro": 349,
+            "iPhone 17 Pro Max": 389
+        });
+        const originalScreenOfferFor = (brand, model) => {
+            const appleEstimate = brand === 'Apple iPhone' ? APPLE_SCREEN_ESTIMATES_UK[model] : null;
+            return {
+                appleEstimate: appleEstimate || null,
+                price: appleEstimate ? Number((appleEstimate * 0.9).toFixed(2)) : null
+            };
+        };
         const TIER_META = {
             lcd:  { label: "LCD",  tagline: "Works perfectly – great value",       textColor: "text-amber-700", bg: "bg-amber-50",  border: "tier-lcd"  },
             fhd:  { label: "FHD",  tagline: "Better colour & brightness",           textColor: "text-blue-700",  bg: "bg-blue-50",   border: "tier-fhd"  },
@@ -513,12 +551,15 @@ const { useState, useEffect, useRef } = React;
                 setBookingData({ ...bookingData, quality: label, qualityKey: key, quotedPrice: `£${price.toFixed(2)}` });
                 setFunnelStep(4);
             };
-            const handleOriginalScreenQuote = () => {
+            const handleOriginalScreenSelect = () => {
+                const offer = originalScreenOfferFor(bookingData.brand, bookingData.model);
                 setBookingData({
                     ...bookingData,
-                    quality: 'Genuine / Original Screen (quote required)',
-                    qualityKey: 'original_quote',
-                    quotedPrice: ''
+                    quality: offer.price != null
+                        ? 'Original-spec Screen (10% below Apple UK estimate)'
+                        : 'Original-spec Screen (quote required)',
+                    qualityKey: offer.price != null ? 'original_spec_apple_benchmark' : 'original_spec_quote',
+                    quotedPrice: offer.price != null ? `£${offer.price.toFixed(2)}` : ''
                 });
                 setFunnelStep(4);
             };
@@ -848,16 +889,38 @@ const { useState, useEffect, useRef } = React;
                                                 </button>
                                             );
                                         })}
-                                        {(bookingData.brand === 'Apple iPhone' || bookingData.brand === 'Samsung') && (
-                                            <button type="button" onClick={handleOriginalScreenQuote}
-                                                className="funnel-card w-full text-left border-violet-200 rounded-xl p-4 flex justify-between items-center bg-violet-50">
-                                                <div>
-                                                    <div className="font-black text-base text-violet-800">Genuine / Original Screen</div>
-                                                    <div className="text-violet-500 text-xs font-medium mt-0.5">Subject to model and part availability; we confirm the price before any work</div>
-                                                </div>
-                                                <div className="font-display text-2xl font-black text-violet-800">Quote</div>
-                                            </button>
-                                        )}
+                                        {(bookingData.brand === 'Apple iPhone' || bookingData.brand === 'Samsung') && (() => {
+                                            const offer = originalScreenOfferFor(bookingData.brand, bookingData.model);
+                                            return (
+                                                <>
+                                                    <button type="button" onClick={handleOriginalScreenSelect}
+                                                        className="funnel-card w-full text-left border-violet-200 rounded-xl p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 bg-violet-50">
+                                                        <div>
+                                                            <div className="font-black text-base text-violet-800">Original-spec Screen</div>
+                                                            <div className="text-violet-600 text-xs font-medium mt-0.5">
+                                                                {offer.price != null
+                                                                    ? `Exactly 10% below Apple's current UK screen-repair estimate of £${offer.appleEstimate.toFixed(2)}`
+                                                                    : 'Subject to model and part availability; we confirm the price before any work'}
+                                                            </div>
+                                                        </div>
+                                                        <div className="sm:text-right">
+                                                            <div className="font-display text-3xl font-black text-violet-800">
+                                                                {offer.price != null ? `£${offer.price.toFixed(2)}` : 'Quote'}
+                                                            </div>
+                                                            {offer.appleEstimate != null && (
+                                                                <div className="text-xs text-violet-500 line-through">Apple £{offer.appleEstimate.toFixed(2)}</div>
+                                                            )}
+                                                        </div>
+                                                    </button>
+                                                    {offer.appleEstimate != null && (
+                                                        <p className="px-1 text-[11px] leading-relaxed text-gray-400">
+                                                            Apple UK out-of-warranty estimate checked 24 July 2026. Parts are subject to inspection and availability. Windsor Express is independent from Apple.{' '}
+                                                            <a className="underline hover:text-violet-600" href="https://support.apple.com/en-gb/iphone/repair" target="_blank" rel="noopener noreferrer">Check Apple's estimator</a>.
+                                                        </p>
+                                                    )}
+                                                </>
+                                            );
+                                        })()}
                                     </div>
                                 )}
                                 {/* Single-price repairs (battery, back glass, charging port, camera, speaker) */}
