@@ -52,20 +52,24 @@ function head({ title, description, canonical, image, schema, noindex }) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/phone-shop-base.css">
 <link rel="stylesheet" href="/phone-shop.css">
 <link rel="stylesheet" href="/site-common.css">
 <script src="/site-common.js" defer></script>
 ${schema.map((s) => `<script type="application/ld+json">\n${jsonLd(s)}\n</script>`).join("\n")}
 </head>
 <body>
-<header class="nav"><div class="wrap navrow">
-  <a class="brand" href="/"><span class="brand-mark">WINDSOR</span> <span class="brand-accent">EXPRESS</span></a>
-  <nav class="navlinks">
-    <a href="/">Repairs</a>
-    <a href="/sell-my-phone-windsor.html">Sell / Trade-In</a>
-    <a class="nav-cta" href="/phones-for-sale-windsor.html">See Live Stock</a>
-  </nav>
-</div></header>`;
+<div class="announcement">Free click &amp; collect in Windsor <span>&middot;</span> Tracked UK delivery <span>&middot;</span> 3-year warranty</div>
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="/">WINDSOR <span>EXPRESS</span></a>
+    <nav class="navlinks" aria-label="Main navigation">
+      <a href="/">Repairs</a>
+      <a href="/sell-my-phone-windsor.html">Sell / Trade-In</a>
+      <a class="nav-cta" href="/phones-for-sale-windsor.html">See Live Stock</a>
+    </nav>
+  </div>
+</header>`;
 }
 
 const footer = `<footer><div class="wrap">
