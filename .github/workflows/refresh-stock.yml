@@ -36,18 +36,19 @@ jobs:
         run: |
           node scripts/build-products.mjs
           node scripts/build-merchant-feed.mjs
+          node scripts/build-local-inventory.mjs
 
       - name: Commit if stock changed
         run: |
           git config user.name  "windsor-express-bot"
           git config user.email "actions@users.noreply.github.com"
 
-          if git diff --quiet -- phones merchant-feed.xml sitemap.xml; then
+          if git diff --quiet -- phones merchant-feed.xml local-inventory.xml sitemap.xml; then
             echo "No stock changes — nothing to commit."
             exit 0
           fi
 
-          git add phones merchant-feed.xml sitemap.xml
+          git add phones merchant-feed.xml local-inventory.xml sitemap.xml
           git commit -m "chore: refresh product pages and Google feed from live stock"
 
           # Someone may have pushed while we were building.

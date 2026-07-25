@@ -18,6 +18,16 @@ export const BUSINESS = {
   phone: "+447912150397"
 };
 
+/**
+ * Store code for the Peascod Street shop, used by the local inventory feed
+ * that powers free local listings ("in stock nearby" on Search and Maps).
+ *
+ * This MUST match the store code on the Windsor Express location in Google
+ * Business Profile Manager exactly, or Merchant Center will reject the rows.
+ * Set it there under the location's advanced/store code field.
+ */
+export const STORE_CODE = "WINDSOR-PEASCOD";
+
 // Postage matches the fee used at checkout (POSTAGE_FEE in create-checkout).
 export const POSTAGE_FEE = 4.99;
 export const WARRANTY_MONTHS = 36;

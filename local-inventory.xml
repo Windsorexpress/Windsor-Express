@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
+  <channel>
+    <title>Windsor Express — local shop inventory</title>
+    <link>https://www.windsor-express.co.uk/phones-for-sale-windsor.html</link>
+    <description>Stock physically available to collect at Windsor Express, 3 Peascod Street, Windsor SL4 1DG.</description>
+    <lastBuildDate>Sat, 25 Jul 2026 16:12:36 GMT</lastBuildDate>
+    <item>
+      <g:store_code>WINDSOR-PEASCOD</g:store_code>
+      <g:id>e144a49d-a92a-4c13-9cb5-7a71561213a2</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>439.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>WINDSOR-PEASCOD</g:store_code>
+      <g:id>cd145490-cfe4-4836-8c6d-3aff32df95c7</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>489.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>WINDSOR-PEASCOD</g:store_code>
+      <g:id>b78259a9-1f0f-427d-827c-701e199a1ee2</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>599.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>WINDSOR-PEASCOD</g:store_code>
+      <g:id>f646f9e2-a031-4dcb-9bd2-03caa6d0fd14</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>499.00 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>WINDSOR-PEASCOD</g:store_code>
+      <g:id>452a2c2d-72a8-4d0a-b3a3-80b7601b4834</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>699.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>WINDSOR-PEASCOD</g:store_code>
+      <g:id>1e1e2da5-e3ec-4920-bfb0-ff7cc0aecedb</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>1019.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+  </channel>
+</rss>
