@@ -5,4 +5,32 @@ Allow: /
 Disallow: /admin.html
 Disallow: /connection-test.html
 
+# Google Merchant Center checks for these agents by name before it will run
+# quality and policy checks on product pages. The wildcard group above already
+# permits them, but Merchant Center requires them stated explicitly.
+User-agent: Googlebot
+Allow: /
+Disallow: /admin.html
+Disallow: /connection-test.html
+
+User-agent: Googlebot-Image
+Allow: /
+Disallow: /admin.html
+Disallow: /connection-test.html
+
+User-agent: AdsBot-Google
+Allow: /
+Disallow: /admin.html
+Disallow: /connection-test.html
+
+User-agent: AdsBot-Google-Mobile
+Allow: /
+Disallow: /admin.html
+Disallow: /connection-test.html
+
+User-agent: Storebot-Google
+Allow: /
+Disallow: /admin.html
+Disallow: /connection-test.html
+
 Sitemap: https://www.windsor-express.co.uk/sitemap.xml
