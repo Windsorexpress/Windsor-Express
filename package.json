@@ -4,6 +4,9 @@
   "scripts": {
     "build:js": "esbuild ./src/app.jsx --bundle=false --format=iife --jsx=transform --target=es2018 --minify --outfile=./app.js",
     "build:css": "tailwindcss -i ./src/tailwind.css -o ./site.css --minify",
+    "build:products": "node scripts/build-products.mjs",
+    "build:feed": "node scripts/build-merchant-feed.mjs",
+    "build:shop": "npm run build:products && npm run build:feed",
     "build": "npm run build:js && npm run build:css"
   },
   "devDependencies": {

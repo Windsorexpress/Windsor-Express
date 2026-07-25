@@ -59,6 +59,7 @@
       <button data-tab="sells"    class="tabbtn text-sm font-bold px-4 py-2.5 rounded-t-lg whitespace-nowrap text-gray-500">Sell Enquiries <span class="badge"></span></button>
       <button data-tab="phones"   class="tabbtn text-sm font-bold px-4 py-2.5 rounded-t-lg whitespace-nowrap text-gray-500">Phones for Sale <span class="badge"></span></button>
       <button data-tab="prices"   class="tabbtn text-sm font-bold px-4 py-2.5 rounded-t-lg whitespace-nowrap text-gray-500">Repair Prices <span class="badge"></span></button>
+      <button data-tab="reviews"  class="tabbtn text-sm font-bold px-4 py-2.5 rounded-t-lg whitespace-nowrap text-gray-500">Reviews <span class="badge"></span></button>
     </div>
   </header>
 
@@ -70,12 +71,13 @@
     <div id="tab-sells" class="hidden"></div>
     <div id="tab-phones" class="hidden"></div>
     <div id="tab-prices" class="hidden"></div>
+    <div id="tab-reviews" class="hidden"></div>
   </main>
 </div>
 
 <script>
 const $ = (s) => document.querySelector(s);
-let STORE = { bookings:[], orders:[], sell_inquiries:[], phones:[], repair_prices:[] };
+let STORE = { bookings:[], orders:[], sell_inquiries:[], phones:[], repair_prices:[], product_reviews:[] };
 let PW = sessionStorage.getItem("we_admin_pw") || "";
 
 const gbp = (n) => "£" + (Number(n)||0).toFixed(2);
@@ -142,7 +144,7 @@ document.querySelectorAll(".tabbtn").forEach(btn => btn.addEventListener("click"
 }));
 
 /* ---------- RENDER ---------- */
-function renderAll(){ renderStats(); renderBookings(); renderOrders(); renderSells(); renderPhones(); renderPrices(); }
+function renderAll(){ renderStats(); renderBookings(); renderOrders(); renderSells(); renderPhones(); renderPrices(); renderReviews(); }
 
 function isToday(s){ const d=new Date(s), n=new Date(); return d.getFullYear()===n.getFullYear()&&d.getMonth()===n.getMonth()&&d.getDate()===n.getDate(); }
 function statCard(label, value, sub, icon, color){
@@ -289,6 +291,13 @@ function phoneForm(p){
       ${f('software_source_url','Manufacturer support link (optional)','type="url"')}
       <p class="md:col-span-3 text-[11px] text-emerald-700">Software boxes are optional. Leave them blank to use the automatic model match; fill them in when a new model or update is released.</p>
     </div>
+    <div class="mt-3 grid md:grid-cols-2 gap-2 bg-blue-50 border border-blue-100 rounded-xl p-3">
+      <p class="md:col-span-2 text-sm font-bold text-blue-800"><i class="fas fa-barcode"></i> Google Shopping identifiers</p>
+      ${f('gtin','Barcode / GTIN from the box')}
+      ${f('mpn','Part number e.g. MQ4F3ZD/A')}
+      <p class="md:col-span-2 text-[11px] text-blue-700">Google needs a barcode (GTIN) for second-hand goods. It is the long number under the barcode on the retail box — 8, 12, 13 or 14 digits. No box? Enter the part number instead; the listing still works but may show less often.</p>
+      ${v.slug?`<p class="md:col-span-2 text-[11px] text-gray-500">Page: <a href="/phones/${esc(v.slug)}/" target="_blank" class="font-bold text-blue-700 underline">/phones/${esc(v.slug)}/</a> — this URL is fixed once Google has indexed it, so it will not change if you edit the name.</p>`:''}
+    </div>
     <div class="mt-3 grid sm:grid-cols-[150px_1fr] gap-3 items-center bg-gray-50 border border-gray-200 rounded-xl p-3">
       <div class="h-36 bg-white border border-gray-200 rounded-lg overflow-hidden flex items-center justify-center phone-image-preview">
         <img data-phone-preview src="${hasImage?esc(v.image_url):''}" alt="" class="w-full h-full object-contain p-2 ${hasImage?'':'hidden'}"
@@ -388,6 +397,89 @@ function renderPrices(){
 async function markPaid(table, id){ await api("mark_paid", { table, id }); await loadAll(true); }
 async function setDone(table, id, value){ await api("set_done", { table, id, value }); await loadAll(true); }
 async function deletePhone(id){ if(!confirm("Delete this phone listing?")) return; await api("phone_delete", { id }); await loadAll(true); }
+/* ---------------- Customer reviews ---------------- */
+/* Only publish reviews written by people who actually bought from us.
+   Google requires that a shop collects and owns the reviews it shows —
+   never copy a rating from Apple, Samsung or anywhere else. */
+function reviewCard(r){
+  const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
+  const when = r.created_at ? new Date(r.created_at).toLocaleDateString("en-GB") : "";
+  return `<div class="bg-white rounded-xl shadow-sm border p-4 mb-3" data-review="${esc(r.id)}">
+    <div class="flex flex-wrap items-center gap-2 mb-1">
+      <span class="text-amber-500 font-bold">${stars}</span>
+      <span class="font-extrabold text-gray-900">${esc(r.reviewer_name||"")}</span>
+      ${r.verified?'<span class="text-[10px] font-bold uppercase text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Verified</span>':''}
+      ${r.approved
+        ? '<span class="text-[10px] font-bold uppercase text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">Published</span>'
+        : '<span class="text-[10px] font-bold uppercase text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">Awaiting review</span>'}
+      <span class="text-xs text-gray-400 ml-auto">${esc(when)}</span>
+    </div>
+    <p class="text-xs text-gray-500 mb-2">${esc(r.model_label || r.model_key || "")}</p>
+    ${r.title?`<p class="font-bold text-gray-800 text-sm">${esc(r.title)}</p>`:''}
+    ${r.body?`<p class="text-sm text-gray-600 mt-1">${esc(r.body)}</p>`:''}
+    <div data-match class="text-xs text-gray-500 mt-2"></div>
+    <div class="flex flex-wrap gap-2 mt-3">
+      <button onclick="checkReviewOrder('${esc(r.id)}')" class="text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg"><i class="fas fa-magnifying-glass"></i> Find their order</button>
+      ${r.approved
+        ? `<button onclick="moderateReview('${esc(r.id)}',false,${!!r.verified})" class="text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg">Unpublish</button>`
+        : `<button onclick="moderateReview('${esc(r.id)}',true,true)" class="text-xs font-bold text-white bg-brand-500 hover:bg-brand-600 px-3 py-1.5 rounded-lg"><i class="fas fa-check"></i> Publish as verified buyer</button>
+           <button onclick="moderateReview('${esc(r.id)}',true,false)" class="text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded-lg">Publish without badge</button>`}
+      <button onclick="deleteReview('${esc(r.id)}')" class="text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg"><i class="fas fa-trash"></i> Delete</button>
+    </div>
+  </div>`;
+}
+
+function renderReviews(){
+  const el = $("#tab-reviews");
+  const all = STORE.product_reviews || [];
+  const pending = all.filter(r => !r.approved);
+  const live = all.filter(r => r.approved);
+  el.innerHTML = `
+    <div class="mb-4">
+      <h2 class="font-extrabold text-gray-900">Customer reviews</h2>
+      <p class="text-sm text-gray-500">Reviews stay hidden until you publish them. Star ratings then appear on the phone's page and in Google.</p>
+    </div>
+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-5">
+      <p class="text-sm font-bold text-amber-900"><i class="fas fa-triangle-exclamation"></i> Only publish real Windsor Express customers</p>
+      <p class="text-xs text-amber-800 mt-1">Google requires that a shop collects and owns the reviews it displays. Copying ratings from Apple, Samsung or another retailer can get the whole site penalised, so check the order first using “Find their order”. Google needs 50 reviews before star ratings show in Shopping.</p>
+    </div>
+    <div class="mb-6">
+      <p class="text-sm font-bold text-gray-800 mb-2">Awaiting your decision (${pending.length})</p>
+      ${pending.length ? pending.map(reviewCard).join("") : '<p class="text-sm text-gray-400">Nothing waiting.</p>'}
+    </div>
+    <div>
+      <p class="text-sm font-bold text-gray-800 mb-2">Published (${live.length}${live.length<50?` — ${50-live.length} more needed for Google Shopping stars`:''})</p>
+      ${live.length ? live.map(reviewCard).join("") : '<p class="text-sm text-gray-400">None published yet.</p>'}
+    </div>`;
+}
+
+async function moderateReview(id, approved, verified){
+  if(approved && !confirm("Only publish if this person really bought from Windsor Express.\n\nPublish this review?")) return;
+  await api("review_moderate", { id, approved, verified });
+  await loadAll(true);
+}
+
+async function deleteReview(id){
+  if(!confirm("Delete this review permanently?")) return;
+  await api("review_delete", { id });
+  await loadAll(true);
+}
+
+async function checkReviewOrder(id){
+  const box = document.querySelector(`[data-review="${id}"] [data-match]`);
+  box.textContent = "Searching orders…";
+  try{
+    const res = await api("review_match_order", { id });
+    const m = res.matches || [];
+    box.innerHTML = m.length
+      ? `<span class="font-bold text-emerald-700">${m.length} possible order(s):</span> ` +
+        m.map(o => `${esc(o.product_name||"?")} — ${esc(o.name||"?")} (${esc(String(o.created_at||"").slice(0,10))})`).join(" · ")
+      : '<span class="font-bold text-red-600">No matching order found.</span> Check your records before publishing.';
+  }catch(e){
+    box.textContent = "Could not check orders.";
+  }
+}
+
 async function savePhone(btn){
   const row = btn.closest(".phone-row");
   const phone = { id: row.dataset.id || null };
@@ -405,11 +497,19 @@ async function savePhone(btn){
   if(phone.stock === "" || Number(phone.stock) < 0){ alert("Please enter a valid stock number."); return; }
   if(phone.image_url && !/^https:\/\//i.test(phone.image_url)){ alert("Please use a secure image link beginning with https://"); return; }
   if(phone.software_source_url && !/^https:\/\//i.test(phone.software_source_url)){ alert("Please use a secure manufacturer link beginning with https://"); return; }
+  if(phone.gtin){
+    const g = String(phone.gtin).replace(/[\s-]/g,"");
+    if(!/^\d+$/.test(g)){ alert("The barcode (GTIN) should contain digits only."); return; }
+    if(![8,12,13,14].includes(g.length)){ alert(`A barcode (GTIN) must be 8, 12, 13 or 14 digits. You entered ${g.length}.`); return; }
+    phone.gtin = g;
+  }
   if(phone.sale_price === "") phone.sale_price = null;
   if(phone.battery_health === "") phone.battery_health = null;
   if(phone.software_version === "") phone.software_version = null;
   if(phone.software_support === "") phone.software_support = null;
   if(phone.software_source_url === "") phone.software_source_url = null;
+  if(phone.gtin === "") phone.gtin = null;
+  if(phone.mpn === "") phone.mpn = null;
   btn.disabled = true; btn.textContent = "Saving…";
   await api("phone_save", { phone });
   await loadAll(true);

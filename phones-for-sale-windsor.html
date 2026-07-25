@@ -42,7 +42,12 @@
   {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
     {"@type":"Question","name":"Can I reserve a phone and pay when I collect it?","acceptedAnswer":{"@type":"Answer","text":"Yes. Choose a phone, submit the reservation form and select pay on collection. Windsor Express will confirm when it is ready."}},
     {"@type":"Question","name":"Do Windsor Express phones include a warranty?","acceptedAnswer":{"@type":"Answer","text":"Phones sold by Windsor Express include a 3-year Windsor Express warranty unless the individual listing states otherwise. Your statutory consumer rights are unaffected."}},
-    {"@type":"Question","name":"Can I trade in my old phone?","acceptedAnswer":{"@type":"Answer","text":"Yes. Windsor Express can value your old phone and put the agreed value toward a phone you buy."}}
+    {"@type":"Question","name":"Can I trade in my old phone?","acceptedAnswer":{"@type":"Answer","text":"Yes. Windsor Express can value your old phone and put the agreed value toward a phone you buy."}},
+    {"@type":"Question","name":"Are the phones unlocked to all networks?","acceptedAnswer":{"@type":"Answer","text":"Yes. Every phone sold by Windsor Express is unlocked to all UK networks, factory reset and checked against the national lost and stolen database before sale."}},
+    {"@type":"Question","name":"What battery health do your used phones have?","acceptedAnswer":{"@type":"Answer","text":"We show the measured battery health percentage on the listing where we have it. Any battery below 80 per cent is replaced before the handset goes on sale, so you are not buying a phone that needs charging twice a day."}},
+    {"@type":"Question","name":"Can I see the phone before I pay?","acceptedAnswer":{"@type":"Answer","text":"Yes. We are a physical shop at Queen Annes Court, 3 Peascod Street, Windsor SL4 1DG. Come in and inspect the handset, check the screen and ask us anything before you buy. Online orders also carry 14-day change-of-mind returns."}},
+    {"@type":"Question","name":"What do your condition grades mean?","acceptedAnswer":{"@type":"Answer","text":"Like New means you would not tell it apart from a new handset. Excellent means light marks that are hard to see at arm's length. Good means visible everyday scratches. We never sell cracked screens or dented frames under any of these grades."}},
+    {"@type":"Question","name":"Do you deliver, or is it collection only?","acceptedAnswer":{"@type":"Answer","text":"Both. Click and collect from our Peascod Street shop in Windsor is free, or we send phones anywhere in the UK by tracked delivery for £4.99."}}
   ]}
   </script>
   <style>
@@ -242,6 +247,28 @@
         <a class="btn btn-primary" href="/sell-my-phone-windsor.html">Get a Trade-In Quote</a>
       </section>
 
+      <section class="buying-guide">
+        <h2>Buying a used phone in Windsor: what to check</h2>
+        <p>Most people buying second-hand worry about the same four things. Here is how we handle each of them, and what to ask any seller — including us.</p>
+
+        <h3>Battery health</h3>
+        <p>A phone can look perfect and still need charging twice a day. On iPhone the figure lives in Settings › Battery › Battery Health &amp; Charging; anything above 80% is considered healthy by Apple. We show the measured percentage on the listing where we have it, and replace any battery below 80% before the handset goes on sale.</p>
+
+        <h3>Condition grade, honestly described</h3>
+        <p>Grades vary wildly between sellers, so ours are deliberately plain. <strong>Like New</strong> means you would not pick it out from a new handset. <strong>Excellent</strong> means light marks you would struggle to see at arm's length. <strong>Good</strong> means visible everyday scratches. No cracked screens or dented frames are ever sold as any of these. Every grade is judged on the actual handset, and you are welcome to inspect it in the shop before paying.</p>
+
+        <h3>Is it really unlocked, and is it clean?</h3>
+        <p>Every phone we sell is unlocked to all UK networks, factory reset, and checked against the national database so it is not reported lost or stolen. Ask any seller for the IMEI and check it yourself — a legitimate seller will hand it over without hesitating.</p>
+
+        <h3>How long will it keep getting updates?</h3>
+        <p>Software support matters more than raw age. An older iPhone still receiving iOS updates is a safer buy than a newer Android that stopped receiving security patches. Where we know the support window, it is printed on the listing with a link to the manufacturer's own page so you can verify it rather than take our word for it.</p>
+
+        <h3>Buying from a shop rather than a marketplace</h3>
+        <p>We are a physical shop on Peascod Street, two minutes from Windsor Castle. That means you can hold the handset before paying, you get a ${""}3-year Windsor Express warranty, and if something goes wrong you have somebody to walk back to. Online orders also carry 14-day change-of-mind <a href="/returns.html">returns</a>.</p>
+
+        <p>Prefer to keep your current phone? A screen or battery repair is usually far cheaper than replacing it — see <a href="/iphone-repair-windsor.html">iPhone repair in Windsor</a>, <a href="/samsung-repair-windsor.html">Samsung repair</a> or <a href="/console-repair-windsor.html">games console repair</a>. If you are upgrading, we also <a href="/sell-my-phone-windsor.html">buy phones for cash or trade-in</a>.</p>
+      </section>
+
       <p class="fineprint">Software-support information was checked against manufacturer information on 24 July 2026. The version already installed can vary by handset, region and update status, so we check it before sale. Please inspect a phone on collection and ask us anything you need before purchase. See our <a href="/warranty.html">warranty</a>, <a href="/returns.html">returns policy</a> and <a href="/terms.html">customer terms</a>.</p>
     </div>
   </main>
@@ -279,6 +306,22 @@
     function addBadge(container, value, condition = false) {
       if (!value) return;
       container.appendChild(text("span", value, `badge${condition ? " condition" : ""}`));
+    }
+
+    /** Canonical page for a handset, e.g. /phones/iphone-15-128gb-black/ */
+    function productPath(phone) {
+      const slug = phone.slug || [phone.name, phone.storage, phone.color]
+        .filter(Boolean).join(" ").toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+      return `/phones/${slug}/`;
+    }
+
+    function brandFor(phone) {
+      const n = String(phone.name || "").toLowerCase();
+      if (n.includes("iphone") || n.includes("ipad")) return "Apple";
+      if (n.includes("samsung") || n.includes("galaxy")) return "Samsung";
+      if (n.includes("pixel")) return "Google";
+      return "Windsor Express";
     }
 
     function pricingFor(phone) {
@@ -405,7 +448,13 @@
       addBadge(badges, phone.storage);
       addBadge(badges, phone.color);
       body.appendChild(badges);
-      body.appendChild(text("h3", phone.name || "Phone"));
+      const heading = text("h3");
+      const headingLink = document.createElement("a");
+      headingLink.className = "card-title-link";
+      headingLink.href = productPath(phone);
+      headingLink.textContent = phone.name || "Phone";
+      heading.appendChild(headingLink);
+      body.appendChild(heading);
       if (phone.description) body.appendChild(text("p", phone.description, "description"));
 
       const support = softwareFor(phone);
@@ -452,6 +501,10 @@
       reserve.className = "reserve";
       reserve.href = `/?phone=${encodeURIComponent(phone.id)}`;
       reserve.textContent = "Buy now — secure checkout";
+      const details = document.createElement("a");
+      details.className = "details-link";
+      details.href = productPath(phone);
+      details.textContent = "Full details, condition & reviews →";
       const whatsapp = document.createElement("a");
       whatsapp.className = "whatsapp";
       whatsapp.href = `https://wa.me/447912150397?text=${encodeURIComponent(`Hi Windsor Express! I'm interested in the ${phone.name}${phone.storage ? ` ${phone.storage}` : ""} listed for £${pricing.current.toFixed(2)}. Is it still available?`)}`;
@@ -461,6 +514,7 @@
       whatsapp.textContent = "WhatsApp";
       actions.append(reserve, whatsapp);
       body.appendChild(actions);
+      body.appendChild(details);
       const purchaseNote = document.createElement("p");
       purchaseNote.className = "purchase-note";
       purchaseNote.innerHTML = "<strong>Secure payment</strong> · Collection or tracked UK delivery";
@@ -468,6 +522,68 @@
       card.appendChild(body);
       return card;
     }
+
+    /* ---- Structured data helpers (kept in step with scripts/product-data.mjs) ---- */
+    const POSTAGE_FEE_SCHEMA = 4.99;
+
+    function schemaCondition(phone) {
+      if (phone.condition === "New") return "https://schema.org/NewCondition";
+      if (phone.professionally_refurbished) return "https://schema.org/RefurbishedCondition";
+      return "https://schema.org/UsedCondition";
+    }
+
+    function gtinProp(gtin) {
+      const g = String(gtin || "").trim();
+      if (!/^\d+$/.test(g)) return null;
+      return { 8: "gtin8", 12: "gtin12", 13: "gtin13", 14: "gtin14" }[g.length] || null;
+    }
+
+    function priceValidUntil() {
+      const d = new Date();
+      d.setMonth(d.getMonth() + 2, 0);
+      return d.toISOString().slice(0, 10);
+    }
+
+    /* Mirrors returns.html: 14 days to notify, buyer pays change-of-mind postage. */
+    const RETURN_POLICY = {
+      "@type": "MerchantReturnPolicy",
+      "applicableCountry": "GB",
+      "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+      "merchantReturnDays": 14,
+      "returnMethod": "https://schema.org/ReturnByMail",
+      "returnFees": "https://schema.org/ReturnShippingFees",
+      "returnShippingFeesAmount": {
+        "@type": "MonetaryAmount",
+        "currency": "GBP",
+        "value": 0,
+        "description": "Buyer arranges and pays for return postage on change-of-mind returns. We cover reasonable return costs for faulty, incorrect or misdescribed goods."
+      },
+      "refundType": "https://schema.org/FullRefund"
+    };
+
+    const SHIPPING_DETAILS = [
+      {
+        "@type": "OfferShippingDetails",
+        "shippingRate": { "@type": "MonetaryAmount", "value": POSTAGE_FEE_SCHEMA.toFixed(2), "currency": "GBP" },
+        "shippingDestination": { "@type": "DefinedRegion", "addressCountry": "GB" },
+        "deliveryTime": {
+          "@type": "ShippingDeliveryTime",
+          "handlingTime": { "@type": "QuantitativeValue", "minValue": 0, "maxValue": 1, "unitCode": "DAY" },
+          "transitTime": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 3, "unitCode": "DAY" }
+        }
+      },
+      {
+        "@type": "OfferShippingDetails",
+        "shippingRate": { "@type": "MonetaryAmount", "value": "0.00", "currency": "GBP" },
+        "shippingDestination": { "@type": "DefinedRegion", "addressCountry": "GB" },
+        "deliveryTime": {
+          "@type": "ShippingDeliveryTime",
+          "handlingTime": { "@type": "QuantitativeValue", "minValue": 0, "maxValue": 1, "unitCode": "DAY" },
+          "transitTime": { "@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY" }
+        },
+        "description": "Free click & collect from our Peascod Street shop in Windsor."
+      }
+    ];
 
     function addInventorySchema(phones) {
       const schema = {
@@ -482,14 +598,23 @@
             "name": [phone.name, phone.storage, phone.color].filter(Boolean).join(" "),
             "description": phone.description || `${phone.condition || "Refurbished"} unlocked phone with a 3-year Windsor Express warranty.`,
             ...(phone.image_url ? { "image": phone.image_url } : {}),
-            "itemCondition": phone.condition === "New" ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
+            "sku": phone.id,
+            "brand": { "@type": "Brand", "name": brandFor(phone) },
+            ...(gtinProp(phone.gtin) ? { [gtinProp(phone.gtin)]: String(phone.gtin).trim() } : {}),
+            ...(phone.mpn ? { "mpn": String(phone.mpn).trim() } : {}),
+            ...(phone.color ? { "color": phone.color } : {}),
+            "itemCondition": schemaCondition(phone),
             "offers": {
               "@type": "Offer",
               "priceCurrency": "GBP",
               "price": pricingFor(phone).current.toFixed(2),
+              "priceValidUntil": priceValidUntil(),
+              "itemCondition": schemaCondition(phone),
               "availability": "https://schema.org/InStock",
-              "url": `https://www.windsor-express.co.uk/?phone=${encodeURIComponent(phone.id)}`,
-              "seller": { "@id": "https://www.windsor-express.co.uk/#business" }
+              "url": `https://www.windsor-express.co.uk${productPath(phone)}`,
+              "seller": { "@id": "https://www.windsor-express.co.uk/#business" },
+              "hasMerchantReturnPolicy": RETURN_POLICY,
+              "shippingDetails": SHIPPING_DETAILS
             }
           }
         }))

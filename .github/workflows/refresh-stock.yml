@@ -1,0 +1,64 @@
+name: Refresh product pages & Google feed
+
+# Regenerates /phones/<slug>/ pages, the sitemap and the Merchant Center
+# feed from live Supabase stock, then commits only if something changed.
+#
+# Runs hourly, and can be triggered by hand from the Actions tab
+# ("Run workflow") right after you add or sell a phone.
+
+on:
+  schedule:
+    - cron: "17 * * * *" # hourly at :17 (off-peak minute — GitHub throttles :00)
+  workflow_dispatch: {}
+
+# Never let two runs commit at once.
+concurrency:
+  group: refresh-stock
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Rebuild product pages and feed
+        run: |
+          node scripts/build-products.mjs
+          node scripts/build-merchant-feed.mjs
+
+      - name: Commit if stock changed
+        run: |
+          git config user.name  "windsor-express-bot"
+          git config user.email "actions@users.noreply.github.com"
+
+          if git diff --quiet -- phones merchant-feed.xml sitemap.xml; then
+            echo "No stock changes — nothing to commit."
+            exit 0
+          fi
+
+          git add phones merchant-feed.xml sitemap.xml
+          git commit -m "chore: refresh product pages and Google feed from live stock"
+
+          # Someone may have pushed while we were building.
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "Pushed on attempt $attempt."
+              exit 0
+            fi
+            echo "Push rejected, rebasing and retrying…"
+            git pull --rebase --autostash origin main || exit 1
+          done
+
+          echo "Could not push after 3 attempts." >&2
+          exit 1
