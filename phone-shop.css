@@ -840,3 +840,66 @@ footer { margin-top: 72px; background: #111827; }
 .buying-guide p { margin: 0 0 12px; color: var(--shop-copy); font-size: 14.5px; line-height: 1.68; }
 .buying-guide a { color: var(--shop-green-dark); font-weight: 600; }
 @media (max-width: 860px) { .buying-guide h2 { font-size: 24px; } }
+
+/* Fulfilment, contact and shop blocks in the product info column */
+.fulfilment {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 20px;
+}
+.fulfil-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 13px 14px;
+  border: 1px solid var(--shop-border);
+  border-radius: 13px;
+  background: #fcfdfc;
+}
+.fulfil-label { color: var(--shop-copy); font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.fulfil-price { color: var(--shop-ink); font-size: 19px; font-weight: 900; }
+.fulfil-note { color: var(--shop-copy); font-size: 11.5px; }
+
+.ask-row { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin-top: 12px; }
+.ask-btn {
+  padding: 12px 15px;
+  color: var(--shop-ink);
+  border: 1px solid var(--shop-border);
+  border-radius: 12px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+  text-decoration: none;
+  transition: border-color .16s ease, background .16s ease, transform .16s cubic-bezier(.23, 1, .32, 1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ask-btn:hover { border-color: var(--shop-green); background: var(--shop-mint-soft); }
+}
+.ask-btn:active { transform: scale(.98); }
+
+.trade-nudge { margin: 14px 0 0; color: var(--shop-copy); font-size: 13px; }
+.trade-nudge a { color: var(--shop-green-dark); font-weight: 800; }
+
+.shop-note {
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--shop-border);
+}
+.shop-note p { margin: 0 0 6px; color: var(--shop-copy); font-size: 12.5px; line-height: 1.55; }
+.shop-note strong { color: var(--shop-ink); }
+
+/* Keep the image from towering over a short info column */
+.product-media { align-self: start; aspect-ratio: 1 / 1; padding: 22px; }
+.product-media img { max-height: 100%; }
+
+@media (max-width: 860px) {
+  .fulfilment { grid-template-columns: 1fr; }
+  .ask-row { grid-template-columns: 1fr; }
+  .product-media { aspect-ratio: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ask-btn { transition: none; }
+  .ask-btn:active { transform: none; }
+}

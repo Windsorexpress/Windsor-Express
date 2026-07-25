@@ -244,10 +244,36 @@ function productPage(phone, reviews, others) {
       <ul class="trust-list">
         <li>Unlocked to all networks</li>
         <li>${WARRANTY_MONTHS / 12}-year Windsor Express warranty</li>
-        <li>Free click &amp; collect in Windsor, or tracked UK delivery ${money(POSTAGE_FEE)}</li>
         <li>14-day change-of-mind returns on online orders</li>
-        <li>Professionally checked before it goes on sale</li>
+        <li>Professionally checked, wiped and tested before sale</li>
+        <li>Checked against the national lost &amp; stolen database</li>
       </ul>
+
+      ${available ? `<div class="fulfilment">
+        <div class="fulfil-card">
+          <span class="fulfil-label">Collect in Windsor</span>
+          <span class="fulfil-price">Free</span>
+          <span class="fulfil-note">Ready today on Peascod Street</span>
+        </div>
+        <div class="fulfil-card">
+          <span class="fulfil-label">Tracked UK delivery</span>
+          <span class="fulfil-price">${money(POSTAGE_FEE)}</span>
+          <span class="fulfil-note">Signed for, 1–3 working days</span>
+        </div>
+      </div>
+
+      <div class="ask-row">
+        <a class="ask-btn" href="https://wa.me/447912150397?text=${encodeURIComponent(`Hi Windsor Express! Is the ${title} at ${money(p.current)} still available?`)}" target="_blank" rel="noopener noreferrer">Ask about this phone on WhatsApp</a>
+        <a class="ask-btn" href="tel:${BUSINESS.phone}">Call 07912 150397</a>
+      </div>
+
+      <p class="trade-nudge">Got an old phone? <a href="/sell-my-phone-windsor.html">Trade it in</a> and take the value straight off this price.</p>` : ""}
+
+      <div class="shop-note">
+        <p><strong>★ 5.0 on Google</strong> · 500+ devices fixed for Windsor locals</p>
+        <p>${BUSINESS.street}, ${BUSINESS.city} ${BUSINESS.postcode}<br>
+        Mon–Sat 10am–8pm · Sun 10:30am–7pm · no appointment needed</p>
+      </div>
     </div>
   </div>
 
