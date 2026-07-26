@@ -4,7 +4,7 @@
     <title>Windsor Express — local shop inventory</title>
     <link>https://www.windsor-express.co.uk/phones-for-sale-windsor.html</link>
     <description>Stock physically available to collect at Windsor Express, 3 Peascod Street, Windsor SL4 1DG.</description>
-    <lastBuildDate>Sun, 26 Jul 2026 15:29:56 GMT</lastBuildDate>
+    <lastBuildDate>Sun, 26 Jul 2026 17:16:37 GMT</lastBuildDate>
     <item>
       <g:store_code>11126744882028006931</g:store_code>
       <g:id>e144a49d-a92a-4c13-9cb5-7a71561213a2</g:id>
@@ -47,15 +47,6 @@
       <g:quantity>1</g:quantity>
       <g:availability>in_stock</g:availability>
       <g:price>699.99 GBP</g:price>
-      <g:pickup_method>buy</g:pickup_method>
-      <g:pickup_sla>same_day</g:pickup_sla>
-    </item>
-    <item>
-      <g:store_code>11126744882028006931</g:store_code>
-      <g:id>1e1e2da5-e3ec-4920-bfb0-ff7cc0aecedb</g:id>
-      <g:quantity>1</g:quantity>
-      <g:availability>in_stock</g:availability>
-      <g:price>1019.99 GBP</g:price>
       <g:pickup_method>buy</g:pickup_method>
       <g:pickup_sla>same_day</g:pickup_sla>
     </item>
