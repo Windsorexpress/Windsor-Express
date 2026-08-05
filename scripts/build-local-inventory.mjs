@@ -45,20 +45,34 @@ function itemXml(phone) {
     .join("\n")}\n    </item>`;
 }
 
-const xml = `<?xml version="1.0" encoding="UTF-8"?>
+function renderXml(lastBuildDate) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
   <channel>
     <title>Windsor Express — local shop inventory</title>
     <link>https://www.windsor-express.co.uk/phones-for-sale-windsor.html</link>
     <description>Stock physically available to collect at Windsor Express, 3 Peascod Street, Windsor SL4 1DG.</description>
-    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+    <lastBuildDate>${lastBuildDate}</lastBuildDate>
 ${live.map(itemXml).join("\n")}
   </channel>
 </rss>
 `;
+}
 
-fs.writeFileSync(path.join(root, "local-inventory.xml"), xml);
-console.log(`Wrote local-inventory.xml with ${live.length} item(s) for store "${STORE_CODE}".`);
+const outputFile = path.join(root, "local-inventory.xml");
+const previousXml = fs.existsSync(outputFile) ? fs.readFileSync(outputFile, "utf8") : "";
+const previousDate = previousXml.match(/<lastBuildDate>([^<]+)<\/lastBuildDate>/)?.[1];
+const unchanged = previousDate
+  && !Number.isNaN(Date.parse(previousDate))
+  && previousXml === renderXml(previousDate);
+const xml = unchanged ? previousXml : renderXml(new Date().toUTCString());
+
+if (xml !== previousXml) {
+  fs.writeFileSync(outputFile, xml);
+  console.log(`Wrote local-inventory.xml with ${live.length} item(s) for store "${STORE_CODE}".`);
+} else {
+  console.log(`local-inventory.xml unchanged (${live.length} item(s), store "${STORE_CODE}").`);
+}
 for (const p of live) console.log(`  - ${titleFor(p)} (qty ${p.stock})`);
 console.log(
   `\nStore code used: ${STORE_CODE}\n` +
