@@ -38,6 +38,9 @@ jobs:
           node scripts/build-merchant-feed.mjs
           node scripts/build-local-inventory.mjs
 
+      - name: Validate generated files
+        run: python3 scripts/validate-generated-files.py
+
       - name: Commit if stock changed
         run: |
           git config user.name  "windsor-express-bot"

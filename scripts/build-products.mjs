@@ -25,6 +25,14 @@ const outDir = path.join(root, "phones");
 
 const money = (n) => `£${Number(n).toFixed(2)}`;
 
+function writeIfChanged(file, contents) {
+  if (fs.existsSync(file) && fs.readFileSync(file, "utf8") === contents) {
+    return false;
+  }
+  fs.writeFileSync(file, contents);
+  return true;
+}
+
 // --- head / chrome shared with the rest of the site --------------------
 
 function head({ title, description, canonical, image, schema, noindex }) {
@@ -403,24 +411,50 @@ ${footer}`;
 
 // --- sitemap -----------------------------------------------------------
 
-function updateSitemap(phones) {
+function generatedLastmods(xml) {
+  const generatedBlock = xml.match(/<!-- products:start -->([\s\S]*?)<!-- products:end -->/)?.[1] || "";
+  const dates = new Map();
+
+  for (const match of generatedBlock.matchAll(/<url\b[^>]*>([\s\S]*?)<\/url>/g)) {
+    const body = match[1];
+    const loc = body.match(/<loc>\s*([^<]+?)\s*<\/loc>/)?.[1];
+    const lastmod = body.match(/<lastmod>\s*(\d{4}-\d{2}-\d{2})\s*<\/lastmod>/)?.[1];
+    const parsed = lastmod && new Date(`${lastmod}T00:00:00Z`);
+    const valid = parsed
+      && !Number.isNaN(parsed.getTime())
+      && parsed.toISOString().slice(0, 10) === lastmod;
+    if (loc && valid) dates.set(loc, lastmod);
+  }
+
+  return dates;
+}
+
+function updateSitemap(phones, changedUrls) {
   const file = path.join(root, "sitemap.xml");
   let xml = fs.readFileSync(file, "utf8");
+  const previousDates = generatedLastmods(xml);
   const today = new Date().toISOString().slice(0, 10);
+  const livePhones = phones.filter(inStock);
+  const lastmodFor = (url) => changedUrls.has(url) || !previousDates.has(url)
+    ? today
+    : previousDates.get(url);
 
   // Remove previously generated product entries, then re-add.
   xml = xml.replace(/\s*<!-- products:start -->[\s\S]*?<!-- products:end -->/g, "");
 
+  const hubUrl = `${SITE}/phones/`;
   const entries = [
-    `  <url><loc>${SITE}/phones/</loc><lastmod>${today}</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>`,
-    ...phones.filter(inStock).map((p) =>
-      `  <url><loc>${SITE}/phones/${slugFor(p)}/</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>`)
+    `  <url><loc>${hubUrl}</loc><lastmod>${lastmodFor(hubUrl)}</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>`,
+    ...livePhones.map((p) => {
+      const url = `${SITE}/phones/${slugFor(p)}/`;
+      return `  <url><loc>${url}</loc><lastmod>${lastmodFor(url)}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>`;
+    })
   ].join("\n");
 
   const block = `\n  <!-- products:start -->\n${entries}\n  <!-- products:end -->`;
   xml = xml.replace("</urlset>", `${block}\n</urlset>`);
-  fs.writeFileSync(file, xml);
-  return phones.filter(inStock).length + 1;
+  writeIfChanged(file, xml);
+  return livePhones.length + 1;
 }
 
 // --- main --------------------------------------------------------------
@@ -450,6 +484,7 @@ for (const entry of fs.readdirSync(outDir, { withFileTypes: true })) {
 }
 
 let written = 0;
+const changedGeneratedUrls = new Set();
 for (const phone of phones) {
   const slug = slugFor(phone);
   if (!slug) {
@@ -460,12 +495,17 @@ for (const phone of phones) {
   const others = phones.filter((o) => o.id !== phone.id && inStock(o)).slice(0, 5);
   const dir = path.join(outDir, slug);
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, "index.html"), productPage(phone, reviews, others));
+  if (writeIfChanged(path.join(dir, "index.html"), productPage(phone, reviews, others))) {
+    changedGeneratedUrls.add(`${SITE}/phones/${slug}/`);
+  }
   written++;
 }
 
-fs.writeFileSync(path.join(outDir, "index.html"), hubPage(phones));
-const sitemapCount = updateSitemap(phones);
+const hubUrl = `${SITE}/phones/`;
+if (writeIfChanged(path.join(outDir, "index.html"), hubPage(phones))) {
+  changedGeneratedUrls.add(hubUrl);
+}
+const sitemapCount = updateSitemap(phones, changedGeneratedUrls);
 
 console.log(`Built ${written} product page(s) + hub. Sitemap now lists ${sitemapCount} product URL(s).`);
 const missingId = phones.filter((p) => inStock(p) && !p.gtin && !p.mpn).map(titleFor);
