@@ -4,7 +4,7 @@
     <title>Windsor Express — Phones for Sale in Windsor</title>
     <link>https://www.windsor-express.co.uk/phones-for-sale-windsor.html</link>
     <description>Live stock of unlocked phones for sale at Windsor Express, Peascod Street, Windsor.</description>
-    <lastBuildDate>Wed, 05 Aug 2026 12:17:14 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 16 Sep 2026 16:57:48 GMT</lastBuildDate>
     <item>
       <g:id>e144a49d-a92a-4c13-9cb5-7a71561213a2</g:id>
       <g:title>iPhone 15 128GB Black</g:title>
@@ -67,31 +67,6 @@
       <g:google_product_category>222</g:google_product_category>
       <g:product_type>Mobile Phones</g:product_type>
       <g:item_group_id>iphone-15-pro-max-256gb</g:item_group_id>
-      <g:pickup_method>buy</g:pickup_method>
-      <g:pickup_sla>same_day</g:pickup_sla>
-      <g:color>Black</g:color>
-      <g:shipping>
-        <g:country>GB</g:country>
-        <g:service>Tracked UK delivery</g:service>
-        <g:price>4.99 GBP</g:price>
-      </g:shipping>
-      <g:pickup_cost>0.00 GBP</g:pickup_cost>
-    </item>
-    <item>
-      <g:id>f646f9e2-a031-4dcb-9bd2-03caa6d0fd14</g:id>
-      <g:title>iPhone 16 128GB Black</g:title>
-      <g:description>iPhone 16 128GB Black for sale at Windsor Express in Windsor. Condition: Excellent. Unlocked to all networks. 3-year warranty. Free click &amp; collect from Peascod Street, or tracked UK delivery.</g:description>
-      <g:link>https://www.windsor-express.co.uk/phones/iphone-16-128gb-black/</g:link>
-      <g:image_link>https://bsimg.nl/images/apple-iphone-16-128gb-zwart-eu_1.png/bPZU33XX58rg0eY2umTZhF_V81U%3D/fit-in/0x0/filters%3Aupscale%28%29</g:image_link>
-      <g:availability>in_stock</g:availability>
-      <g:price>620.00 GBP</g:price>
-      <g:sale_price>499.00 GBP</g:sale_price>
-      <g:brand>Apple</g:brand>
-      <g:condition>used</g:condition>
-      <g:identifier_exists>no</g:identifier_exists>
-      <g:google_product_category>222</g:google_product_category>
-      <g:product_type>Mobile Phones</g:product_type>
-      <g:item_group_id>iphone-16-128gb</g:item_group_id>
       <g:pickup_method>buy</g:pickup_method>
       <g:pickup_sla>same_day</g:pickup_sla>
       <g:color>Black</g:color>
