@@ -4,6 +4,19 @@ const { useState, useEffect, useRef } = React;
         const SHOP_PHONE  = "+447912150397";
         const INITIAL_PHONE_ID = new URLSearchParams(window.location.search).get('phone');
         // Google Maps listing (reviews live here) — opens the business profile
+        // Real opening status in UK time, so the hero never says "Open now" at midnight.
+        function shopOpenLabel() {
+            try {
+                const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date());
+                const get = (t) => (parts.find(p => p.type === t) || {}).value;
+                const mins = parseInt(get('hour'), 10) * 60 + parseInt(get('minute'), 10);
+                const sunday = get('weekday') === 'Sun';
+                const open = sunday ? 630 : 600, close = sunday ? 1140 : 1200;
+                if (mins >= open && mins < close) return 'Open now';
+                if (mins < open) return sunday ? 'Opens 10:30am today' : 'Opens 10am today';
+                return 'Open 7 days';
+            } catch (e) { return 'Open 7 days'; }
+        }
         const GOOGLE_MAPS_URL = "https://www.google.com/maps/search/?api=1&query=Windsor%20Express%2C%20Queen%20Annes%20Court%2C%203%20Peascod%20St%2C%20Windsor%20SL4%201DG";
         const apiKey      = "AIzaSyCrIHWXBa5PnlzlxIsl8Qy2_gjuHaioteU";
         // --- SUPABASE (database)  >>> PASTE YOUR PROJECT VALUES (see SETUP-GUIDE) <<< ---
@@ -1750,6 +1763,9 @@ const { useState, useEffect, useRef } = React;
                                 <span className="font-display text-2xl font-black tracking-tight">WINDSOR <span className="text-brand-500">EXPRESS</span></span>
                             </div>
                             <div className="flex items-center gap-2 md:gap-4">
+                                <a href={`tel:${SHOP_PHONE}`} aria-label="Call Windsor Express on 07912 150397" className="md:hidden flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-brand-600">
+                                    <i className="fas fa-phone text-sm"></i>
+                                </a>
                                 <a href={`tel:${SHOP_PHONE}`} className="hidden md:flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors">
                                     <i className="fas fa-phone text-brand-500 text-xs"></i> 07912 150397
                                 </a>
@@ -1784,7 +1800,7 @@ const { useState, useEffect, useRef } = React;
                                 <div className="relative max-w-4xl mx-auto">
                                     <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 text-sm font-bold px-4 py-2 rounded-full mb-8">
                                         <span className="live-dot"></span>
-                                        Open now · Peascod Street, Windsor
+                                        {shopOpenLabel()} · Peascod Street, Windsor
                                     </div>
                                     <h1 className="font-display text-7xl md:text-8xl lg:text-[108px] font-black text-gray-900 leading-none mb-5">
                                         <span className="block font-sans text-sm md:text-base font-bold text-brand-600 tracking-[0.25em] uppercase mb-4">Phone Repair in Windsor</span>

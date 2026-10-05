@@ -91,3 +91,25 @@
     align-items: stretch;
   }
 }
+
+/* Mobile call bar (injected by site-common.js) */
+.we-callbar { display: none; }
+@media (max-width: 767px) {
+  .we-callbar {
+    position: fixed; z-index: 900; left: 0; right: 0; bottom: 0;
+    display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 6px;
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+    background: #ffffff; border-top: 1px solid #e5e7eb;
+    box-shadow: 0 -4px 16px rgba(0,0,0,.08);
+    font-family: "DM Sans", system-ui, sans-serif;
+  }
+  .we-callbar a {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 48px; border-radius: 12px; font-weight: 800; font-size: 14px;
+    text-decoration: none; text-align: center; line-height: 1.1;
+  }
+  .we-callbar-call { background: #10b981; color: #fff; }
+  .we-callbar-wa { background: #25D366; color: #fff; }
+  .we-callbar-map { background: #f3f4f6; color: #111827; }
+  body.we-has-callbar { padding-bottom: 72px; }
+}

@@ -73,7 +73,39 @@
     });
   }
 
+
+  // Mobile call / WhatsApp / directions bar. Most repair customers arrive on a
+  // phone and want to ring, not fill in a form, so keep the call one tap away.
+  var CALL_BAR_SKIP = /\/(admin|connection-test|phones-for-sale-windsor)\.html$/;
+  function addCallBar() {
+    if (CALL_BAR_SKIP.test(window.location.pathname)) return;
+    if (document.getElementById("we-callbar") || document.querySelector(".mobile-buybar")) return;
+    var bar = document.createElement("nav");
+    bar.id = "we-callbar";
+    bar.className = "we-callbar";
+    bar.setAttribute("aria-label", "Contact Windsor Express");
+    bar.innerHTML =
+      '<a class="we-callbar-call" href="tel:+447912150397" data-track="call_click">Call 07912 150397</a>' +
+      '<a class="we-callbar-wa" href="https://wa.me/447912150397" target="_blank" rel="noopener" data-track="whatsapp_click">WhatsApp</a>' +
+      '<a class="we-callbar-map" href="https://www.google.com/maps/dir/?api=1&amp;destination=Windsor%20Express%2C%203%20Peascod%20St%2C%20Windsor%20SL4%201DG" target="_blank" rel="noopener" data-track="directions_click">Directions</a>';
+    document.body.appendChild(bar);
+    document.body.classList.add("we-has-callbar");
+  }
+
+  // Record taps on any phone, WhatsApp or directions link as GA4 events.
+  document.addEventListener("click", function (event) {
+    var link = event.target.closest && event.target.closest("a[href]");
+    if (!link) return;
+    var href = link.getAttribute("href") || "";
+    var name = link.getAttribute("data-track") ||
+      (href.indexOf("tel:") === 0 ? "call_click" :
+       href.indexOf("wa.me") !== -1 ? "whatsapp_click" :
+       /google\.[^/]+\/maps|maps\.app\.goo\.gl/.test(href) ? "directions_click" : "");
+    if (name) window.gtag("event", name, { link_url: href, page_path: window.location.pathname });
+  }, true);
+
   document.addEventListener("DOMContentLoaded", function () {
+    addCallBar();
     var choice = getChoice();
     if (choice === "granted") loadAnalytics();
     if (!choice) showBanner();
