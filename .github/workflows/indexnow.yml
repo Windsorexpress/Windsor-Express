@@ -1,0 +1,53 @@
+name: IndexNow ping
+
+# Pings IndexNow (Bing, which also feeds ChatGPT search and Copilot) with
+# the pages changed in each push to main, so they are re-crawled within
+# minutes. Stock refreshes ping from refresh-stock.yml instead, because
+# commits made by the bot don't trigger other workflows.
+#
+# Run by hand with "all" ticked to resubmit every URL in sitemap.xml.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**.html"
+  workflow_dispatch:
+    inputs:
+      all:
+        description: "Ping every URL in sitemap.xml"
+        type: boolean
+        default: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Wait for GitHub Pages to publish the key file
+        run: |
+          KEY=$(grep -oE 'const KEY = "[a-f0-9]+"' scripts/indexnow.mjs | grep -oE '[a-f0-9]{32}')
+          for i in $(seq 1 30); do
+            if curl -fsS "https://www.windsor-express.co.uk/$KEY.txt" | grep -q "$KEY"; then
+              echo "Key file is live."; exit 0
+            fi
+            sleep 20
+          done
+          echo "Key file not reachable yet — pinging anyway (IndexNow re-checks it later)."
+
+      - name: Ping IndexNow
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.all }}" = "true" ]; then
+            node scripts/indexnow.mjs --all
+            exit 0
+          fi
+          BEFORE="${{ github.event.before }}"
+          if [ -z "$BEFORE" ] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then BEFORE="HEAD~1"; fi
+          node scripts/indexnow.mjs $(git diff --name-only "$BEFORE" HEAD)

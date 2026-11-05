@@ -58,6 +58,9 @@ jobs:
           for attempt in 1 2 3; do
             if git push; then
               echo "Pushed on attempt $attempt."
+              # Tell Bing/IndexNow which pages changed (best-effort, never fails the run).
+              sleep 90  # give GitHub Pages time to publish before crawlers arrive
+              node scripts/indexnow.mjs $(git diff --name-only HEAD~1 HEAD) || true
               exit 0
             fi
             echo "Push rejected, rebasing and retrying…"
