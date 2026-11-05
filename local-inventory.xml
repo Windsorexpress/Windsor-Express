@@ -4,7 +4,223 @@
     <title>Windsor Express — local shop inventory</title>
     <link>https://www.windsor-express.co.uk/phones-for-sale-windsor.html</link>
     <description>Stock physically available to collect at Windsor Express, 3 Peascod Street, Windsor SL4 1DG.</description>
-    <lastBuildDate>Wed, 16 Sep 2026 16:57:48 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 05 Nov 2026 17:43:44 GMT</lastBuildDate>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>46939212-0be3-466d-ab2b-bf590d2db680</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>90.00 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>77746338-7546-47f8-a82d-f02a5afad1ca</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>114.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>80212dbf-ba47-4346-ba3d-77aed39a6acc</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>119.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>9bb0d24a-f007-4027-ae67-b1756f64fb15</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>130.00 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>632c3d58-0e27-42dc-a7cd-5369716516e6</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>136.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>d1f9eb61-cde4-4e16-aa72-c3f423d7be7c</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>144.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>48192fd2-a274-4096-a6ba-7eaa40b94eb8</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>149.00 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>5cb574a7-060d-40bb-9eb7-982b6d38c513</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>149.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>c09c5cd8-5447-448f-9806-7a58d58936e9</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>179.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>22fe58fd-6108-4ab2-a189-5303b4e05d22</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>189.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>f814ad03-1b3b-44dd-bcea-46886e5327f6</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>189.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>171a6584-e2a4-4795-83a8-5c5882d183c5</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>189.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>fa0d83a2-b764-4ec9-8334-28ae2004e153</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>194.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>85852e45-3503-4f23-bead-2ed949c36049</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>194.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>9fdc7c8c-c9a1-4c3a-ac4d-6d0feb9a6840</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>199.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>c795da88-7670-4aef-a2ac-de287acad359</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>229.98 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>8211b7eb-98f1-420e-948d-100cedb987a1</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>245.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>18ebd543-8a18-4101-88d5-d97225704eaf</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>249.98 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>f043bb39-2743-4714-87a9-7fa0e240c388</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>289.00 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>83234cc2-3571-40d8-89a8-87fc628a1cd8</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>309.00 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>154d7ed1-7afe-4121-a613-7c402555ede5</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>309.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>3bc62b69-36ad-47b0-bdda-3964e80d6c93</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>389.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>bee88fae-f942-4f89-a9d0-b33f7a647cd8</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>425.99 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
+    <item>
+      <g:store_code>11126744882028006931</g:store_code>
+      <g:id>2df338d8-f413-49b8-b122-d11f2a309327</g:id>
+      <g:quantity>1</g:quantity>
+      <g:availability>in_stock</g:availability>
+      <g:price>429.00 GBP</g:price>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+    </item>
     <item>
       <g:store_code>11126744882028006931</g:store_code>
       <g:id>e144a49d-a92a-4c13-9cb5-7a71561213a2</g:id>
@@ -16,10 +232,10 @@
     </item>
     <item>
       <g:store_code>11126744882028006931</g:store_code>
-      <g:id>cd145490-cfe4-4836-8c6d-3aff32df95c7</g:id>
+      <g:id>1b56c583-d00d-417a-abf6-83e09dc3cbc9</g:id>
       <g:quantity>1</g:quantity>
       <g:availability>in_stock</g:availability>
-      <g:price>489.99 GBP</g:price>
+      <g:price>599.99 GBP</g:price>
       <g:pickup_method>buy</g:pickup_method>
       <g:pickup_sla>same_day</g:pickup_sla>
     </item>
@@ -29,15 +245,6 @@
       <g:quantity>1</g:quantity>
       <g:availability>in_stock</g:availability>
       <g:price>599.99 GBP</g:price>
-      <g:pickup_method>buy</g:pickup_method>
-      <g:pickup_sla>same_day</g:pickup_sla>
-    </item>
-    <item>
-      <g:store_code>11126744882028006931</g:store_code>
-      <g:id>452a2c2d-72a8-4d0a-b3a3-80b7601b4834</g:id>
-      <g:quantity>1</g:quantity>
-      <g:availability>in_stock</g:availability>
-      <g:price>699.99 GBP</g:price>
       <g:pickup_method>buy</g:pickup_method>
       <g:pickup_sla>same_day</g:pickup_sla>
     </item>
