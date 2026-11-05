@@ -25,12 +25,15 @@ for (const [name, url] of Object.entries(manifest)) {
     const input = Buffer.from(await res.arrayBuffer());
     const meta = await sharp(input).metadata();
     if (!meta.width || meta.width < 300) throw new Error(`image too small (${meta.width}x${meta.height})`);
-    await sharp(input)
+    // Trim the plain background, fit the phone into 90% of the square, then
+    // centre it on a white canvas so every listing image looks the same.
+    const trimmed = await sharp(input)
       .flatten({ background: "#ffffff" })
-      .trim({ background: "#ffffff", threshold: 8 })
+      .trim({ threshold: 12 })
       .resize(Math.round(SIZE * 0.9), Math.round(SIZE * 0.9), { fit: "inside" })
-      .extend({ top: 50, bottom: 50, left: 50, right: 50, background: "#ffffff" })
-      .resize(SIZE, SIZE, { fit: "contain", background: "#ffffff" })
+      .toBuffer();
+    await sharp({ create: { width: SIZE, height: SIZE, channels: 3, background: "#ffffff" } })
+      .composite([{ input: trimmed, gravity: "centre" }])
       .jpeg({ quality: 86, mozjpeg: true })
       .toFile(file);
     console.log(`+ ${name}.jpg  (from ${meta.width}x${meta.height})`);
