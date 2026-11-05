@@ -13,8 +13,8 @@ const analyticsPatterns = [
 ];
 
 const commonHead = [
-  '<link rel="stylesheet" href="/site-common.css">',
-  '<script src="/site-common.js" defer></script>'
+  '<link rel="stylesheet" href="/site-common.css?v=20261105">',
+  '<script src="/site-common.js?v=20261105" defer></script>'
 ].join("\n");
 
 const legalLinks = '<p><a href="/privacy.html">Privacy &amp; cookies</a> · <a href="/terms.html">Terms</a> · <a href="/returns.html">Returns</a> · <a href="/warranty.html">Warranty</a> · <button type="button" data-cookie-settings style="border:0;background:none;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">Cookie settings</button></p>';
@@ -23,7 +23,7 @@ for (const name of pages) {
   const fullPath = path.join(root, name);
   let html = fs.readFileSync(fullPath, "utf8");
   for (const pattern of analyticsPatterns) html = html.replace(pattern, "");
-  if (!html.includes("/site-common.css")) html = html.replace("</head>", `${commonHead}\n</head>`);
+  if (!html.includes("/site-common.css?v=20261105")) html = html.replace("</head>", `${commonHead}\n</head>`);
   if (!html.includes('href="/privacy.html"')) {
     html = html.replace(/(<footer><div class="wrap">)/, `$1\n${legalLinks}`);
   }

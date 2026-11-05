@@ -62,8 +62,8 @@ function head({ title, description, canonical, image, schema, noindex }) {
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/phone-shop-base.css">
 <link rel="stylesheet" href="/phone-shop.css">
-<link rel="stylesheet" href="/site-common.css">
-<script src="/site-common.js" defer></script>
+<link rel="stylesheet" href="/site-common.css?v=20261105">
+<script src="/site-common.js?v=20261105" defer></script>
 ${schema.map((s) => `<script type="application/ld+json">\n${jsonLd(s)}\n</script>`).join("\n")}
 </head>
 <body>
