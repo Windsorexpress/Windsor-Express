@@ -1,0 +1,23 @@
+{
+  "_comment": "Official manufacturer product images, downloaded once and hosted on our own domain under /images/phones/. Key = output file name (no extension). Add a line, then run the 'Fetch product images' workflow.",
+  "iphone-16-pro-black": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-16-pro-finish-select-202409-6-3inch-blacktitanium?wid=1000&hei=1000&fmt=jpeg&qlt=90",
+  "iphone-15-pro-max-black": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-pro-finish-select-202309-6-7inch-blacktitanium?wid=1000&hei=1000&fmt=jpeg&qlt=90",
+  "iphone-15-black": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-finish-select-202309-6-1inch-black?wid=1000&hei=1000&fmt=jpeg&qlt=90",
+  "iphone-14-pro-max-purple": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-14-pro-finish-select-202209-6-7inch-deeppurple?wid=1000&hei=1000&fmt=jpeg&qlt=90",
+  "iphone-14-white": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-14-finish-select-202209-6-1inch-starlight?wid=1000&hei=1000&fmt=jpeg&qlt=90",
+  "iphone-13-pro-max-blue": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-13-pro-max-blue-select?wid=1000&hei=1000&fmt=jpeg&qlt=90",
+  "iphone-13-green": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-13-green-select?wid=1000&hei=1000&fmt=jpeg&qlt=90",
+  "iphone-13-mini-black": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-13-mini-midnight-select-2021?wid=1000&hei=1000&fmt=jpeg&qlt=90",
+  "iphone-12-red": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-12-red-select-2020?wid=1000&hei=1000&fmt=jpeg&qlt=90",
+  "iphone-12-purple": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-12-purple-select-2021?wid=1000&hei=1000&fmt=jpeg&qlt=90",
+  "iphone-12-pro-blue": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-12-pro-blue-hero?wid=1000&hei=1000&fmt=jpeg&qlt=90",
+  "iphone-11-pro-max-silver": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-11-pro-max-silver-select-2019?wid=1000&hei=1000&fmt=jpeg&qlt=90",
+  "iphone-11-pro-green": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-11-pro-midnight-green-select-2019?wid=1000&hei=1000&fmt=jpeg&qlt=90",
+  "iphone-11-pro-grey": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-11-pro-space-select-2019?wid=1000&hei=1000&fmt=jpeg&qlt=90",
+  "iphone-11-black": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone11-black-select-2019?wid=1000&hei=1000&fmt=jpeg&qlt=90",
+  "iphone-xs-grey": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-xs-space-select-2018?wid=1000&hei=1000&fmt=jpeg&qlt=90",
+  "samsung-s23-ultra-black": "https://images.samsung.com/is/image/samsung/p6pim/uk/2302/gallery/uk-galaxy-s23-s918-sm-s918bzkdeub-534793350?$1300_1038_PNG$",
+  "samsung-s22-plus-black": "https://images.samsung.com/is/image/samsung/p6pim/uk/2202/gallery/uk-galaxy-s22-plus-s906-sm-s906bzkdeub-530845590?$1300_1038_PNG$",
+  "samsung-a33-5g-black": "https://images.samsung.com/is/image/samsung/p6pim/uk/sm-a336bzkgeub/gallery/uk-galaxy-a33-5g-a336-sm-a336bzkgeub-531414529?$1300_1038_PNG$",
+  "samsung-note-10-aura-glow": "https://images.samsung.com/is/image/samsung/uk-galaxy-note10-sm-n970-sm-n970fzsdbtu-179669628?$1300_1038_PNG$"
+}

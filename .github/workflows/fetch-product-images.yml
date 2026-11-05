@@ -1,0 +1,51 @@
+name: Fetch product images
+
+# Downloads the official images listed in scripts/product-images.json into
+# images/phones/ and commits them, so the site and Google feed use images
+# hosted on our own domain. Runs when the list changes, or by hand.
+
+on:
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Re-download images that already exist"
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+    paths: ["scripts/product-images.json"]
+
+concurrency:
+  group: fetch-product-images
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install image tools
+        run: npm install --no-save --no-audit --no-fund sharp@0.34
+      - name: Download and normalise images
+        env:
+          FORCE: ${{ inputs.force && '1' || '0' }}
+        run: node scripts/fetch-product-images.mjs
+      - name: Commit images
+        if: always()
+        run: |
+          git config user.name  "windsor-express-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add images/phones
+          if git diff --cached --quiet; then echo "No new images."; exit 0; fi
+          git commit -m "chore: add official product images"
+          for attempt in 1 2 3; do
+            git push && exit 0
+            git pull --rebase --autostash origin main || exit 1
+          done
+          exit 1
