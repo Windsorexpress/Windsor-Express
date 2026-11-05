@@ -25,12 +25,24 @@ for (const [name, url] of Object.entries(manifest)) {
     const input = Buffer.from(await res.arrayBuffer());
     const meta = await sharp(input).metadata();
     if (!meta.width || meta.width < 300) throw new Error(`image too small (${meta.width}x${meta.height})`);
-    // Trim the plain background, fit the phone into 90% of the square, then
-    // centre it on a white canvas so every listing image looks the same.
-    const trimmed = await sharp(input)
+    // Some manufacturer shots sit on a light grey studio band rather than
+    // white. Push every near-white pixel to pure white, then trim the plain
+    // border, fit the phone into 90% of the square and centre it on white so
+    // every listing image looks the same.
+    const { data, info } = await sharp(input)
       .flatten({ background: "#ffffff" })
-      .trim({ threshold: 12 })
+      .removeAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    for (let i = 0; i < data.length; i += 3) {
+      if (data[i] >= 242 && data[i + 1] >= 242 && data[i + 2] >= 242) {
+        data[i] = data[i + 1] = data[i + 2] = 255;
+      }
+    }
+    const trimmed = await sharp(data, { raw: { width: info.width, height: info.height, channels: 3 } })
+      .trim({ background: "#ffffff", threshold: 10 })
       .resize(Math.round(SIZE * 0.9), Math.round(SIZE * 0.9), { fit: "inside" })
+      .png()
       .toBuffer();
     await sharp({ create: { width: SIZE, height: SIZE, channels: 3, background: "#ffffff" } })
       .composite([{ input: trimmed, gravity: "centre" }])
