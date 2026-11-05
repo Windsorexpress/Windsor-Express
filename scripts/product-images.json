@@ -20,15 +20,7 @@
   "samsung-s22-plus-black": "https://images.samsung.com/is/image/samsung/p6pim/uk/2202/gallery/uk-galaxy-s22-plus-s906-sm-s906bzkdeub-530845590?$1300_1038_PNG$",
   "samsung-a33-5g-black": "https://images.samsung.com/is/image/samsung/p6pim/uk/sm-a336bzkgeub/gallery/uk-galaxy-a33-5g-a336-sm-a336bzkgeub-531414529?$1300_1038_PNG$",
   "samsung-note-10-aura-glow": "https://images.samsung.com/is/image/samsung/uk-galaxy-note10-sm-n970-sm-n970fzsdbtu-179669628?$1300_1038_PNG$",
-  "samsung-s21-fe-5g-grey": {
-    "url": "https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-s21-fe-5g-2.jpg",
-    "crop": [
-      0,
-      0,
-      178,
-      419
-    ]
-  },
+  "samsung-s21-fe-5g-grey": "https://m.media-amazon.com/images/I/81colQUUH1L._AC_SL1500_.jpg",
   "samsung-s20-fe-5g-blue": {
     "url": "https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-s20-fe-5g-02.jpg",
     "crop": [
@@ -38,31 +30,7 @@
       492
     ]
   },
-  "samsung-a22-5g-grey": {
-    "url": "https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-a22-5g-2.jpg",
-    "crop": [
-      530,
-      0,
-      180,
-      444
-    ]
-  },
-  "google-pixel-7-pro-black": {
-    "url": "https://fdn2.gsmarena.com/vv/pics/google/google-pixel7-pro-3.jpg",
-    "crop": [
-      0,
-      0,
-      234,
-      640
-    ]
-  },
-  "huawei-p30-aurora": {
-    "url": "https://fdn2.gsmarena.com/vv/pics/huawei/huawei-p30-all-colours.jpg",
-    "crop": [
-      240,
-      480,
-      230,
-      487
-    ]
-  }
+  "samsung-a22-5g-grey": "https://m.media-amazon.com/images/I/71qAAD0zuuS._AC_SL1500_.jpg",
+  "google-pixel-7-pro-black": "https://m.media-amazon.com/images/I/71unY85+-ML._AC_SL1500_.jpg",
+  "huawei-p30-aurora": "https://m.media-amazon.com/images/I/61tmv1+CcML._AC_SL1500_.jpg"
 }
