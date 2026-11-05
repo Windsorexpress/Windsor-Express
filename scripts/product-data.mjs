@@ -87,12 +87,32 @@ export function modelKeyFor(phone) {
   return slugify([phone.name, phone.storage].filter(Boolean).join(" "));
 }
 
+// Manufacturer brand for Merchant Center and schema.org. Google checks this
+// against the product itself, so it must be the maker, never the shop.
+const BRAND_MATCHERS = [
+  [["iphone", "ipad"], "Apple"],
+  [["samsung", "galaxy"], "Samsung"],
+  [["pixel", "google"], "Google"],
+  [["huawei"], "Huawei"],
+  [["honor"], "Honor"],
+  [["oneplus"], "OnePlus"],
+  [["xiaomi", "redmi", "poco"], "Xiaomi"],
+  [["motorola", "moto "], "Motorola"],
+  [["oppo"], "OPPO"],
+  [["nothing phone"], "Nothing"],
+  [["sony", "xperia"], "Sony"],
+  [["nokia"], "Nokia"]
+];
+
 export function brandFor(phone) {
-  const n = String(phone.name || "").toLowerCase();
-  if (n.includes("iphone") || n.includes("ipad")) return "Apple";
-  if (n.includes("samsung") || n.includes("galaxy")) return "Samsung";
-  if (n.includes("pixel")) return "Google";
-  return "Windsor Express";
+  const name = String(phone.name || "").trim();
+  const n = name.toLowerCase();
+  for (const [needles, brand] of BRAND_MATCHERS) {
+    if (needles.some((s) => n.includes(s))) return brand;
+  }
+  // Unknown maker: the first word of the listing name is the best guess
+  // (e.g. "Vivo X80" -> "Vivo"), and still beats tagging it as our own brand.
+  return name.split(/\s+/)[0] || "Unbranded";
 }
 
 export function titleFor(phone) {
