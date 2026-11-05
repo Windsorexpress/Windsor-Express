@@ -15,16 +15,24 @@ const SIZE = 1000;
 let saved = 0, skipped = 0;
 const failed = [];
 
-for (const [name, url] of Object.entries(manifest)) {
+for (const [name, entry] of Object.entries(manifest)) {
   if (name.startsWith("_")) continue;
+  // An entry is either a URL, or { url, crop: [left, top, width, height] } to
+  // cut one colour out of a manufacturer's multi-colour group shot.
+  const url = typeof entry === "string" ? entry : entry.url;
+  const crop = typeof entry === "string" ? null : entry.crop;
   const file = path.join(outDir, `${name}.jpg`);
   if (fs.existsSync(file) && process.env.FORCE !== "1") { skipped++; continue; }
   try {
     const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (WindsorExpressImageFetcher)" } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const input = Buffer.from(await res.arrayBuffer());
+    let input = Buffer.from(await res.arrayBuffer());
+    if (crop) {
+      const [left, top, width, height] = crop;
+      input = await sharp(input).extract({ left, top, width, height }).png().toBuffer();
+    }
     const meta = await sharp(input).metadata();
-    if (!meta.width || meta.width < 300) throw new Error(`image too small (${meta.width}x${meta.height})`);
+    if (!meta.width || Math.max(meta.width, meta.height) < 300) throw new Error(`image too small (${meta.width}x${meta.height})`);
     // Some manufacturer shots sit on a light grey studio band rather than
     // white. Push every near-white pixel to pure white, then trim the plain
     // border, fit the phone into 90% of the square and centre it on white so
