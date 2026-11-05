@@ -113,3 +113,30 @@
   .we-callbar-map { background: #f3f4f6; color: #111827; }
   body.we-has-callbar { padding-bottom: 72px; }
 }
+
+/* "Find us" notice while the outside signs are down (see site-common.js). */
+.we-findus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 9px 16px;
+  background: #0f172a;
+  color: #f8fafc;
+  font: 500 13px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  text-align: center;
+}
+.we-findus strong { color: #6ee7b7; font-weight: 700; }
+.we-findus a {
+  flex-shrink: 0;
+  color: #0f172a;
+  background: #6ee7b7;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.we-findus a:hover, .we-findus a:focus-visible { background: #a7f3d0; }
+.we-findus-pin { font-size: 15px; }

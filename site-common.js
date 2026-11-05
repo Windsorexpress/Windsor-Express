@@ -92,6 +92,28 @@
     document.body.classList.add("we-has-callbar");
   }
 
+  // "Find us" notice while the shop's outside signs are down. Customers arriving
+  // from Google Maps look for a fascia that isn't there, so tell them what to
+  // look for instead. Set SHOW_FIND_US_NOTICE to false once the new shopfront
+  // signs are up.
+  var SHOW_FIND_US_NOTICE = true;
+  var FIND_US_SKIP = /\/(admin|connection-test)\.html$/;
+  function addFindUsNotice() {
+    if (!SHOW_FIND_US_NOTICE || FIND_US_SKIP.test(window.location.pathname)) return;
+    if (document.getElementById("we-findus")) return;
+    var note = document.createElement("div");
+    note.id = "we-findus";
+    note.className = "we-findus";
+    note.setAttribute("role", "note");
+    note.innerHTML =
+      '<span class="we-findus-pin" aria-hidden="true">📍</span>' +
+      '<span><strong>Open as normal.</strong> Our outside signs are temporarily down. ' +
+      'Find us at 3 Queen Annes Court, the bottom of Peascod Street. ' +
+      'Look for the Windsor Express poster in the window.</span>' +
+      '<a href="https://maps.app.goo.gl/pZWxtjh1QgyAGVUZ9" target="_blank" rel="noopener" data-track="findus_directions_click">Directions</a>';
+    document.body.insertBefore(note, document.body.firstChild);
+  }
+
   // Record taps on any phone, WhatsApp or directions link as GA4 events.
   document.addEventListener("click", function (event) {
     var link = event.target.closest && event.target.closest("a[href]");
@@ -105,6 +127,7 @@
   }, true);
 
   document.addEventListener("DOMContentLoaded", function () {
+    addFindUsNotice();
     addCallBar();
     var choice = getChoice();
     if (choice === "granted") loadAnalytics();
