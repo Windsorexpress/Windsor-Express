@@ -170,13 +170,12 @@ export const RETURN_POLICY = {
   returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
   merchantReturnDays: 14,
   returnMethod: "https://schema.org/ReturnByMail",
-  returnFees: "https://schema.org/ReturnShippingFees",
-  returnShippingFeesAmount: {
-    "@type": "MonetaryAmount",
-    currency: "GBP",
-    value: 0,
-    description: "Buyer arranges and pays for return postage on change-of-mind returns. We cover reasonable return costs for faulty, incorrect or misdescribed goods."
-  },
+  // Buyer arranges and pays for return postage on change-of-mind returns
+  // (we cover faulty, incorrect or misdescribed goods). Google rejects a
+  // £0 returnShippingFeesAmount, so state who pays instead of an amount.
+  returnFees: "https://schema.org/ReturnFeesCustomerResponsibility",
+  customerRemorseReturnFees: "https://schema.org/ReturnFeesCustomerResponsibility",
+  itemDefectReturnFees: "https://schema.org/FreeReturn",
   refundType: "https://schema.org/FullRefund"
 };
 
