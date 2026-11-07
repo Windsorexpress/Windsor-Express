@@ -4,7 +4,7 @@
     <title>Windsor Express — Phones for Sale in Windsor</title>
     <link>https://www.windsor-express.co.uk/phones-for-sale-windsor.html</link>
     <description>Live stock of unlocked phones for sale at Windsor Express, Peascod Street, Windsor.</description>
-    <lastBuildDate>Thu, 05 Nov 2026 18:42:49 GMT</lastBuildDate>
+    <lastBuildDate>Sat, 07 Nov 2026 16:29:07 GMT</lastBuildDate>
     <item>
       <g:id>46939212-0be3-466d-ab2b-bf590d2db680</g:id>
       <g:title>iPhone XS 256GB Grey</g:title>
@@ -26,6 +26,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -50,6 +54,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -74,6 +82,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -98,6 +110,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -122,6 +138,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -146,6 +166,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -170,6 +194,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -194,6 +222,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -218,6 +250,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -242,6 +278,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -266,6 +306,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -290,6 +334,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -314,6 +362,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -338,6 +390,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -362,6 +418,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -386,6 +446,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -410,6 +474,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -434,6 +502,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -458,6 +530,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -482,6 +558,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -506,6 +586,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -530,6 +614,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -554,6 +642,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -578,6 +670,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -602,6 +698,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -626,6 +726,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
@@ -650,6 +754,10 @@
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
