@@ -14,7 +14,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  SITE, POSTAGE_FEE, WARRANTY_MONTHS,
+  SITE, POSTAGE_FEE, WARRANTY_MONTHS, HANDLING_DAYS, TRANSIT_DAYS,
   fetchPhones, slugFor, brandFor, titleFor, pricingFor, inStock,
   feedCondition, gtinProp, escapeHtml
 } from "./product-data.mjs";
@@ -79,6 +79,10 @@ function itemXml(phone) {
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
         <g:price>${POSTAGE_FEE.toFixed(2)} GBP</g:price>
+        <g:min_handling_time>${HANDLING_DAYS.min}</g:min_handling_time>
+        <g:max_handling_time>${HANDLING_DAYS.max}</g:max_handling_time>
+        <g:min_transit_time>${TRANSIT_DAYS.min}</g:min_transit_time>
+        <g:max_transit_time>${TRANSIT_DAYS.max}</g:max_transit_time>
       </g:shipping>
       <g:pickup_cost>0.00 GBP</g:pickup_cost>`;
 

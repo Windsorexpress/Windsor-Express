@@ -31,6 +31,13 @@ export const STORE_CODE = "11126744882028006931";
 
 // Postage matches the fee used at checkout (POSTAGE_FEE in create-checkout).
 export const POSTAGE_FEE = 4.99;
+
+// Delivery times: must match the Merchant Center delivery policy
+// (order cut-off 18:00, Mon–Sat) and the "1–3 working days" promise on the
+// product pages. The feed's <g:shipping> overrides the account policy, so
+// without these Google shows "Delivery time: Incomplete".
+export const HANDLING_DAYS = { min: 0, max: 1 };
+export const TRANSIT_DAYS = { min: 1, max: 2 };
 export const WARRANTY_MONTHS = 36;
 
 // --- Supabase REST ------------------------------------------------------
@@ -194,8 +201,8 @@ export const SHIPPING_DETAILS = [
     },
     deliveryTime: {
       "@type": "ShippingDeliveryTime",
-      handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 1, unitCode: "DAY" },
-      transitTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: 3, unitCode: "DAY" }
+      handlingTime: { "@type": "QuantitativeValue", minValue: HANDLING_DAYS.min, maxValue: HANDLING_DAYS.max, unitCode: "DAY" },
+      transitTime: { "@type": "QuantitativeValue", minValue: TRANSIT_DAYS.min, maxValue: TRANSIT_DAYS.max, unitCode: "DAY" }
     }
   },
   {
