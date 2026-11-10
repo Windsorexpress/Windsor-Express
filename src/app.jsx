@@ -103,15 +103,17 @@ const { useState, useEffect, useRef } = React;
         // --- LOYALTY ---
         const REWARDS_URL = "https://rewards.windsor-express.co.uk/join";
         // --- GAMES CONSOLES ---
-        // Consoles are quote-on-diagnostic: no price list, so the funnel goes
-        // device -> console + service -> confirm. Add prices here later if wanted.
+        // Funnel: device -> console + service -> confirm. HDMI, maintenance and
+        // liquid metal have fixed prices; everything else is quote-on-diagnostic.
+        // Consoles are pay-in-store only: the online checkout re-prices from the
+        // repair_prices table, which has no console rows.
         const CONSOLE_BRAND = 'Games Console';
         const CONSOLE_MODELS = ['PS5', 'PS5 Slim', 'PS5 Pro', 'PS4 / PS4 Pro', 'Xbox Series X', 'Xbox Series S', 'Xbox One', 'Nintendo Switch', 'Switch OLED / Lite', 'Switch 2', 'Other console'];
         const isPS5 = (model) => /^PS5/.test(model || '');
         const CONSOLE_SERVICES = [
-            { key: 'hdmi',         issue: 'HDMI port repair',                                      label: 'HDMI Port Repair',         icon: 'fa-tv',                     desc: 'No signal, black screen, or a bent or loose HDMI port' },
-            { key: 'maintenance',  issue: 'Maintenance service (deep clean + fresh thermal paste)', label: 'Maintenance Service',      icon: 'fa-fan',                    desc: 'Full strip-down clean, fresh thermal paste, fan and port check', tag: 'GTA 6 ready' },
-            { key: 'liquid-metal', issue: 'PS5 liquid metal service',                              label: 'PS5 Liquid Metal Service', icon: 'fa-temperature-arrow-down', desc: 'Hot, loud or shutting down: liquid metal cleaned, re-applied and re-sealed', ps5Only: true },
+            { key: 'hdmi',         issue: 'HDMI port repair',                                      label: 'HDMI Port Repair',         icon: 'fa-tv',                     desc: 'No signal, black screen, or a bent or loose HDMI port', price: 85 },
+            { key: 'maintenance',  issue: 'Maintenance service (deep clean + fresh thermal paste)', label: 'Maintenance Service',      icon: 'fa-fan',                    desc: 'Full strip-down clean, fresh thermal paste, fan and port check', tag: 'GTA 6 ready', price: 50 },
+            { key: 'liquid-metal', issue: 'PS5 liquid metal service',                              label: 'PS5 Liquid Metal Service', icon: 'fa-temperature-arrow-down', desc: 'Hot, loud or shutting down: liquid metal cleaned, re-applied and re-sealed', ps5Only: true, price: 85 },
             { key: 'disc',         issue: 'Disc drive fault',                                      label: 'Disc Drive Fault',         icon: 'fa-compact-disc',           desc: 'Discs not accepted, not reading or stuck inside' },
             { key: 'controller',   issue: 'Controller / Joy-Con drift',                            label: 'Controller / Joy-Con Drift', icon: 'fa-gamepad',               desc: 'Drifting sticks on DualSense, Xbox pads and Joy-Cons' },
             { key: 'power',        issue: "Won't turn on / shuts down",                            label: "Won't Turn On",            icon: 'fa-power-off',              desc: 'No power, blinking lights or random shutdowns' },
@@ -169,7 +171,7 @@ const { useState, useEffect, useRef } = React;
             { q: "What payment methods do you accept?",
               a: "Pay online by card at checkout, or pay in store with cash, all major credit and debit cards, Apple Pay, and Google Pay — whatever works best for you." },
             { q: "Do you repair PS5 and Xbox consoles?",
-              a: "Yes. We repair HDMI ports, fix overheating with a full clean and fresh thermal paste, service the liquid metal on PS5 consoles, and sort disc drive, power and controller drift faults. The diagnostic is free and you get a fixed quote before any work starts." },
+              a: "Yes. HDMI port repair is £85, a maintenance clean with fresh thermal paste is £50, and a PS5 liquid metal service is £85. We also fix disc drive, power and controller drift faults, with a free diagnostic and a fixed quote before any work starts." },
             { q: "Do you repair water-damaged phones?",
               a: "Yes — drop in or book online for a free diagnostic. We have a strong success rate with water damage, especially if you act quickly. Don't charge it first!" }
         ];
@@ -753,7 +755,7 @@ const { useState, useEffect, useRef } = React;
             const proceedConsole = (model, svcKey) => {
                 const svc = CONSOLE_SERVICES.find(s => s.key === svcKey);
                 if (!model || !svc) return;
-                setBookingData(p => ({ ...p, model, issue: svc.issue, quality: '', qualityKey: '', quotedPrice: '' }));
+                setBookingData(p => ({ ...p, model, issue: svc.issue, quality: '', qualityKey: '', quotedPrice: svc.price ? `£${svc.price.toFixed(2)}` : '', paymentMethod: 'in_store' }));
                 track('console_service_select', { service: svc.key, console: model });
                 setFunnelStep(4);
             };
@@ -853,12 +855,14 @@ const { useState, useEffect, useRef } = React;
                     heading: 'Booking Confirmed!',
                     summary: `${deviceLabel(bookingData)} — ${bookingData.issue}${bookingData.quality ? ' (' + bookingData.quality + ')' : ''}`,
                     detail: bookingData.serviceType === 'walk-in' ? (bookingData.time || 'Walk in any time') : 'Mail-in repair',
-                    total: repairBase !== null ? gbp(total) : (isConsole ? "Free diagnostic — fixed quote before any work" : "Free quote — we'll confirm your price"),
+                    total: repairBase !== null ? gbp(total) + (isConsole ? ' · pay in store' : '') : (isConsole ? "Free diagnostic — fixed quote before any work" : "Free quote — we'll confirm your price"),
                     freebie: wasFree && !isConsole,
                     tradeNote: discount > 0 ? `🏷️ 10% first-repair discount applied (−${gbp(discount)}) — we'll confirm your first visit in store.` : null,
                     next: bookingData.serviceType === 'walk-in'
                         ? (isConsole
-                            ? ["We'll confirm your preferred drop-off time by text or email", "We open it up, diagnose it free and give you a fixed quote before any work starts", "We'll text you the moment your console is ready to collect"]
+                            ? ["We'll confirm your preferred drop-off time by text or email",
+                               repairBase !== null ? "We check it over first. If it needs anything beyond what you booked, we tell you the price before doing it" : "We open it up, diagnose it free and give you a fixed quote before any work starts",
+                               "We'll text you the moment your console is ready to collect"]
                             : ["We'll confirm your preferred drop-off time by text or email", "Most repairs are done in about 30 minutes while you wait", "We'll text you the moment your device is ready"])
                         : ["Check your email — prepaid postage instructions are on their way", "Post your device to us, fully tracked and insured", "We repair it within 24 hours of arrival and post it straight back"]
                 });
@@ -992,7 +996,7 @@ const { useState, useEffect, useRef } = React;
                         </div>
                         {isConsole ? (
                             <div className="mt-3 bg-gray-900 text-white text-xs font-bold px-3 py-2 rounded-lg text-center">
-                                🎮 Free diagnostic · fixed quote before any work · <span className="text-brand-400">no fix, no fee</span>
+                                🎮 Fixed prices · checked before any work · <span className="text-brand-400">no fix, no fee</span>
                             </div>
                         ) : freeProtector ? (
                             <div className="mt-3 bg-brand-500 text-white text-xs font-bold px-3 py-2 rounded-lg text-center">
@@ -1041,7 +1045,7 @@ const { useState, useEffect, useRef } = React;
                                             Games Console
                                             <span className="bg-brand-500 text-white text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full">{GTA6_OUT ? 'GTA 6 is out' : 'GTA 6 · 19 Nov'}</span>
                                         </div>
-                                        <div className="text-xs text-gray-400 font-medium mt-0.5">PS5 · Xbox · Switch — HDMI repair, deep clean, liquid metal</div>
+                                        <div className="text-xs text-gray-400 font-medium mt-0.5">HDMI repair £85 · maintenance clean £50 · PS5 liquid metal £85</div>
                                     </div>
                                     <i className="fas fa-arrow-right text-brand-400 flex-shrink-0"></i>
                                 </div>
@@ -1087,12 +1091,14 @@ const { useState, useEffect, useRef } = React;
                                                 </span>
                                                 <span className="block text-xs text-gray-400 font-medium mt-0.5">{s.desc}</span>
                                             </span>
-                                            <i className="fas fa-chevron-right text-gray-300 text-xs flex-shrink-0"></i>
+                                            {s.price
+                                                ? <span className="font-display text-xl font-black text-brand-600 flex-shrink-0">£{s.price}</span>
+                                                : <span className="text-[11px] font-bold text-gray-400 flex-shrink-0 text-right leading-tight">Free<br />quote</span>}
                                         </button>
                                     ))}
                                 </div>
                                 <p className="text-xs text-gray-400 font-medium text-center mt-4">
-                                    {consoleSvc && !bookingData.model ? 'Now pick your console above to continue.' : 'Free diagnostic. You get a fixed quote before any work starts.'}
+                                    {consoleSvc && !bookingData.model ? 'Now pick your console above to continue.' : 'Fixed prices. We check it over first, and nothing extra is done without your OK.'}
                                 </p>
                             </div>
                         )}
@@ -1243,7 +1249,10 @@ const { useState, useEffect, useRef } = React;
                                         {bookingData.serviceType === 'walk-in' ? 'Walk-in Service' : 'Mail-in Service'}
                                     </div>
                                     {bookingData.quotedPrice
-                                        ? <div className="font-display text-4xl font-black text-brand-500 mt-2">{bookingData.quotedPrice}</div>
+                                        ? <div>
+                                            <div className="font-display text-4xl font-black text-brand-500 mt-2">{bookingData.quotedPrice}</div>
+                                            {isConsole && <p className="text-xs text-gray-500 font-medium mt-1">Fixed price · paid in store when you collect · no fix, no fee</p>}
+                                          </div>
                                         : isConsole
                                         ? <div className="mt-3">
                                             <div className="font-display text-2xl font-black text-brand-500 leading-tight">Free diagnostic</div>
@@ -1365,12 +1374,14 @@ const { useState, useEffect, useRef } = React;
                                                 className={`p-4 rounded-xl border-2 font-bold text-sm transition-all ${bookingData.paymentMethod === 'in_store' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
                                                 <i className="fas fa-store block text-lg mb-1"></i>Pay in store
                                             </button>
-                                            <button type="button" disabled={repairBase === null} onClick={() => setBookingData({ ...bookingData, paymentMethod: 'online' })}
+                                            <button type="button" disabled={repairBase === null || isConsole} onClick={() => setBookingData({ ...bookingData, paymentMethod: 'online' })}
                                                 className={`p-4 rounded-xl border-2 font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed ${bookingData.paymentMethod === 'online' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
                                                 <i className="fas fa-credit-card block text-lg mb-1"></i>Pay online
                                             </button>
                                         </div>
-                                        {repairBase === null && <p className="text-xs text-gray-400 font-medium mt-1.5">Online payment unlocks once your repair has a price — pay in store works perfectly for now.</p>}
+                                        {isConsole
+                                            ? <p className="text-xs text-gray-400 font-medium mt-1.5">Console repairs are paid in store when you collect, after we've checked it over.</p>
+                                            : repairBase === null && <p className="text-xs text-gray-400 font-medium mt-1.5">Online payment unlocks once your repair has a price — pay in store works perfectly for now.</p>}
                                         {firstTimer && repairBase !== null && bookingData.paymentMethod === 'online' && (
                                             <p className="text-xs text-amber-600 font-semibold mt-1.5"><i className="fas fa-circle-info mr-1"></i>Your 10% first-repair discount is redeemed in store — choose "Pay in store" to keep it.</p>
                                         )}
@@ -2012,7 +2023,7 @@ const { useState, useEffect, useRef } = React;
                                         {[
                                             { icon: 'fa-screwdriver-wrench',   title: 'Repair My Phone',   sub: 'Screens from £39.99 · ~30 min',            cta: 'Book below ↓',
                                               onClick: () => { track('hero_path_click', { path: 'repair' }); const el = document.getElementById('repair-funnel'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } },
-                                            { icon: 'fa-gamepad',              title: 'Console Repair',    sub: 'HDMI · overheating · PS5 liquid metal',     cta: GTA6_OUT ? 'Book a service →' : 'Get GTA 6 ready →', dark: true,
+                                            { icon: 'fa-gamepad',              title: 'Console Repair',    sub: 'HDMI £85 · clean £50 · liquid metal £85',   cta: GTA6_OUT ? 'Book a service →' : 'Get GTA 6 ready →', dark: true,
                                               onClick: () => { track('hero_path_click', { path: 'console' }); openConsole('', 'hero'); } },
                                             { icon: 'fa-mobile-screen-button', title: 'Buy a Used Phone',  sub: 'Unlocked · 3-year warranty',                cta: 'Shop phones →',
                                               onClick: () => { track('hero_path_click', { path: 'buy' }); window.location.href = '/phones-for-sale-windsor.html'; } },
@@ -2047,22 +2058,25 @@ const { useState, useEffect, useRef } = React;
                                             {GTA6_OUT ? 'Console struggling with GTA 6?' : 'Is your console ready?'}
                                         </h2>
                                         <p className="text-gray-400 font-medium max-w-xl mx-auto text-sm md:text-base">
-                                            A dusty, hot or flaky PS5 or Xbox is the one that shuts down mid-mission. Free diagnostic, fixed quote before any work, 12-month warranty on repairs.
+                                            A dusty, hot or flaky PS5 or Xbox is the one that shuts down mid-mission. Fixed prices, no fix no fee, 12-month warranty on repairs.
                                         </p>
                                     </div>
                                     <div className="grid md:grid-cols-3 gap-3 md:gap-4">
                                         {[
-                                            { key: 'hdmi',         icon: 'fa-tv',                     title: 'HDMI Port Repair',         body: 'No signal or a black screen? Damaged HDMI ports on PS5 and Xbox replaced and tested.' },
-                                            { key: 'maintenance',  icon: 'fa-fan',                    title: 'Maintenance Service',      body: 'Full strip-down, dust cleared from fan and heatsink, fresh thermal paste, ports checked.' },
-                                            { key: 'liquid-metal', icon: 'fa-temperature-arrow-down', title: 'PS5 Liquid Metal Service', body: 'Overheating or jet-engine fan? We clean, re-apply and re-seal the liquid metal on the chip.' }
-                                        ].map(({ key, icon, title, body }) => (
+                                            { key: 'hdmi',         icon: 'fa-tv',                     title: 'HDMI Port Repair',         price: 85, body: 'No signal or a black screen? Damaged HDMI ports on PS5 and Xbox replaced and tested.' },
+                                            { key: 'maintenance',  icon: 'fa-fan',                    title: 'Maintenance Service',      price: 50, body: 'Full strip-down, dust cleared from fan and heatsink, fresh thermal paste, ports checked.' },
+                                            { key: 'liquid-metal', icon: 'fa-temperature-arrow-down', title: 'PS5 Liquid Metal Service', price: 85, body: 'Overheating or jet-engine fan? We clean, re-apply and re-seal the liquid metal on the chip.' }
+                                        ].map(({ key, icon, title, body, price }) => (
                                             <button type="button" key={key} onClick={() => openConsole(key, 'home_section')}
                                                 className="funnel-card card-shine text-left bg-white/5 border-white/10 rounded-2xl p-4 md:p-6 flex md:block items-start gap-3.5">
                                                 <i className={`fas ${icon} text-2xl md:text-3xl text-brand-400 md:mb-4 md:block w-8 md:w-auto text-center md:text-left flex-shrink-0 mt-0.5 md:mt-0`}></i>
                                                 <span className="block flex-1">
-                                                    <span className="block font-display text-2xl font-black text-white leading-tight">{title}</span>
+                                                    <span className="flex items-baseline justify-between gap-3">
+                                                        <span className="font-display text-2xl font-black text-white leading-tight">{title}</span>
+                                                        <span className="font-display text-2xl font-black text-brand-400 whitespace-nowrap">£{price}</span>
+                                                    </span>
                                                     <span className="block text-gray-400 text-sm font-medium mt-1 leading-snug">{body}</span>
-                                                    <span className="block text-brand-400 font-bold text-sm mt-2 md:mt-4">Book free diagnostic →</span>
+                                                    <span className="block text-brand-400 font-bold text-sm mt-2 md:mt-4">Book now →</span>
                                                 </span>
                                             </button>
                                         ))}
