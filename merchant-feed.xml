@@ -4,7 +4,7 @@
     <title>Windsor Express — Phones for Sale in Windsor</title>
     <link>https://www.windsor-express.co.uk/phones-for-sale-windsor.html</link>
     <description>Live stock of unlocked phones for sale at Windsor Express, Peascod Street, Windsor.</description>
-    <lastBuildDate>Sat, 07 Nov 2026 16:29:07 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 10 Nov 2026 23:26:50 GMT</lastBuildDate>
     <item>
       <g:id>46939212-0be3-466d-ab2b-bf590d2db680</g:id>
       <g:title>iPhone XS 256GB Grey</g:title>
@@ -230,39 +230,11 @@
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
     <item>
-      <g:id>c09c5cd8-5447-448f-9806-7a58d58936e9</g:id>
-      <g:title>Google Pixel 7 Pro 128GB Black</g:title>
-      <g:description>Google Pixel 7 Pro 128GB Black for sale at Windsor Express in Windsor. Condition: Excellent. Unlocked to all networks. 3-year warranty. Free click &amp; collect from Peascod Street, or tracked UK delivery.</g:description>
-      <g:link>https://www.windsor-express.co.uk/phones/google-pixel-7-pro-128gb-black/</g:link>
-      <g:image_link>https://www.windsor-express.co.uk/images/phones/google-pixel-7-pro-black.jpg</g:image_link>
-      <g:availability>in_stock</g:availability>
-      <g:price>179.99 GBP</g:price>
-      <g:brand>Google</g:brand>
-      <g:condition>used</g:condition>
-      <g:identifier_exists>no</g:identifier_exists>
-      <g:google_product_category>222</g:google_product_category>
-      <g:product_type>Mobile Phones</g:product_type>
-      <g:item_group_id>google-pixel-7-pro-128gb</g:item_group_id>
-      <g:pickup_method>buy</g:pickup_method>
-      <g:pickup_sla>same_day</g:pickup_sla>
-      <g:color>Black</g:color>
-      <g:shipping>
-        <g:country>GB</g:country>
-        <g:service>Tracked UK delivery</g:service>
-        <g:price>4.99 GBP</g:price>
-        <g:min_handling_time>0</g:min_handling_time>
-        <g:max_handling_time>1</g:max_handling_time>
-        <g:min_transit_time>1</g:min_transit_time>
-        <g:max_transit_time>2</g:max_transit_time>
-      </g:shipping>
-      <g:pickup_cost>0.00 GBP</g:pickup_cost>
-    </item>
-    <item>
-      <g:id>f814ad03-1b3b-44dd-bcea-46886e5327f6</g:id>
-      <g:title>iPhone 11 Pro 512GB Green</g:title>
-      <g:description>iPhone 11 Pro 512GB Green for sale at Windsor Express in Windsor. Condition: Fair. Unlocked to all networks. 3-year warranty. Free click &amp; collect from Peascod Street, or tracked UK delivery.</g:description>
-      <g:link>https://www.windsor-express.co.uk/phones/iphone-11-pro-512gb-green/</g:link>
-      <g:image_link>https://www.windsor-express.co.uk/images/phones/iphone-11-pro-green.jpg</g:image_link>
+      <g:id>171a6584-e2a4-4795-83a8-5c5882d183c5</g:id>
+      <g:title>iPhone 11 Pro 128GB Grey</g:title>
+      <g:description>iPhone 11 Pro 128GB Grey for sale at Windsor Express in Windsor. Condition: Excellent. Unlocked to all networks. 3-year warranty. Free click &amp; collect from Peascod Street, or tracked UK delivery.</g:description>
+      <g:link>https://www.windsor-express.co.uk/phones/iphone-11-pro-128gb-grey/</g:link>
+      <g:image_link>https://www.windsor-express.co.uk/images/phones/iphone-11-pro-grey.jpg</g:image_link>
       <g:availability>in_stock</g:availability>
       <g:price>189.99 GBP</g:price>
       <g:brand>Apple</g:brand>
@@ -270,10 +242,10 @@
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>222</g:google_product_category>
       <g:product_type>Mobile Phones</g:product_type>
-      <g:item_group_id>iphone-11-pro-512gb</g:item_group_id>
+      <g:item_group_id>iphone-11-pro-128gb</g:item_group_id>
       <g:pickup_method>buy</g:pickup_method>
       <g:pickup_sla>same_day</g:pickup_sla>
-      <g:color>Green</g:color>
+      <g:color>Grey</g:color>
       <g:shipping>
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
@@ -314,11 +286,11 @@
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
     <item>
-      <g:id>171a6584-e2a4-4795-83a8-5c5882d183c5</g:id>
-      <g:title>iPhone 11 Pro 128GB Grey</g:title>
-      <g:description>iPhone 11 Pro 128GB Grey for sale at Windsor Express in Windsor. Condition: Excellent. Unlocked to all networks. 3-year warranty. Free click &amp; collect from Peascod Street, or tracked UK delivery.</g:description>
-      <g:link>https://www.windsor-express.co.uk/phones/iphone-11-pro-128gb-grey/</g:link>
-      <g:image_link>https://www.windsor-express.co.uk/images/phones/iphone-11-pro-grey.jpg</g:image_link>
+      <g:id>f814ad03-1b3b-44dd-bcea-46886e5327f6</g:id>
+      <g:title>iPhone 11 Pro 512GB Green</g:title>
+      <g:description>iPhone 11 Pro 512GB Green for sale at Windsor Express in Windsor. Condition: Fair. Unlocked to all networks. 3-year warranty. Free click &amp; collect from Peascod Street, or tracked UK delivery.</g:description>
+      <g:link>https://www.windsor-express.co.uk/phones/iphone-11-pro-512gb-green/</g:link>
+      <g:image_link>https://www.windsor-express.co.uk/images/phones/iphone-11-pro-green.jpg</g:image_link>
       <g:availability>in_stock</g:availability>
       <g:price>189.99 GBP</g:price>
       <g:brand>Apple</g:brand>
@@ -326,38 +298,10 @@
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>222</g:google_product_category>
       <g:product_type>Mobile Phones</g:product_type>
-      <g:item_group_id>iphone-11-pro-128gb</g:item_group_id>
+      <g:item_group_id>iphone-11-pro-512gb</g:item_group_id>
       <g:pickup_method>buy</g:pickup_method>
       <g:pickup_sla>same_day</g:pickup_sla>
-      <g:color>Grey</g:color>
-      <g:shipping>
-        <g:country>GB</g:country>
-        <g:service>Tracked UK delivery</g:service>
-        <g:price>4.99 GBP</g:price>
-        <g:min_handling_time>0</g:min_handling_time>
-        <g:max_handling_time>1</g:max_handling_time>
-        <g:min_transit_time>1</g:min_transit_time>
-        <g:max_transit_time>2</g:max_transit_time>
-      </g:shipping>
-      <g:pickup_cost>0.00 GBP</g:pickup_cost>
-    </item>
-    <item>
-      <g:id>85852e45-3503-4f23-bead-2ed949c36049</g:id>
-      <g:title>iPhone 12 64GB Red</g:title>
-      <g:description>iPhone 12 64GB Red for sale at Windsor Express in Windsor. Condition: Excellent. Unlocked to all networks. 3-year warranty. Free click &amp; collect from Peascod Street, or tracked UK delivery.</g:description>
-      <g:link>https://www.windsor-express.co.uk/phones/iphone-12-64gb-red/</g:link>
-      <g:image_link>https://www.windsor-express.co.uk/images/phones/iphone-12-red.jpg</g:image_link>
-      <g:availability>in_stock</g:availability>
-      <g:price>194.99 GBP</g:price>
-      <g:brand>Apple</g:brand>
-      <g:condition>used</g:condition>
-      <g:identifier_exists>no</g:identifier_exists>
-      <g:google_product_category>222</g:google_product_category>
-      <g:product_type>Mobile Phones</g:product_type>
-      <g:item_group_id>iphone-12-64gb</g:item_group_id>
-      <g:pickup_method>buy</g:pickup_method>
-      <g:pickup_sla>same_day</g:pickup_sla>
-      <g:color>Red</g:color>
+      <g:color>Green</g:color>
       <g:shipping>
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
@@ -386,6 +330,34 @@
       <g:pickup_method>buy</g:pickup_method>
       <g:pickup_sla>same_day</g:pickup_sla>
       <g:color>Purple</g:color>
+      <g:shipping>
+        <g:country>GB</g:country>
+        <g:service>Tracked UK delivery</g:service>
+        <g:price>4.99 GBP</g:price>
+        <g:min_handling_time>0</g:min_handling_time>
+        <g:max_handling_time>1</g:max_handling_time>
+        <g:min_transit_time>1</g:min_transit_time>
+        <g:max_transit_time>2</g:max_transit_time>
+      </g:shipping>
+      <g:pickup_cost>0.00 GBP</g:pickup_cost>
+    </item>
+    <item>
+      <g:id>85852e45-3503-4f23-bead-2ed949c36049</g:id>
+      <g:title>iPhone 12 64GB Red</g:title>
+      <g:description>iPhone 12 64GB Red for sale at Windsor Express in Windsor. Condition: Excellent. Unlocked to all networks. 3-year warranty. Free click &amp; collect from Peascod Street, or tracked UK delivery.</g:description>
+      <g:link>https://www.windsor-express.co.uk/phones/iphone-12-64gb-red/</g:link>
+      <g:image_link>https://www.windsor-express.co.uk/images/phones/iphone-12-red.jpg</g:image_link>
+      <g:availability>in_stock</g:availability>
+      <g:price>194.99 GBP</g:price>
+      <g:brand>Apple</g:brand>
+      <g:condition>used</g:condition>
+      <g:identifier_exists>no</g:identifier_exists>
+      <g:google_product_category>222</g:google_product_category>
+      <g:product_type>Mobile Phones</g:product_type>
+      <g:item_group_id>iphone-12-64gb</g:item_group_id>
+      <g:pickup_method>buy</g:pickup_method>
+      <g:pickup_sla>same_day</g:pickup_sla>
+      <g:color>Red</g:color>
       <g:shipping>
         <g:country>GB</g:country>
         <g:service>Tracked UK delivery</g:service>
@@ -706,11 +678,11 @@
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
     <item>
-      <g:id>1b56c583-d00d-417a-abf6-83e09dc3cbc9</g:id>
-      <g:title>iPhone 16 Pro 128GB Black</g:title>
-      <g:description>iPhone 16 Pro 128GB Black for sale at Windsor Express in Windsor. Condition: Excellent. Unlocked to all networks. 3-year warranty. Free click &amp; collect from Peascod Street, or tracked UK delivery.</g:description>
-      <g:link>https://www.windsor-express.co.uk/phones/iphone-16-pro-128gb-black/</g:link>
-      <g:image_link>https://www.windsor-express.co.uk/images/phones/iphone-16-pro-black.jpg</g:image_link>
+      <g:id>b78259a9-1f0f-427d-827c-701e199a1ee2</g:id>
+      <g:title>iPhone 15 Pro Max 256GB Black</g:title>
+      <g:description>iPhone 15 Pro Max 256GB Black for sale at Windsor Express in Windsor. Condition: Like New. Unlocked to all networks. 3-year warranty. Free click &amp; collect from Peascod Street, or tracked UK delivery.</g:description>
+      <g:link>https://www.windsor-express.co.uk/phones/iphone-15-pro-max-256gb-black/</g:link>
+      <g:image_link>https://www.windsor-express.co.uk/images/phones/iphone-15-pro-max-black.jpg</g:image_link>
       <g:availability>in_stock</g:availability>
       <g:price>599.99 GBP</g:price>
       <g:brand>Apple</g:brand>
@@ -718,7 +690,7 @@
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>222</g:google_product_category>
       <g:product_type>Mobile Phones</g:product_type>
-      <g:item_group_id>iphone-16-pro-128gb</g:item_group_id>
+      <g:item_group_id>iphone-15-pro-max-256gb</g:item_group_id>
       <g:pickup_method>buy</g:pickup_method>
       <g:pickup_sla>same_day</g:pickup_sla>
       <g:color>Black</g:color>
@@ -734,11 +706,11 @@
       <g:pickup_cost>0.00 GBP</g:pickup_cost>
     </item>
     <item>
-      <g:id>b78259a9-1f0f-427d-827c-701e199a1ee2</g:id>
-      <g:title>iPhone 15 Pro Max 256GB Black</g:title>
-      <g:description>iPhone 15 Pro Max 256GB Black for sale at Windsor Express in Windsor. Condition: Like New. Unlocked to all networks. 3-year warranty. Free click &amp; collect from Peascod Street, or tracked UK delivery.</g:description>
-      <g:link>https://www.windsor-express.co.uk/phones/iphone-15-pro-max-256gb-black/</g:link>
-      <g:image_link>https://www.windsor-express.co.uk/images/phones/iphone-15-pro-max-black.jpg</g:image_link>
+      <g:id>1b56c583-d00d-417a-abf6-83e09dc3cbc9</g:id>
+      <g:title>iPhone 16 Pro 128GB Black</g:title>
+      <g:description>iPhone 16 Pro 128GB Black for sale at Windsor Express in Windsor. Condition: Excellent. Unlocked to all networks. 3-year warranty. Free click &amp; collect from Peascod Street, or tracked UK delivery.</g:description>
+      <g:link>https://www.windsor-express.co.uk/phones/iphone-16-pro-128gb-black/</g:link>
+      <g:image_link>https://www.windsor-express.co.uk/images/phones/iphone-16-pro-black.jpg</g:image_link>
       <g:availability>in_stock</g:availability>
       <g:price>599.99 GBP</g:price>
       <g:brand>Apple</g:brand>
@@ -746,7 +718,7 @@
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>222</g:google_product_category>
       <g:product_type>Mobile Phones</g:product_type>
-      <g:item_group_id>iphone-15-pro-max-256gb</g:item_group_id>
+      <g:item_group_id>iphone-16-pro-128gb</g:item_group_id>
       <g:pickup_method>buy</g:pickup_method>
       <g:pickup_sla>same_day</g:pickup_sla>
       <g:color>Black</g:color>

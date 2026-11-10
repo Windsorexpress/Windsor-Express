@@ -4,7 +4,7 @@
     <title>Windsor Express — local shop inventory</title>
     <link>https://www.windsor-express.co.uk/phones-for-sale-windsor.html</link>
     <description>Stock physically available to collect at Windsor Express, 3 Peascod Street, Windsor SL4 1DG.</description>
-    <lastBuildDate>Thu, 05 Nov 2026 18:42:50 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 10 Nov 2026 23:26:51 GMT</lastBuildDate>
     <item>
       <g:store_code>11126744882028006931</g:store_code>
       <g:id>46939212-0be3-466d-ab2b-bf590d2db680</g:id>
@@ -79,16 +79,7 @@
     </item>
     <item>
       <g:store_code>11126744882028006931</g:store_code>
-      <g:id>c09c5cd8-5447-448f-9806-7a58d58936e9</g:id>
-      <g:quantity>1</g:quantity>
-      <g:availability>in_stock</g:availability>
-      <g:price>179.99 GBP</g:price>
-      <g:pickup_method>buy</g:pickup_method>
-      <g:pickup_sla>same_day</g:pickup_sla>
-    </item>
-    <item>
-      <g:store_code>11126744882028006931</g:store_code>
-      <g:id>f814ad03-1b3b-44dd-bcea-46886e5327f6</g:id>
+      <g:id>171a6584-e2a4-4795-83a8-5c5882d183c5</g:id>
       <g:quantity>1</g:quantity>
       <g:availability>in_stock</g:availability>
       <g:price>189.99 GBP</g:price>
@@ -106,7 +97,7 @@
     </item>
     <item>
       <g:store_code>11126744882028006931</g:store_code>
-      <g:id>171a6584-e2a4-4795-83a8-5c5882d183c5</g:id>
+      <g:id>f814ad03-1b3b-44dd-bcea-46886e5327f6</g:id>
       <g:quantity>1</g:quantity>
       <g:availability>in_stock</g:availability>
       <g:price>189.99 GBP</g:price>
@@ -115,7 +106,7 @@
     </item>
     <item>
       <g:store_code>11126744882028006931</g:store_code>
-      <g:id>85852e45-3503-4f23-bead-2ed949c36049</g:id>
+      <g:id>fa0d83a2-b764-4ec9-8334-28ae2004e153</g:id>
       <g:quantity>1</g:quantity>
       <g:availability>in_stock</g:availability>
       <g:price>194.99 GBP</g:price>
@@ -124,7 +115,7 @@
     </item>
     <item>
       <g:store_code>11126744882028006931</g:store_code>
-      <g:id>fa0d83a2-b764-4ec9-8334-28ae2004e153</g:id>
+      <g:id>85852e45-3503-4f23-bead-2ed949c36049</g:id>
       <g:quantity>1</g:quantity>
       <g:availability>in_stock</g:availability>
       <g:price>194.99 GBP</g:price>
@@ -232,7 +223,7 @@
     </item>
     <item>
       <g:store_code>11126744882028006931</g:store_code>
-      <g:id>1b56c583-d00d-417a-abf6-83e09dc3cbc9</g:id>
+      <g:id>b78259a9-1f0f-427d-827c-701e199a1ee2</g:id>
       <g:quantity>1</g:quantity>
       <g:availability>in_stock</g:availability>
       <g:price>599.99 GBP</g:price>
@@ -241,7 +232,7 @@
     </item>
     <item>
       <g:store_code>11126744882028006931</g:store_code>
-      <g:id>b78259a9-1f0f-427d-827c-701e199a1ee2</g:id>
+      <g:id>1b56c583-d00d-417a-abf6-83e09dc3cbc9</g:id>
       <g:quantity>1</g:quantity>
       <g:availability>in_stock</g:availability>
       <g:price>599.99 GBP</g:price>
