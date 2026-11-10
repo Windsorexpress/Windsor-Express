@@ -784,6 +784,12 @@ const { useState, useEffect, useRef } = React;
                 setBookingData({ ...bookingData, quality: label, qualityKey: key, quotedPrice: `£${price.toFixed(2)}` });
                 setFunnelStep(4);
             };
+            // Screen repair on a model with no screen prices yet (most Samsung, iPad
+            // and tablet models): book it as a free quote, same as other unpriced repairs.
+            const handleScreenQuote = () => {
+                setBookingData({ ...bookingData, quality: '', qualityKey: 'screen_quote', quotedPrice: '' });
+                setFunnelStep(4);
+            };
             const handleOriginalScreenQuote = () => {
                 setBookingData({
                     ...bookingData,
@@ -1200,6 +1206,18 @@ const { useState, useEffect, useRef } = React;
                                                 <div className="font-display text-2xl font-black text-violet-800">Quote</div>
                                             </button>
                                         )}
+                                    </div>
+                                )}
+                                {/* Screen on a model with no screen prices: free quote instead of a dead end */}
+                                {bookingData.model && bookingData.issue === 'Screen' && !modelHasTiers(bookingData.brand, bookingData.model) && (
+                                    <div className="space-y-3">
+                                        <div className="bg-brand-50 border border-brand-100 rounded-xl p-4 text-center">
+                                            <p className="text-sm text-gray-600 font-medium">We'll confirm the exact price for your <span className="font-bold text-gray-800">{bookingData.model}</span> screen repair — it's a quick free quote.</p>
+                                        </div>
+                                        <button type="button" onClick={handleScreenQuote}
+                                            className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-4 rounded-xl shadow-lg transition-colors">
+                                            Continue — get my quote →
+                                        </button>
                                     </div>
                                 )}
                                 {/* Single-price repairs (battery, back glass, charging port, camera, speaker) */}
