@@ -100,6 +100,30 @@ const { useState, useEffect, useRef } = React;
         ];
         // Maps an issue name to its single-price DB column (Screen handled separately)
         const ISSUE_KEY = REPAIR_TYPES.reduce((m, t) => { if (t.key) m[t.issue] = t.key; return m; }, {});
+        // --- LOYALTY ---
+        const REWARDS_URL = "https://rewards.windsor-express.co.uk/join";
+        // --- GAMES CONSOLES ---
+        // Consoles are quote-on-diagnostic: no price list, so the funnel goes
+        // device -> console + service -> confirm. Add prices here later if wanted.
+        const CONSOLE_BRAND = 'Games Console';
+        const CONSOLE_MODELS = ['PS5', 'PS5 Slim', 'PS5 Pro', 'PS4 / PS4 Pro', 'Xbox Series X', 'Xbox Series S', 'Xbox One', 'Nintendo Switch', 'Switch OLED / Lite', 'Switch 2', 'Other console'];
+        const isPS5 = (model) => /^PS5/.test(model || '');
+        const CONSOLE_SERVICES = [
+            { key: 'hdmi',         issue: 'HDMI port repair',                                      label: 'HDMI Port Repair',         icon: 'fa-tv',                     desc: 'No signal, black screen, or a bent or loose HDMI port' },
+            { key: 'maintenance',  issue: 'Maintenance service (deep clean + fresh thermal paste)', label: 'Maintenance Service',      icon: 'fa-fan',                    desc: 'Full strip-down clean, fresh thermal paste, fan and port check', tag: 'GTA 6 ready' },
+            { key: 'liquid-metal', issue: 'PS5 liquid metal service',                              label: 'PS5 Liquid Metal Service', icon: 'fa-temperature-arrow-down', desc: 'Hot, loud or shutting down: liquid metal cleaned, re-applied and re-sealed', ps5Only: true },
+            { key: 'disc',         issue: 'Disc drive fault',                                      label: 'Disc Drive Fault',         icon: 'fa-compact-disc',           desc: 'Discs not accepted, not reading or stuck inside' },
+            { key: 'controller',   issue: 'Controller / Joy-Con drift',                            label: 'Controller / Joy-Con Drift', icon: 'fa-gamepad',               desc: 'Drifting sticks on DualSense, Xbox pads and Joy-Cons' },
+            { key: 'power',        issue: "Won't turn on / shuts down",                            label: "Won't Turn On",            icon: 'fa-power-off',              desc: 'No power, blinking lights or random shutdowns' },
+            { key: 'other',        issue: 'Other console fault',                                   label: 'Something Else',           icon: 'fa-screwdriver-wrench',     desc: "Tell us what's wrong and we'll diagnose it free" }
+        ];
+        // GTA 6 launches on PS5 and Xbox Series X|S on 19 Nov 2026 (Rockstar Newswire).
+        // Copy switches itself from "launches" to "is out" on the day.
+        const GTA6_OUT = Date.now() >= Date.UTC(2026, 10, 19);
+        // Deep links from the console landing pages: /?book=console&service=hdmi
+        const INITIAL_QUERY = new URLSearchParams(window.location.search);
+        const INITIAL_BOOK_CONSOLE = INITIAL_QUERY.get('book') === 'console';
+        const INITIAL_CONSOLE_SERVICE = (CONSOLE_SERVICES.find(s => s.key === INITIAL_QUERY.get('service')) || {}).key || '';
         const buildTimeSlots = () => {
             const slots = [];
             const now = new Date();
@@ -144,6 +168,8 @@ const { useState, useEffect, useRef } = React;
               a: "Queen Annes Court, 3 Peascod Street, Windsor SL4 1DG — right in the town centre, two minutes' walk from Windsor Castle. Open seven days a week, no appointment needed." },
             { q: "What payment methods do you accept?",
               a: "Pay online by card at checkout, or pay in store with cash, all major credit and debit cards, Apple Pay, and Google Pay — whatever works best for you." },
+            { q: "Do you repair PS5 and Xbox consoles?",
+              a: "Yes. We repair HDMI ports, fix overheating with a full clean and fresh thermal paste, service the liquid metal on PS5 consoles, and sort disc drive, power and controller drift faults. The diagnostic is free and you get a fixed quote before any work starts." },
             { q: "Do you repair water-damaged phones?",
               a: "Yes — drop in or book online for a free diagnostic. We have a strong success rate with water damage, especially if you act quickly. Don't charge it first!" }
         ];
@@ -284,21 +310,21 @@ const { useState, useEffect, useRef } = React;
         };
         // ─── STATIC SUB-COMPONENTS ─────────────────────────────────────────────
         const TrustBar = () => (
-            <div className="bg-brand-500 text-white py-2.5">
-                <div className="max-w-7xl mx-auto px-4 flex items-center justify-center flex-wrap gap-x-6 gap-y-1 text-xs md:text-sm font-semibold">
-                    <span className="flex items-center gap-1.5"><i className="fas fa-shield-halved"></i> No Fix, No Fee</span>
+            <div className="bg-brand-500 text-white py-2 md:py-2.5">
+                <div className="max-w-7xl mx-auto px-2 md:px-4 flex items-center justify-center md:flex-wrap gap-x-3 md:gap-x-6 gap-y-1 text-[11px] md:text-sm font-semibold whitespace-nowrap">
+                    <span className="flex items-center gap-1 md:gap-1.5"><i className="fas fa-shield-halved"></i> No Fix, No Fee</span>
                     <span className="text-white/30 hidden md:block">·</span>
-                    <span className="flex items-center gap-1.5"><i className="fas fa-clock"></i> 30-Min Repairs</span>
+                    <span className="flex items-center gap-1 md:gap-1.5"><i className="fas fa-clock"></i> 30-Min Repairs</span>
                     <span className="text-white/30 hidden md:block">·</span>
-                    <span className="flex items-center gap-1.5"><i className="fas fa-medal"></i> 12-Month Warranty</span>
+                    <span className="flex items-center gap-1 md:gap-1.5"><i className="fas fa-medal"></i> 12-Month Warranty</span>
                     <span className="text-white/30 hidden md:block">·</span>
-                    <span className="flex items-center gap-1.5"><i className="fas fa-arrows-rotate"></i> Trade-Ins Welcome</span>
+                    <span className="hidden md:flex items-center gap-1.5"><i className="fas fa-arrows-rotate"></i> Trade-Ins Welcome</span>
                 </div>
             </div>
         );
         const StatsBar = () => (
-            <div className="bg-gray-900 py-12">
-                <div className="max-w-4xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div className="bg-gray-900 py-8 md:py-12">
+                <div className="max-w-4xl mx-auto px-4 grid grid-cols-4 gap-2 md:gap-6 text-center">
                     {[
                         { num: "500+", label: "Repairs Done",    icon: "fa-wrench"        },
                         { num: "~30",  label: "Min Fix Time",    icon: "fa-clock"         },
@@ -306,16 +332,16 @@ const { useState, useEffect, useRef } = React;
                         { num: "12mo", label: "Warranty",        icon: "fa-shield-halved" }
                     ].map(({ num, label, icon }, i) => (
                         <div key={i} className="stat-num" style={{ animationDelay: `${i * 0.1}s` }}>
-                            <div className="text-brand-400 mb-2"><i className={`fas ${icon} text-xl`}></i></div>
-                            <div className="font-display text-5xl font-black text-white">{num}</div>
-                            <div className="text-gray-400 text-sm font-medium mt-1">{label}</div>
+                            <div className="text-brand-400 mb-1 md:mb-2"><i className={`fas ${icon} text-base md:text-xl`}></i></div>
+                            <div className="font-display text-3xl md:text-5xl font-black text-white">{num}</div>
+                            <div className="text-gray-400 text-[11px] md:text-sm font-medium mt-1 leading-tight">{label}</div>
                         </div>
                     ))}
                 </div>
             </div>
         );
         const ServicesTicker = () => {
-            const items = ["iPhone screens fixed in ~30 min", "Samsung battery swaps", "PS5 & Xbox HDMI repair", "Joy-Con drift sorted", "Cash for old phones", "Trade-in & upgrade deals", "iPad & tablet repairs", "Water damage rescue", "3-year warranty on phones"];
+            const items = ["iPhone screens fixed in ~30 min", "Samsung battery swaps", "PS5 & Xbox HDMI repair", "PS5 liquid metal service", "Console deep clean", "Joy-Con drift sorted", "Cash for old phones", "Trade-in & upgrade deals", "iPad & tablet repairs", "Water damage rescue", "3-year warranty on phones"];
             const row = items.map((t, i) => (
                 <span key={i} className="inline-flex items-center">
                     <span className="mx-5">{t}</span>
@@ -331,7 +357,7 @@ const { useState, useEffect, useRef } = React;
             );
         };
         const HowItWorks = () => (
-            <section className="py-20 bg-white">
+            <section className="py-12 md:py-20 bg-white">
                 <div className="max-w-5xl mx-auto px-4">
                     <div className="text-center mb-14">
                         <h2 className="font-display text-5xl md:text-6xl font-black text-gray-900 mb-2">How It Works</h2>
@@ -484,7 +510,7 @@ const { useState, useEffect, useRef } = React;
         const FAQSection = () => {
             const [open, setOpen] = useState(null);
             return (
-                <section className="py-20 bg-white border-t border-gray-100">
+                <section className="py-12 md:py-20 bg-white border-t border-gray-100">
                     <div className="max-w-3xl mx-auto px-4">
                         <div className="text-center mb-12">
                             <h2 className="font-display text-5xl md:text-6xl font-black text-gray-900 mb-2">Questions? Answered.</h2>
@@ -510,11 +536,15 @@ const { useState, useEffect, useRef } = React;
         };
         // ─── MAIN APP ──────────────────────────────────────────────────────────
         const App = () => {
-            const [view, setView] = useState(INITIAL_PHONE_ID ? 'shop' : 'home');
+            const [view, setView] = useState(INITIAL_PHONE_ID ? 'shop' : (INITIAL_BOOK_CONSOLE ? 'booking' : 'home'));
+            // Mobile menu
+            const [menuOpen, setMenuOpen] = useState(false);
+            // Console service picked in the funnel (key from CONSOLE_SERVICES)
+            const [consoleSvc, setConsoleSvc] = useState(INITIAL_CONSOLE_SERVICE);
             // Repair
-            const [funnelStep, setFunnelStep]   = useState(1);
+            const [funnelStep, setFunnelStep]   = useState(INITIAL_BOOK_CONSOLE ? 2 : 1);
             const [bookingData, setBookingData] = useState({
-                serviceType: 'walk-in', brand: '', model: '', issue: '',
+                serviceType: 'walk-in', brand: INITIAL_BOOK_CONSOLE ? CONSOLE_BRAND : '', model: '', issue: '',
                 quality: '', qualityKey: '', quotedPrice: '', time: '', phone: '', name: '', email: '', address: '',
                 addons: [], paymentMethod: 'in_store'
             });
@@ -678,7 +708,7 @@ const { useState, useEffect, useRef } = React;
                 if (p) window.history.replaceState({}, '', window.location.pathname);
             }, []);
             const resetForms = () => {
-                setFunnelStep(1); setShowAIPrompt(false); setAiMsg('');
+                setFunnelStep(1); setShowAIPrompt(false); setAiMsg(''); setConsoleSvc('');
                 try { setFirstTimer(!window.localStorage.getItem('we_booked')); } catch (e) { setFirstTimer(true); }
                 setBookingData({ serviceType: 'walk-in', brand: '', model: '', issue: '', quality: '', qualityKey: '', quotedPrice: '', time: '', phone: '', name: '', email: '', address: '', addons: [], paymentMethod: 'in_store' });
                 setSellData({ device: '', condition: '', name: '', phone: '', email: '', intent: 'cash' });
@@ -704,7 +734,39 @@ const { useState, useEffect, useRef } = React;
             // Funnel logic
             const handleBrand = (brand) => {
                 setBookingData(p => ({ ...p, brand, model: '', issue: '', quality: '', qualityKey: '', quotedPrice: '', time: '', phone: '', name: '', email: '', address: '', addons: [], paymentMethod: 'in_store' }));
+                setConsoleSvc('');
                 setFunnelStep(2);
+            };
+            // ── Games console path ──
+            const isConsole = bookingData.brand === CONSOLE_BRAND;
+            const deviceLabel = (b) => (b.brand === 'Apple iPhone' || b.brand === CONSOLE_BRAND) ? b.model : `${b.brand} ${b.model}`;
+            // Open the funnel on the console step, optionally with a service pre-picked.
+            const openConsole = (serviceKey, source) => {
+                track('console_open', { service: serviceKey || 'none', source: source || 'unknown' });
+                handleBrand(CONSOLE_BRAND);
+                setConsoleSvc(serviceKey || '');
+                setMenuOpen(false);
+                if (view === 'home') {
+                    setTimeout(() => { const el = document.getElementById('repair-funnel'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
+                } else { setView('booking'); window.scrollTo(0, 0); }
+            };
+            const proceedConsole = (model, svcKey) => {
+                const svc = CONSOLE_SERVICES.find(s => s.key === svcKey);
+                if (!model || !svc) return;
+                setBookingData(p => ({ ...p, model, issue: svc.issue, quality: '', qualityKey: '', quotedPrice: '' }));
+                track('console_service_select', { service: svc.key, console: model });
+                setFunnelStep(4);
+            };
+            // Tapping the second of (console, service) moves straight on — no extra "Continue" tap.
+            const pickConsoleModel = (model) => {
+                let svc = consoleSvc;
+                if (svc === 'liquid-metal' && !isPS5(model)) { svc = ''; setConsoleSvc(''); }
+                setBookingData(p => ({ ...p, model }));
+                if (svc) proceedConsole(model, svc);
+            };
+            const pickConsoleService = (key) => {
+                setConsoleSvc(key);
+                if (bookingData.model) proceedConsole(bookingData.model, key);
             };
             // A brand is "priced" if the DB has at least one model listed for it
             const brandHasModels = (brand) => repairPrices[brand] && Object.keys(repairPrices[brand]).length > 0;
@@ -757,7 +819,7 @@ const { useState, useEffect, useRef } = React;
                     type: 'repair', service_type: bookingData.serviceType,
                     brand: bookingData.brand, model: bookingData.model, issue: bookingData.issue,
                     quality: bookingData.quality || null, quoted_price: bookingData.quotedPrice || null,
-                    addons: [...bookingData.addons, ...(freeProtector ? ['free_screen_protector'] : []), ...(discount > 0 ? ['first_repair_discount_10'] : [])],
+                    addons: [...bookingData.addons, ...(freeProtector && !isConsole ? ['free_screen_protector'] : []), ...(discount > 0 ? ['first_repair_discount_10'] : [])],
                     addon_total: aTotal, total_amount: total,
                     time_slot: bookingData.time || null, address: bookingData.address || null,
                     name: bookingData.name, phone: bookingData.phone, email: bookingData.email,
@@ -765,7 +827,7 @@ const { useState, useEffect, useRef } = React;
                 };
                 const { id } = await saveRow('bookings', row);
                 try { window.localStorage.setItem('we_booked', '1'); } catch (err) {}
-                sendEmail({ ...bookingData, total, freeProtector, discount });
+                sendEmail({ ...bookingData, total, freeProtector: freeProtector && !isConsole, discount });
                 track('repair_booking_submit', { value: total, currency: 'GBP', service_type: bookingData.serviceType });
                 track('generate_lead', { value: total, currency: 'GBP', lead_type: 'repair' });
                 if (bookingData.paymentMethod === 'online' && repairBase !== null && total > 0) {
@@ -789,13 +851,15 @@ const { useState, useEffect, useRef } = React;
                 finishWithConfirmation({
                     kind: 'repair',
                     heading: 'Booking Confirmed!',
-                    summary: `${bookingData.brand === 'Apple iPhone' ? bookingData.model : `${bookingData.brand} ${bookingData.model}`} — ${bookingData.issue}${bookingData.quality ? ' (' + bookingData.quality + ')' : ''}`,
+                    summary: `${deviceLabel(bookingData)} — ${bookingData.issue}${bookingData.quality ? ' (' + bookingData.quality + ')' : ''}`,
                     detail: bookingData.serviceType === 'walk-in' ? (bookingData.time || 'Walk in any time') : 'Mail-in repair',
-                    total: repairBase !== null ? gbp(total) : "Free quote — we'll confirm your price",
-                    freebie: wasFree,
+                    total: repairBase !== null ? gbp(total) : (isConsole ? "Free diagnostic — fixed quote before any work" : "Free quote — we'll confirm your price"),
+                    freebie: wasFree && !isConsole,
                     tradeNote: discount > 0 ? `🏷️ 10% first-repair discount applied (−${gbp(discount)}) — we'll confirm your first visit in store.` : null,
                     next: bookingData.serviceType === 'walk-in'
-                        ? ["We'll confirm your preferred drop-off time by text or email", "Most repairs are done in about 30 minutes while you wait", "We'll text you the moment your device is ready"]
+                        ? (isConsole
+                            ? ["We'll confirm your preferred drop-off time by text or email", "We open it up, diagnose it free and give you a fixed quote before any work starts", "We'll text you the moment your console is ready to collect"]
+                            : ["We'll confirm your preferred drop-off time by text or email", "Most repairs are done in about 30 minutes while you wait", "We'll text you the moment your device is ready"])
                         : ["Check your email — prepaid postage instructions are on their way", "Post your device to us, fully tracked and insured", "We repair it within 24 hours of arrival and post it straight back"]
                 });
             };
@@ -905,7 +969,7 @@ const { useState, useEffect, useRef } = React;
             const waMsg = encodeURIComponent(waMessage);
             // ── FUNNEL ──
             const renderFunnel = () => (
-                <div id="repair-funnel" className="max-w-2xl mx-auto bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden relative">
+                <div id="repair-funnel" className="scroll-mt-20 md:scroll-mt-24 max-w-2xl mx-auto bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden relative">
                     {isSubmitting && (
                         <div className="absolute inset-0 bg-white/90 z-50 flex flex-col items-center justify-center">
                             <div className="w-14 h-14 border-4 border-brand-100 border-t-brand-500 rounded-full animate-spin mb-4"></div>
@@ -926,7 +990,11 @@ const { useState, useEffect, useRef } = React;
                                 <span key={i} className={`text-xs font-medium ${i + 1 <= funnelStep ? 'text-brand-600' : 'text-gray-300'}`}>{l}</span>
                             ))}
                         </div>
-                        {freeProtector ? (
+                        {isConsole ? (
+                            <div className="mt-3 bg-gray-900 text-white text-xs font-bold px-3 py-2 rounded-lg text-center">
+                                🎮 Free diagnostic · fixed quote before any work · <span className="text-brand-400">no fix, no fee</span>
+                            </div>
+                        ) : freeProtector ? (
                             <div className="mt-3 bg-brand-500 text-white text-xs font-bold px-3 py-2 rounded-lg text-center">
                                 🎁 FREE screen protector locked in — complete your booking to claim it
                             </div>
@@ -936,11 +1004,11 @@ const { useState, useEffect, useRef } = React;
                             </div>
                         )}
                     </div>
-                    <div className="p-6 md:p-8 min-h-[400px]">
+                    <div className="p-4 sm:p-6 md:p-8 min-h-[400px]">
                         {/* STEP 1 */}
                         {funnelStep === 1 && (
                             <div className="fade-in">
-                                <div className="flex bg-gray-100 rounded-xl p-1 mb-7 max-w-xs mx-auto">
+                                <div className="flex bg-gray-100 rounded-xl p-1 mb-5 md:mb-7 max-w-xs mx-auto">
                                     {['walk-in', 'mail-in'].map(t => (
                                         <button key={t} onClick={() => setBookingData({ ...bookingData, serviceType: t })}
                                             className={`flex-1 py-2.5 rounded-lg font-bold text-xs md:text-sm transition-all ${bookingData.serviceType === t ? 'bg-white shadow text-brand-600' : 'text-gray-400 hover:text-gray-600'}`}>
@@ -949,8 +1017,8 @@ const { useState, useEffect, useRef } = React;
                                         </button>
                                     ))}
                                 </div>
-                                <h4 className="font-display text-3xl font-black text-gray-900 text-center mb-7">What needs fixing?</h4>
-                                <div className="grid grid-cols-2 gap-4 mb-4">
+                                <h4 className="font-display text-3xl font-black text-gray-900 text-center mb-5 md:mb-7">What needs fixing?</h4>
+                                <div className="grid grid-cols-2 gap-3 md:gap-4 mb-3 md:mb-4">
                                     {[
                                         { brand: 'Apple iPhone',  iconClass: 'fab fa-apple',           color: 'text-gray-800', label: 'iPhone'  },
                                         { brand: 'Samsung',       iconClass: 'fas fa-mobile-android',  color: 'text-blue-600', label: 'Samsung' },
@@ -958,15 +1026,28 @@ const { useState, useEffect, useRef } = React;
                                         { brand: 'Tablet',        iconClass: 'fas fa-tablet-screen-button', color: 'text-brand-600', label: 'Tablet' }
                                     ].map(({ brand, iconClass, color, label }) => (
                                         <div key={brand} onClick={() => handleBrand(brand)}
-                                            className="funnel-card border-gray-200 rounded-2xl p-6 text-center bg-white card-shine">
-                                            <i className={`${iconClass} text-4xl mb-3 ${color} block`}></i>
+                                            className="funnel-card border-gray-200 rounded-2xl p-4 md:p-6 text-center bg-white card-shine">
+                                            <i className={`${iconClass} text-3xl md:text-4xl mb-2 md:mb-3 ${color} block`}></i>
                                             <div className="font-bold text-gray-900">{label}</div>
                                         </div>
                                     ))}
                                 </div>
+                                {/* Dedicated console entry: HDMI repair, maintenance, PS5 liquid metal */}
+                                <div onClick={() => openConsole('', 'funnel_step1')} role="button" aria-label="Book a games console repair or service"
+                                    className="funnel-card card-shine border-gray-900 bg-gray-900 rounded-2xl p-4 md:p-5 mb-2 flex items-center gap-3.5 text-left">
+                                    <i className="fas fa-gamepad text-3xl text-brand-400 flex-shrink-0"></i>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="font-bold text-white flex items-center gap-2 flex-wrap">
+                                            Games Console
+                                            <span className="bg-brand-500 text-white text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full">{GTA6_OUT ? 'GTA 6 is out' : 'GTA 6 · 19 Nov'}</span>
+                                        </div>
+                                        <div className="text-xs text-gray-400 font-medium mt-0.5">PS5 · Xbox · Switch — HDMI repair, deep clean, liquid metal</div>
+                                    </div>
+                                    <i className="fas fa-arrow-right text-brand-400 flex-shrink-0"></i>
+                                </div>
                                 <button onClick={() => handleBrand('Other Device')}
                                     className="w-full text-gray-400 text-sm font-semibold hover:text-brand-500 transition-colors py-3 underline underline-offset-2">
-                                    Laptop, console or other device →
+                                    Laptop or other device →
                                 </button>
                                 {/* Cross-sell: not here to fix something */}
                                 <div className="flex items-center justify-center gap-4 mt-3 pt-4 border-t border-gray-100 text-xs font-bold flex-wrap">
@@ -976,8 +1057,47 @@ const { useState, useEffect, useRef } = React;
                                 </div>
                             </div>
                         )}
+                        {/* STEP 2 — games console: pick console + service */}
+                        {funnelStep === 2 && isConsole && (
+                            <div className="fade-in">
+                                <button onClick={() => setFunnelStep(1)} className="flex items-center gap-1.5 text-sm text-gray-400 font-semibold mb-5 hover:text-brand-500 transition-colors">
+                                    <i className="fas fa-arrow-left text-xs"></i> Back
+                                </button>
+                                <h4 className="font-display text-3xl font-black text-gray-900 text-center mb-5">Console Repair &amp; Servicing</h4>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">1. Which console?</label>
+                                <div className="grid grid-cols-3 gap-2 mb-5">
+                                    {CONSOLE_MODELS.map(m => (
+                                        <button type="button" key={m} onClick={() => pickConsoleModel(m)} aria-pressed={bookingData.model === m}
+                                            className={`min-h-[48px] px-1.5 py-2 rounded-xl border-2 font-bold text-xs sm:text-sm leading-tight transition-colors ${bookingData.model === m ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'}`}>
+                                            {m}
+                                        </button>
+                                    ))}
+                                </div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">2. What do you need?</label>
+                                <div className="space-y-2">
+                                    {CONSOLE_SERVICES.filter(s => !s.ps5Only || !bookingData.model || isPS5(bookingData.model)).map(s => (
+                                        <button type="button" key={s.key} onClick={() => pickConsoleService(s.key)} aria-pressed={consoleSvc === s.key}
+                                            className={`funnel-card w-full text-left rounded-xl p-3.5 flex items-center gap-3 ${consoleSvc === s.key ? 'border-brand-500 bg-brand-50' : 'border-gray-200 bg-white'}`}>
+                                            <i className={`fas ${s.icon} text-xl text-brand-500 w-7 text-center flex-shrink-0`}></i>
+                                            <span className="flex-1 min-w-0">
+                                                <span className="font-bold text-gray-900 text-sm flex items-center gap-2 flex-wrap">
+                                                    {s.label}
+                                                    {s.tag && <span className="bg-gray-900 text-white text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full">{s.tag}</span>}
+                                                    {s.ps5Only && <span className="bg-gray-100 text-gray-500 text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full">PS5 only</span>}
+                                                </span>
+                                                <span className="block text-xs text-gray-400 font-medium mt-0.5">{s.desc}</span>
+                                            </span>
+                                            <i className="fas fa-chevron-right text-gray-300 text-xs flex-shrink-0"></i>
+                                        </button>
+                                    ))}
+                                </div>
+                                <p className="text-xs text-gray-400 font-medium text-center mt-4">
+                                    {consoleSvc && !bookingData.model ? 'Now pick your console above to continue.' : 'Free diagnostic. You get a fixed quote before any work starts.'}
+                                </p>
+                            </div>
+                        )}
                         {/* STEP 2 — issue */}
-                        {funnelStep === 2 && !showAIPrompt && (
+                        {funnelStep === 2 && !isConsole && !showAIPrompt && (
                             <div className="fade-in">
                                 <button onClick={() => setFunnelStep(1)} className="flex items-center gap-1.5 text-sm text-gray-400 font-semibold mb-6 hover:text-brand-500 transition-colors">
                                     <i className="fas fa-arrow-left text-xs"></i> Back
@@ -1012,7 +1132,7 @@ const { useState, useEffect, useRef } = React;
                             </div>
                         )}
                         {/* STEP 2 — AI prompt */}
-                        {funnelStep === 2 && showAIPrompt && (
+                        {funnelStep === 2 && !isConsole && showAIPrompt && (
                             <div className="fade-in">
                                 <button onClick={() => setShowAIPrompt(false)} className="flex items-center gap-1.5 text-sm text-gray-400 font-semibold mb-6 hover:text-brand-500 transition-colors">
                                     <i className="fas fa-arrow-left text-xs"></i> Back
@@ -1106,16 +1226,16 @@ const { useState, useEffect, useRef } = React;
                         {/* STEP 4 — confirm */}
                         {funnelStep === 4 && (
                             <div className="fade-in">
-                                <button onClick={() => setFunnelStep(brandHasModels(bookingData.brand) && (bookingData.issue === 'Screen' || ISSUE_KEY[bookingData.issue]) ? 3 : 2)}
+                                <button onClick={() => { if (isConsole) setConsoleSvc(''); setFunnelStep(brandHasModels(bookingData.brand) && (bookingData.issue === 'Screen' || ISSUE_KEY[bookingData.issue]) ? 3 : 2); }}
                                     className="flex items-center gap-1.5 text-sm text-gray-400 font-semibold mb-5 hover:text-brand-500 transition-colors">
                                     <i className="fas fa-arrow-left text-xs"></i> Back
                                 </button>
                                 <h4 className="font-display text-3xl font-black text-gray-900 text-center mb-5">Confirm Your Booking</h4>
                                 {/* Summary */}
                                 <div className="bg-gradient-to-br from-brand-50 to-green-50 border border-brand-100 rounded-2xl p-5 text-center mb-5">
-                                    <div className="text-xs font-bold text-brand-600 uppercase tracking-widest mb-1">Your Repair</div>
+                                    <div className="text-xs font-bold text-brand-600 uppercase tracking-widest mb-1">{isConsole ? 'Your Console' : 'Your Repair'}</div>
                                     <div className="font-display text-xl font-black text-gray-900 leading-tight">
-                                        {bookingData.brand === 'Apple iPhone' ? bookingData.model : `${bookingData.brand} ${bookingData.model}`} — {bookingData.issue}
+                                        {deviceLabel(bookingData)} — {bookingData.issue}
                                         {bookingData.quality && <span className="text-brand-600"> ({bookingData.quality})</span>}
                                     </div>
                                     <div className="text-xs text-gray-400 font-semibold mt-1 uppercase tracking-wider">
@@ -1124,6 +1244,11 @@ const { useState, useEffect, useRef } = React;
                                     </div>
                                     {bookingData.quotedPrice
                                         ? <div className="font-display text-4xl font-black text-brand-500 mt-2">{bookingData.quotedPrice}</div>
+                                        : isConsole
+                                        ? <div className="mt-3">
+                                            <div className="font-display text-2xl font-black text-brand-500 leading-tight">Free diagnostic</div>
+                                            <p className="text-xs text-gray-500 font-medium mt-1">Fixed quote before any work starts · no fix, no fee</p>
+                                          </div>
                                         : <div className="mt-3">
                                             <p className="text-xs text-gray-400 font-medium mb-1">Call for an instant quote:</p>
                                             <a href={`tel:${SHOP_PHONE}`} className="font-display text-3xl font-black text-brand-500 hover:text-brand-600 transition-colors">07912 150397</a>
@@ -1131,7 +1256,7 @@ const { useState, useEffect, useRef } = React;
                                     }
                                 </div>
                                 {/* Confidence nudge at the form */}
-                                <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 flex items-center gap-3 mb-3">
+                                <div className={isConsole ? 'hidden' : 'bg-gray-50 border border-gray-100 rounded-xl p-3 flex items-center gap-3 mb-3'}>
                                     <div className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0">J</div>
                                     <p className="text-xs text-gray-500 font-medium leading-relaxed flex-1">"Done within 20 minutes... very good customer service. 10/10!" <span className="text-gray-400">— Jaipreet, Google review</span></p>
                                     <span className="text-yellow-400 text-xs whitespace-nowrap">★★★★★</span>
@@ -1142,8 +1267,8 @@ const { useState, useEffect, useRef } = React;
                                             placeholder="Device model (e.g. Galaxy S24 Ultra, MacBook Air, PS5)" required
                                             className="w-full p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
                                     )}
-                                    {/* ADD-ONS */}
-                                    <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+                                    {/* ADD-ONS (phone/tablet accessories — not shown for consoles) */}
+                                    <div className={isConsole ? 'hidden' : 'bg-gray-50 border border-gray-100 rounded-2xl p-4'}>
                                         <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Add Protection — optional</div>
                                         <div className="space-y-2">
                                             {freeProtector && (
@@ -1202,13 +1327,13 @@ const { useState, useEffect, useRef } = React;
                                             <span className="font-display text-3xl font-black text-brand-600">{gbp(repairTotal)}</span>
                                         </div>
                                     )}
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <input type="text" value={bookingData.name} onChange={e => setBookingData({ ...bookingData, name: e.target.value })} placeholder="Full name" required
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <input type="text" autoComplete="name" value={bookingData.name} onChange={e => setBookingData({ ...bookingData, name: e.target.value })} placeholder="Full name" required
                                             className="p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
-                                        <input type="tel" value={bookingData.phone} onChange={e => setBookingData({ ...bookingData, phone: e.target.value })} placeholder="Phone number" required
+                                        <input type="tel" inputMode="tel" autoComplete="tel" value={bookingData.phone} onChange={e => setBookingData({ ...bookingData, phone: e.target.value })} placeholder="Phone number" required
                                             className="p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
                                     </div>
-                                    <input type="email" value={bookingData.email} onChange={e => setBookingData({ ...bookingData, email: e.target.value })} placeholder="Email address" required
+                                    <input type="email" inputMode="email" autoComplete="email" value={bookingData.email} onChange={e => setBookingData({ ...bookingData, email: e.target.value })} placeholder="Email address" required
                                         className="w-full p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none font-medium placeholder-gray-300 transition-colors" />
                                     {bookingData.serviceType === 'walk-in' ? (
                                         <div>
@@ -1254,7 +1379,7 @@ const { useState, useEffect, useRef } = React;
                                         className="w-full bg-brand-500 hover:bg-brand-600 text-white font-display font-black text-xl py-5 rounded-xl shadow-lg transition-colors mt-1">
                                         {bookingData.paymentMethod === 'online'
                                             ? `💳 Pay ${gbp(repairTotal)} & Book`
-                                            : (bookingData.serviceType === 'walk-in' ? '🔒 Book My 30-Min Repair' : '📦 Request Mail-In Repair')}
+                                            : (bookingData.serviceType === 'walk-in' ? (isConsole ? '🎮 Book My Free Diagnostic' : '🔒 Book My 30-Min Repair') : '📦 Request Mail-In Repair')}
                                     </button>
                                     <p className="text-center text-xs text-gray-400 font-medium">
                                         {bookingData.paymentMethod === 'online' ? "Secure card payment via Stripe — you'll be redirected." : "No payment now — pay in-store on the day."}
@@ -1363,6 +1488,16 @@ const { useState, useEffect, useRef } = React;
                 if (value.includes('excellent')) return 'bg-indigo-100 text-indigo-700';
                 if (value.includes('good')) return 'bg-amber-100 text-amber-700';
                 return 'bg-gray-100 text-gray-600';
+            };
+            // Homepage picks: a spread across the price range (up to 6) rather than
+            // just the three cheapest handsets, and lowest-grade stock is left for the shop page.
+            const featuredPhones = (list) => {
+                const decent = list.filter(ph => !/grade\s*[d-f]\b|faulty|spares/i.test(String(ph.condition || '')));
+                const pool = (decent.length >= 3 ? decent : list).slice().sort((a, b) => phonePricingFor(a).current - phonePricingFor(b).current);
+                if (pool.length <= 6) return pool;
+                const picks = [];
+                for (let i = 0; i < 6; i++) picks.push(pool[Math.round(i * (pool.length - 1) / 5)]);
+                return picks.filter((ph, i, arr) => arr.indexOf(ph) === i);
             };
             const phoneGridClass = (count) => count <= 1
                 ? 'grid gap-6 max-w-sm mx-auto'
@@ -1660,6 +1795,15 @@ const { useState, useEffect, useRef } = React;
                                     ))}
                                 </div>
                             </div>
+                            <a href={REWARDS_URL} onClick={() => track('rewards_click', { source: 'confirmation' })}
+                                className="flex items-center gap-3 bg-brand-50 border border-brand-100 rounded-2xl p-4 mb-5">
+                                <i className="fas fa-gift text-brand-500 text-xl"></i>
+                                <span className="flex-1 text-left">
+                                    <span className="block font-bold text-gray-900 text-sm">Earn points on this — get your loyalty card</span>
+                                    <span className="block text-xs text-gray-500 font-medium">1 point per £1 · £7 off every 100 points</span>
+                                </span>
+                                <i className="fas fa-arrow-right text-brand-500 text-sm"></i>
+                            </a>
                             <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 text-center mb-5">
                                 <div className="font-bold text-gray-900 text-sm mb-0.5">Windsor Express</div>
                                 <p className="text-gray-500 text-xs font-medium">Queen Annes Court, 3 Peascod St, Windsor SL4 1DG</p>
@@ -1696,18 +1840,62 @@ const { useState, useEffect, useRef } = React;
                     <a href={`https://wa.me/447912150397?text=${waMsg}`} target="_blank" rel="noopener noreferrer" className="whatsapp-btn">
                         <i className="fab fa-whatsapp"></i>
                     </a>
-                    {/* Mobile bottom CTA */}
+                    {/* Mobile bottom bar — the only fixed bar on the homepage (site-common's call bar is skipped here) */}
                     <div className="mobile-cta-bar" style={{ display: 'none' }}>
-                        <button onClick={() => setView('booking')} className="flex-1 bg-brand-500 hover:bg-brand-600 text-white font-black py-3 rounded-xl text-xs transition-colors">
-                            <i className="fas fa-wrench mr-1"></i> Repair
-                        </button>
-                        <a href="/phones-for-sale-windsor.html" className="flex-1 bg-gray-900 hover:bg-black text-white font-black py-3 rounded-xl text-xs transition-colors text-center">
-                            <i className="fas fa-mobile-screen-button mr-1"></i> Buy Phone
+                        <a href={`tel:${SHOP_PHONE}`} aria-label="Call Windsor Express" className="mobile-cta-item bg-gray-100 text-gray-900">
+                            <i className="fas fa-phone"></i><span>Call</span>
                         </a>
-                        <button onClick={() => goSell('trade')} className="flex-1 bg-white border-2 border-gray-900 text-gray-900 font-black py-3 rounded-xl text-xs transition-colors">
-                            <i className="fas fa-arrows-rotate mr-1"></i> Trade-In
+                        <a href={`https://wa.me/447912150397?text=${waMsg}`} target="_blank" rel="noopener noreferrer" className="mobile-cta-item bg-[#25D366] text-white">
+                            <i className="fab fa-whatsapp"></i><span>WhatsApp</span>
+                        </a>
+                        <button onClick={() => { track('mobile_bar_click', { to: 'repair' }); resetForms(); setView('booking'); window.scrollTo(0, 0); }} className="mobile-cta-item bg-brand-500 text-white">
+                            <i className="fas fa-screwdriver-wrench"></i><span>Repair</span>
                         </button>
+                        <a href="/phones-for-sale-windsor.html" onClick={() => track('mobile_bar_click', { to: 'shop' })} className="mobile-cta-item bg-gray-900 text-white">
+                            <i className="fas fa-mobile-screen-button"></i><span>Buy Phone</span>
+                        </a>
                     </div>
+                    {/* Mobile menu sheet */}
+                    {menuOpen && (
+                        <div className="md:hidden fixed inset-0 z-[70] fade-in" role="dialog" aria-modal="true" aria-label="Menu">
+                            <div className="absolute inset-0 bg-black/50" onClick={() => setMenuOpen(false)}></div>
+                            <div className="absolute top-0 left-0 right-0 bg-white rounded-b-3xl shadow-2xl p-4 pb-5 max-h-[92vh] overflow-y-auto">
+                                <div className="flex items-center justify-between mb-3">
+                                    <span className="font-display text-2xl font-black tracking-tight">WINDSOR <span className="text-brand-500">EXPRESS</span></span>
+                                    <button onClick={() => setMenuOpen(false)} aria-label="Close menu" className="w-11 h-11 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center">
+                                        <i className="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <a href={REWARDS_URL} onClick={() => track('rewards_click', { source: 'mobile_menu' })}
+                                    className="flex items-center gap-3 bg-brand-500 text-white rounded-2xl p-4 mb-3">
+                                    <i className="fas fa-gift text-2xl"></i>
+                                    <span className="flex-1">
+                                        <span className="block font-black">Rewards — get your loyalty card</span>
+                                        <span className="block text-xs text-white/80 font-medium">1 point per £1 · £7 off every 100 points</span>
+                                    </span>
+                                    <i className="fas fa-arrow-right"></i>
+                                </a>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {[
+                                        { icon: 'fa-screwdriver-wrench',   label: 'Book a Repair',    onClick: () => { setMenuOpen(false); resetForms(); setView('booking'); window.scrollTo(0, 0); } },
+                                        { icon: 'fa-gamepad',              label: 'Console Repair',   onClick: () => openConsole('', 'mobile_menu') },
+                                        { icon: 'fa-mobile-screen-button', label: 'Buy a Phone',      onClick: () => { window.location.href = '/phones-for-sale-windsor.html'; } },
+                                        { icon: 'fa-arrows-rotate',        label: 'Sell / Trade-In',  onClick: () => { setMenuOpen(false); goSell('cash'); } }
+                                    ].map(({ icon, label, onClick }) => (
+                                        <button key={label} onClick={onClick} className="flex items-center gap-2.5 border-2 border-gray-200 rounded-2xl p-3.5 text-left font-bold text-sm text-gray-900 min-h-[56px]">
+                                            <i className={`fas ${icon} text-brand-500 w-5 text-center`}></i>{label}
+                                        </button>
+                                    ))}
+                                </div>
+                                <div className="grid grid-cols-3 gap-2 mt-2">
+                                    <a href={`tel:${SHOP_PHONE}`} className="flex flex-col items-center gap-1 bg-gray-100 rounded-2xl py-3 text-xs font-bold text-gray-900"><i className="fas fa-phone text-brand-600"></i>Call</a>
+                                    <a href={`https://wa.me/447912150397?text=${waMsg}`} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-1 bg-gray-100 rounded-2xl py-3 text-xs font-bold text-gray-900"><i className="fab fa-whatsapp text-brand-600"></i>WhatsApp</a>
+                                    <a href={GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-1 bg-gray-100 rounded-2xl py-3 text-xs font-bold text-gray-900"><i className="fas fa-location-dot text-brand-600"></i>Directions</a>
+                                </div>
+                                <p className="text-center text-xs text-gray-400 font-medium mt-3">3 Peascod St, Windsor SL4 1DG · Mon–Sat 10–8 · Sun 10:30–7</p>
+                            </div>
+                        </div>
+                    )}
                     {/* Timed mobile offer banner */}
                     {showMobileOffer && view === 'home' && (
                         <div className="md:hidden fixed left-3 right-3 z-[60] slide-up-in" style={{ bottom: '84px' }}>
@@ -1755,18 +1943,16 @@ const { useState, useEffect, useRef } = React;
                     )}
                     {/* NAV */}
                     <nav className="glass sticky top-0 z-50 border-b border-gray-100 shadow-sm">
-                        <div className="max-w-7xl mx-auto px-4 flex justify-between h-16 md:h-20 items-center">
-                            <div onClick={goHome} className="flex items-center cursor-pointer group">
-                                <div className="w-9 h-9 bg-brand-500 rounded-lg flex items-center justify-center text-white mr-2.5 shadow group-hover:scale-105 transition-transform">
+                        <div className="max-w-7xl mx-auto px-3 md:px-4 flex justify-between h-14 md:h-20 items-center gap-2">
+                            <div onClick={goHome} className="flex items-center cursor-pointer group min-w-0">
+                                <div className="w-8 h-8 md:w-9 md:h-9 bg-brand-500 rounded-lg flex items-center justify-center text-white mr-2 md:mr-2.5 shadow group-hover:scale-105 transition-transform flex-shrink-0">
                                     <i className="fas fa-bolt text-sm"></i>
                                 </div>
-                                <span className="font-display text-2xl font-black tracking-tight">WINDSOR <span className="text-brand-500">EXPRESS</span></span>
+                                {/* Stacked wordmark on phones so Rewards + Book fit beside it without wrapping */}
+                                <span className="font-display text-[17px] leading-[0.92] sm:text-2xl sm:leading-none font-black tracking-tight whitespace-nowrap">WINDSOR<br className="sm:hidden" /><span className="hidden sm:inline"> </span><span className="text-brand-500">EXPRESS</span></span>
                             </div>
-                            <div className="flex items-center gap-2 md:gap-4">
-                                <a href={`tel:${SHOP_PHONE}`} aria-label="Call Windsor Express on 07912 150397" className="md:hidden flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-brand-600">
-                                    <i className="fas fa-phone text-sm"></i>
-                                </a>
-                                <a href={`tel:${SHOP_PHONE}`} className="hidden md:flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors">
+                            <div className="flex items-center gap-1.5 md:gap-4 flex-shrink-0">
+                                <a href={`tel:${SHOP_PHONE}`} className="hidden lg:flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors">
                                     <i className="fas fa-phone text-brand-500 text-xs"></i> 07912 150397
                                 </a>
                                 <a href="/phones-for-sale-windsor.html" className="hidden md:block text-gray-500 font-bold hover:text-gray-900 transition-colors text-sm px-3 py-2">
@@ -1775,11 +1961,22 @@ const { useState, useEffect, useRef } = React;
                                 <button onClick={() => goSell('cash')} className="hidden md:block text-gray-500 font-bold hover:text-gray-900 transition-colors text-sm px-3 py-2">
                                     Sell / Trade-In
                                 </button>
-                                <button onClick={() => setView('booking')}
-                                    className="bg-brand-500 hover:bg-brand-600 text-white font-black px-5 py-2.5 rounded-full shadow-lg transition-colors text-sm">
-                                    Book Repair
+                                <button onClick={() => openConsole('', 'nav')} className="hidden md:block text-gray-500 font-bold hover:text-gray-900 transition-colors text-sm px-3 py-2">
+                                    Console Repair
                                 </button>
-                                <a href="https://rewards.windsor-express.co.uk/join" className="hidden md:block text-brand-600 hover:text-brand-700 font-bold transition-colors text-sm">Rewards</a>
+                                {/* Loyalty: visible at every width (was desktop-only) */}
+                                <a href={REWARDS_URL} onClick={() => track('rewards_click', { source: 'nav' })} aria-label="Windsor Express Rewards loyalty card"
+                                    className="flex items-center gap-1.5 border-2 border-brand-500 text-brand-700 hover:bg-brand-50 font-black px-2.5 md:px-4 h-10 rounded-full transition-colors text-xs md:text-sm whitespace-nowrap">
+                                    <i className="fas fa-gift"></i> Rewards
+                                </a>
+                                <button onClick={() => { setView('booking'); window.scrollTo(0, 0); }}
+                                    className="bg-brand-500 hover:bg-brand-600 text-white font-black px-3.5 md:px-5 h-10 rounded-full shadow-lg transition-colors text-xs md:text-sm whitespace-nowrap">
+                                    Book<span className="hidden sm:inline"> Repair</span>
+                                </button>
+                                <button onClick={() => setMenuOpen(true)} aria-label="Open menu" aria-expanded={menuOpen}
+                                    className="md:hidden flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-gray-700 flex-shrink-0">
+                                    <i className="fas fa-bars"></i>
+                                </button>
                             </div>
                         </div>
                     </nav>
@@ -1795,36 +1992,38 @@ const { useState, useEffect, useRef } = React;
                     {view === 'home' && (
                         <main className="flex-1">
                             {/* HERO */}
-                            <section className="bg-white py-16 md:py-24 px-4 text-center relative overflow-hidden">
+                            <section className="bg-white pt-6 pb-10 md:py-24 px-4 text-center relative overflow-hidden">
                                 <div className="absolute inset-0 hero-dots opacity-[0.03]"></div>
                                 <div className="relative max-w-4xl mx-auto">
-                                    <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 text-sm font-bold px-4 py-2 rounded-full mb-8">
+                                    <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 text-xs md:text-sm font-bold px-3 md:px-4 py-1.5 md:py-2 rounded-full mb-4 md:mb-8">
                                         <span className="live-dot"></span>
                                         {shopOpenLabel()} · Peascod Street, Windsor
                                     </div>
-                                    <h1 className="font-display text-7xl md:text-8xl lg:text-[108px] font-black text-gray-900 leading-none mb-5">
-                                        <span className="block font-sans text-sm md:text-base font-bold text-brand-600 tracking-[0.25em] uppercase mb-4">Phone Repair in Windsor</span>
+                                    <h1 className="font-display text-[56px] sm:text-7xl md:text-8xl lg:text-[108px] font-black text-gray-900 leading-[0.95] md:leading-none mb-3 md:mb-5">
+                                        <span className="block font-sans text-xs md:text-base font-bold text-brand-600 tracking-[0.2em] md:tracking-[0.25em] uppercase mb-2 md:mb-4">Phone Repair in Windsor</span>
                                         Drop it?<br/>
                                         <span className="text-brand-500">We fix it.</span>
                                     </h1>
-                                    <p className="text-gray-500 text-lg md:text-xl font-medium mb-10 max-w-2xl mx-auto leading-relaxed">
+                                    <p className="text-gray-500 text-[15px] md:text-xl font-medium mb-5 md:mb-10 max-w-2xl mx-auto leading-snug md:leading-relaxed">
                                         Screens fixed in <strong className="text-gray-800">under 30 minutes</strong> on Peascod Street — plus <strong className="text-gray-800">quality used phones to buy</strong>, and <strong className="text-gray-800">cash or trade-in credit</strong> for your old device.
                                     </p>
-                                    {/* THREE PATHS — repair / buy / sell-trade */}
-                                    <div className="grid sm:grid-cols-3 gap-4 max-w-3xl mx-auto mb-12 text-left">
+                                    {/* FOUR PATHS — phone repair / console / buy / sell-trade. 2×2 on phones so the booking form stays near the top. */}
+                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 max-w-4xl mx-auto mb-6 md:mb-12 text-left">
                                         {[
-                                            { icon: 'fa-screwdriver-wrench',   title: 'Repair My Device',  sub: 'Screens from £39.99 · fixed in ~30 min',          cta: 'Book below ↓',
+                                            { icon: 'fa-screwdriver-wrench',   title: 'Repair My Phone',   sub: 'Screens from £39.99 · ~30 min',            cta: 'Book below ↓',
                                               onClick: () => { track('hero_path_click', { path: 'repair' }); const el = document.getElementById('repair-funnel'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } },
-                                            { icon: 'fa-mobile-screen-button', title: 'Buy a Used Phone',  sub: 'Refurbished & unlocked · 3-year warranty',       cta: 'Shop phones →',
+                                            { icon: 'fa-gamepad',              title: 'Console Repair',    sub: 'HDMI · overheating · PS5 liquid metal',     cta: GTA6_OUT ? 'Book a service →' : 'Get GTA 6 ready →', dark: true,
+                                              onClick: () => { track('hero_path_click', { path: 'console' }); openConsole('', 'hero'); } },
+                                            { icon: 'fa-mobile-screen-button', title: 'Buy a Used Phone',  sub: 'Unlocked · 3-year warranty',                cta: 'Shop phones →',
                                               onClick: () => { track('hero_path_click', { path: 'buy' }); window.location.href = '/phones-for-sale-windsor.html'; } },
-                                            { icon: 'fa-arrows-rotate',        title: 'Sell or Trade In',  sub: 'Instant cash, or money off any phone we sell',    cta: 'Get a quote →',
+                                            { icon: 'fa-arrows-rotate',        title: 'Sell or Trade In',  sub: 'Instant cash or money off',                 cta: 'Get a quote →',
                                               onClick: () => { track('hero_path_click', { path: 'sell' }); goSell('cash'); } }
-                                        ].map(({ icon, title, sub, cta, onClick }, i) => (
-                                            <div key={i} onClick={onClick} className="funnel-card card-shine border-gray-200 bg-white rounded-2xl p-5">
-                                                <i className={`fas ${icon} text-2xl text-brand-500 mb-3 block`}></i>
-                                                <div className="font-display text-2xl font-black text-gray-900 leading-tight">{title}</div>
-                                                <div className="text-gray-400 text-sm font-medium mt-1">{sub}</div>
-                                                <div className="text-brand-600 font-bold text-sm mt-3">{cta}</div>
+                                        ].map(({ icon, title, sub, cta, onClick, dark }, i) => (
+                                            <div key={i} onClick={onClick} role="button" className={`funnel-card card-shine rounded-2xl p-3.5 sm:p-5 ${dark ? 'border-gray-900 bg-gray-900' : 'border-gray-200 bg-white'}`}>
+                                                <i className={`fas ${icon} text-xl sm:text-2xl mb-2 sm:mb-3 block ${dark ? 'text-brand-400' : 'text-brand-500'}`}></i>
+                                                <div className={`font-display text-xl sm:text-2xl font-black leading-tight ${dark ? 'text-white' : 'text-gray-900'}`}>{title}</div>
+                                                <div className="text-gray-400 text-xs sm:text-sm font-medium mt-1 leading-snug">{sub}</div>
+                                                <div className={`font-bold text-xs sm:text-sm mt-2 sm:mt-3 ${dark ? 'text-brand-400' : 'text-brand-600'}`}>{cta}</div>
                                             </div>
                                         ))}
                                     </div>
@@ -1837,13 +2036,49 @@ const { useState, useEffect, useRef } = React;
                                     </div>
                                 </div>
                             </section>
+                            {/* CONSOLE SERVICES — HDMI repair, maintenance, PS5 liquid metal */}
+                            <section className="bg-gray-900 py-10 md:py-16 px-4" aria-labelledby="console-services-title">
+                                <div className="max-w-5xl mx-auto">
+                                    <div className="text-center mb-6 md:mb-10">
+                                        <div className="inline-flex items-center gap-2 bg-brand-500 text-white text-[11px] md:text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-full mb-3">
+                                            <i className="fas fa-gamepad"></i> {GTA6_OUT ? 'GTA 6 is out now' : 'GTA 6 launches 19 November'}
+                                        </div>
+                                        <h2 id="console-services-title" className="font-display text-4xl md:text-6xl font-black text-white leading-none mb-2">
+                                            {GTA6_OUT ? 'Console struggling with GTA 6?' : 'Is your console ready?'}
+                                        </h2>
+                                        <p className="text-gray-400 font-medium max-w-xl mx-auto text-sm md:text-base">
+                                            A dusty, hot or flaky PS5 or Xbox is the one that shuts down mid-mission. Free diagnostic, fixed quote before any work, 12-month warranty on repairs.
+                                        </p>
+                                    </div>
+                                    <div className="grid md:grid-cols-3 gap-3 md:gap-4">
+                                        {[
+                                            { key: 'hdmi',         icon: 'fa-tv',                     title: 'HDMI Port Repair',         body: 'No signal or a black screen? Damaged HDMI ports on PS5 and Xbox replaced and tested.' },
+                                            { key: 'maintenance',  icon: 'fa-fan',                    title: 'Maintenance Service',      body: 'Full strip-down, dust cleared from fan and heatsink, fresh thermal paste, ports checked.' },
+                                            { key: 'liquid-metal', icon: 'fa-temperature-arrow-down', title: 'PS5 Liquid Metal Service', body: 'Overheating or jet-engine fan? We clean, re-apply and re-seal the liquid metal on the chip.' }
+                                        ].map(({ key, icon, title, body }) => (
+                                            <button type="button" key={key} onClick={() => openConsole(key, 'home_section')}
+                                                className="funnel-card card-shine text-left bg-white/5 border-white/10 rounded-2xl p-4 md:p-6 flex md:block items-start gap-3.5">
+                                                <i className={`fas ${icon} text-2xl md:text-3xl text-brand-400 md:mb-4 md:block w-8 md:w-auto text-center md:text-left flex-shrink-0 mt-0.5 md:mt-0`}></i>
+                                                <span className="block flex-1">
+                                                    <span className="block font-display text-2xl font-black text-white leading-tight">{title}</span>
+                                                    <span className="block text-gray-400 text-sm font-medium mt-1 leading-snug">{body}</span>
+                                                    <span className="block text-brand-400 font-bold text-sm mt-2 md:mt-4">Book free diagnostic →</span>
+                                                </span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <p className="text-center text-xs text-gray-500 font-medium mt-5">
+                                        Also disc drives, power faults and controller drift · <a href="/console-repair-windsor.html" className="text-brand-400 font-bold underline underline-offset-2">all console repairs</a> · Not affiliated with Rockstar Games, Sony or Microsoft.
+                                    </p>
+                                </div>
+                            </section>
                             <StatsBar />
                             <ServicesTicker />
                             <HowItWorks />
                             {/* BUY A PHONE */}
-                            <section className="py-16 bg-white border-t border-gray-100 px-4">
+                            <section className="py-10 md:py-16 bg-white border-t border-gray-100 px-4">
                                 <div className="max-w-6xl mx-auto">
-                                    <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
+                                    <div className="flex items-end justify-between mb-5 md:mb-8 flex-wrap gap-3 md:gap-4">
                                         <div>
                                             <div className="text-brand-500 font-bold text-xs uppercase tracking-widest mb-2">📱 In Stock Now</div>
                                             <h2 className="font-display text-4xl md:text-5xl font-black text-gray-900">Phones For Sale</h2>
@@ -1865,13 +2100,13 @@ const { useState, useEffect, useRef } = React;
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className={phoneGridClass(Math.min(phones.length, 3))}>
-                                            {phones.slice(0, 3).map(ph => (
+                                        <div className="phone-rail flex md:grid md:grid-cols-3 gap-3 md:gap-6 overflow-x-auto md:overflow-visible snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0 pb-3 md:pb-0">
+                                            {featuredPhones(phones).map(ph => (
                                                 <button type="button" key={ph.id}
                                                     aria-label={`View ${ph.name}${ph.storage ? ` ${ph.storage}` : ''} for ${gbp(phonePricingFor(ph).current)}`}
-                                                    className="funnel-card group w-full text-left border-gray-200 bg-white rounded-3xl overflow-hidden flex flex-col"
+                                                    className="funnel-card group text-left border-gray-200 bg-white rounded-3xl overflow-hidden flex flex-col snap-start flex-shrink-0 w-[76%] sm:w-[46%] md:w-full"
                                                     onClick={() => openBuy(ph)}>
-                                                    <div className="h-64 bg-gradient-to-b from-gray-50 to-white flex items-center justify-center overflow-hidden relative border-b border-gray-100">
+                                                    <div className="h-44 md:h-64 bg-gradient-to-b from-gray-50 to-white flex items-center justify-center overflow-hidden relative border-b border-gray-100">
                                                         <PhoneImage phone={ph} />
                                                         {phonePricingFor(ph).onSale && (
                                                             <span className="absolute top-3 left-3 bg-red-600 text-white text-[10px] font-black uppercase tracking-wide px-3 py-1.5 rounded-full shadow-lg">
@@ -1904,10 +2139,21 @@ const { useState, useEffect, useRef } = React;
                                             ))}
                                         </div>
                                     )}
+                                    {phones.length > 1 && <p className="md:hidden text-center text-xs font-bold text-gray-400 mt-1">Swipe for more · <a href="/phones-for-sale-windsor.html" className="text-brand-600 underline underline-offset-2">see all {phones.length} in stock</a></p>}
+                                    {/* LOYALTY */}
+                                    <a href={REWARDS_URL} onClick={() => track('rewards_click', { source: 'home_banner' })}
+                                        className="mt-8 md:mt-12 flex flex-wrap items-center gap-3 md:gap-5 bg-brand-50 border-2 border-brand-100 hover:border-brand-500 transition-colors rounded-3xl p-4 md:p-6">
+                                        <span className="w-12 h-12 bg-brand-500 rounded-2xl text-white flex items-center justify-center text-xl flex-shrink-0"><i className="fas fa-gift"></i></span>
+                                        <span className="flex-1 min-w-[180px]">
+                                            <span className="block font-display text-2xl md:text-3xl font-black text-gray-900 leading-tight">Windsor Express Rewards</span>
+                                            <span className="block text-sm text-gray-500 font-medium">A loyalty card on your phone. 1 point for every £1 you spend, £7 off every 100 points.</span>
+                                        </span>
+                                        <span className="bg-brand-500 text-white font-black px-5 py-3 rounded-xl text-sm whitespace-nowrap w-full sm:w-auto text-center">Get my loyalty card →</span>
+                                    </a>
                                 </div>
                             </section>
                             {/* SELL / TRADE-IN BANNER */}
-                            <section className="py-16 bg-gray-50 px-4">
+                            <section className="py-10 md:py-16 bg-gray-50 px-4">
                                 <div className="max-w-5xl mx-auto">
                                     <div className="bg-gray-900 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden shadow-xl">
                                         <div className="absolute top-0 right-0 w-96 h-96 opacity-[0.06]"
@@ -1931,7 +2177,7 @@ const { useState, useEffect, useRef } = React;
                                 </div>
                             </section>
                             {/* AGE-RESTRICTED IN-STORE PRODUCTS */}
-                            <section className="py-16 bg-white border-t border-gray-100 px-4">
+                            <section className="py-10 md:py-16 bg-white border-t border-gray-100 px-4">
                                 <div className="max-w-5xl mx-auto">
                                     <div className="text-center mb-10">
                                         <div className="inline-flex items-center gap-2 bg-gray-900 text-white text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-4">
@@ -1959,7 +2205,7 @@ const { useState, useEffect, useRef } = React;
                                 </div>
                             </section>
                             {/* REVIEWS */}
-                            <section className="py-16 bg-gray-50 border-t border-gray-100 px-4">
+                            <section className="py-10 md:py-16 bg-gray-50 border-t border-gray-100 px-4">
                                 <div className="max-w-7xl mx-auto">
                                     <div className="text-center mb-10">
                                         <h2 className="font-display text-4xl md:text-5xl font-black text-gray-900 mb-2">Trusted by Windsor</h2>
@@ -1999,7 +2245,7 @@ const { useState, useEffect, useRef } = React;
                             </section>
                             <FAQSection />
                             {/* LOCAL SEO CONTENT */}
-                            <section className="py-16 bg-gray-50 border-t border-gray-100 px-4">
+                            <section className="py-10 md:py-16 bg-gray-50 border-t border-gray-100 px-4">
                                 <div className="max-w-4xl mx-auto">
                                     <h2 className="font-display text-4xl md:text-5xl font-black text-gray-900 mb-8 text-center">Windsor's Device Repair & Used Phone Experts</h2>
                                     <div className="grid md:grid-cols-2 gap-x-10 gap-y-8 text-gray-500 text-sm font-medium leading-relaxed">
@@ -2009,7 +2255,7 @@ const { useState, useEffect, useRef } = React;
                                         </div>
                                         <div>
                                             <h3 className="font-display text-2xl font-bold text-gray-800 mb-2">iPad, tablet & games console repair</h3>
-                                            <p>We don't just fix phones. Bring us your iPad or Android tablet for screen and battery replacement, or your PlayStation, Xbox or Nintendo Switch for HDMI port repairs, overheating fixes, drive faults and controller drift. Laptops and other devices are welcome too — drop in for a free, no-obligation diagnostic and an honest quote before any work starts.</p>
+                                            <p>We don't just fix phones. Bring us your iPad or Android tablet for screen and battery replacement, or your PlayStation, Xbox or Nintendo Switch for <a href="/ps5-hdmi-repair-windsor.html" className="text-brand-600 font-bold underline underline-offset-2">HDMI port repairs</a>, a deep-clean maintenance service, <a href="/ps5-liquid-metal-service-windsor.html" className="text-brand-600 font-bold underline underline-offset-2">PS5 liquid metal servicing</a>, drive faults and controller drift. Laptops and other devices are welcome too — drop in for a free, no-obligation diagnostic and an honest quote before any work starts.</p>
                                         </div>
                                         <div>
                                             <h3 className="font-display text-2xl font-bold text-gray-800 mb-2">Buy refurbished phones with warranty</h3>
@@ -2023,7 +2269,7 @@ const { useState, useEffect, useRef } = React;
                                 </div>
                             </section>
                             {/* MAP + SHOPFRONT */}
-                            <section className="py-16 bg-gray-50 border-t border-gray-100 px-4">
+                            <section className="py-10 md:py-16 bg-gray-50 border-t border-gray-100 px-4">
                                 <div className="max-w-6xl mx-auto">
                                     <div className="text-center mb-8">
                                         <h2 className="font-display text-4xl md:text-5xl font-black text-gray-900 mb-2">Find Us</h2>
@@ -2053,27 +2299,27 @@ const { useState, useEffect, useRef } = React;
                         </main>
                     )}
                     {view === 'booking' && (
-                        <main className="py-12 bg-gray-50 flex-1 px-4">
+                        <main className="py-5 md:py-12 bg-gray-50 flex-1 px-3 md:px-4">
                             <div className="max-w-7xl mx-auto">{renderFunnel()}</div>
                         </main>
                     )}
                     {view === 'sell' && (
-                        <main className="py-12 bg-gray-50 flex-1 px-4">
+                        <main className="py-5 md:py-12 bg-gray-50 flex-1 px-3 md:px-4">
                             <div className="max-w-7xl mx-auto">{renderSellPage()}</div>
                         </main>
                     )}
                     {view === 'shop' && (
-                        <main className="py-12 bg-gray-50 flex-1 px-4">
+                        <main className="py-5 md:py-12 bg-gray-50 flex-1 px-3 md:px-4">
                             <div className="max-w-7xl mx-auto">{renderShop()}</div>
                         </main>
                     )}
                     {view === 'checkout' && (
-                        <main className="py-12 bg-gray-50 flex-1 px-4">
+                        <main className="py-5 md:py-12 bg-gray-50 flex-1 px-3 md:px-4">
                             <div className="max-w-7xl mx-auto">{renderCheckout()}</div>
                         </main>
                     )}
                     {view === 'confirmed' && (
-                        <main className="py-12 bg-gray-50 flex-1 px-4">
+                        <main className="py-5 md:py-12 bg-gray-50 flex-1 px-3 md:px-4">
                             <div className="max-w-7xl mx-auto">{renderConfirmation()}</div>
                         </main>
                     )}
@@ -2093,6 +2339,9 @@ const { useState, useEffect, useRef } = React;
                                 <a href={`tel:${SHOP_PHONE}`} className="text-white font-bold hover:text-brand-400 transition-colors flex items-center gap-2 text-sm">
                                     <i className="fas fa-phone text-brand-500 text-xs"></i> 07912 150397
                                 </a>
+                                <a href={REWARDS_URL} onClick={() => track('rewards_click', { source: 'footer' })} className="text-white font-bold hover:text-brand-400 transition-colors flex items-center gap-2 text-sm mt-3">
+                                    <i className="fas fa-gift text-brand-500 text-xs"></i> Rewards — get your loyalty card
+                                </a>
                             </div>
                             <div>
                                 <h3 className="font-bold text-xs uppercase tracking-widest text-gray-500 mb-4">Opening Hours</h3>
@@ -2104,7 +2353,7 @@ const { useState, useEffect, useRef } = React;
                         </div>
                         <div className="max-w-7xl mx-auto px-4 border-t border-gray-800 pt-8 text-center text-gray-600 text-xs font-medium leading-relaxed">
                             <p className="mb-2">
-                                <strong className="text-gray-500">Services:</strong> <a href="/iphone-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">iPhone Repair Windsor</a> · <a href="/samsung-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Samsung Repair</a> · <a href="/ipad-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">iPad &amp; Tablet Repair</a> · <a href="/console-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Games Console Repair</a> · Water Damage · Charging Port Fix · <a href="/phones-for-sale-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Buy Refurbished Phones</a> · <a href="/sell-my-phone-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Sell My Phone for Cash</a> · Device Trade-In
+                                <strong className="text-gray-500">Services:</strong> <a href="/iphone-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">iPhone Repair Windsor</a> · <a href="/samsung-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Samsung Repair</a> · <a href="/ipad-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">iPad &amp; Tablet Repair</a> · <a href="/console-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Games Console Repair</a> · <a href="/ps5-hdmi-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">PS5 HDMI Repair</a> · <a href="/ps5-liquid-metal-service-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">PS5 Liquid Metal Service</a> · Water Damage · Charging Port Fix · <a href="/phones-for-sale-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Buy Refurbished Phones</a> · <a href="/sell-my-phone-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Sell My Phone for Cash</a> · Device Trade-In
                             </p>
                             <p className="mb-4">
                                 <strong className="text-gray-500">Areas Served:</strong> Windsor SL4 · <a href="/phone-repair-eton.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Eton</a> · <a href="/phone-repair-slough.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Slough</a> · <a href="/phone-repair-maidenhead.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Maidenhead</a> · <a href="/phone-repair-ascot.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Ascot</a> · <a href="/phone-repair-staines.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Staines</a> · <a href="/phone-repair-egham.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Egham</a> · <a href="/phone-repair-datchet.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Datchet &amp; Old Windsor</a> · <a href="/areas-we-cover.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors font-bold">All areas →</a>

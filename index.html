@@ -41,13 +41,13 @@
     <meta name="twitter:title" content="Phone, Tablet & Console Repair in Windsor | Windsor Express">
     <meta name="twitter:description" content="Fast iPhone, Samsung, iPad, tablet & console repair in Windsor. Buy refurbished phones, trade in or sell yours for instant cash. 12-month warranty, no fix no fee.">
     <meta name="twitter:image" content="https://www.windsor-express.co.uk/og-image.jpg">
-    <link rel="stylesheet" href="/site.css?v=20260724-2">
-    <link rel="stylesheet" href="/site-common.css?v=20261105">
+    <link rel="stylesheet" href="/site.css?v=20261110">
+    <link rel="stylesheet" href="/site-common.css?v=20261110">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js" defer></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" defer></script>
     <!-- Supabase JS client (database) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-    <script src="/site-common.js?v=20261105" defer></script>
+    <script src="/site-common.js?v=20261110" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- ============ STRUCTURED DATA: Local Business ============ -->
@@ -214,6 +214,30 @@
         "@type": "Offer",
         "itemOffered": {
           "@type": "Service",
+          "name": "PS5 & Xbox HDMI Port Repair",
+          "url": "https://www.windsor-express.co.uk/ps5-hdmi-repair-windsor.html"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Console Maintenance Service (Deep Clean & Thermal Paste)",
+          "url": "https://www.windsor-express.co.uk/console-repair-windsor.html#maintenance"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "PS5 Liquid Metal Service",
+          "url": "https://www.windsor-express.co.uk/ps5-liquid-metal-service-windsor.html"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
           "name": "Charging Port Repair"
         }
       },
@@ -359,6 +383,7 @@
         { "@type": "Question", "name": "How much does an iPhone screen repair cost in Windsor?", "acceptedAnswer": { "@type": "Answer", "text": "iPhone screen repairs at Windsor Express start at £39.99, depending on the model and the screen quality you choose. You'll see the exact price for your model when you book online, and every screen comes with our 12-month warranty." } },
         { "@type": "Question", "name": "Where can I find you in Windsor?", "acceptedAnswer": { "@type": "Answer", "text": "We're at Queen Annes Court, 3 Peascod Street, Windsor SL4 1DG — right in the town centre, a two-minute walk from Windsor Castle. Open seven days a week, no appointment needed." } },
         { "@type": "Question", "name": "What payment methods do you accept?", "acceptedAnswer": { "@type": "Answer", "text": "Pay online by card at checkout, or pay in store with cash, all major credit and debit cards, Apple Pay and Google Pay." } },
+        { "@type": "Question", "name": "Do you repair PS5 and Xbox consoles?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. We repair HDMI ports, fix overheating with a full clean and fresh thermal paste, service the liquid metal on PS5 consoles, and sort disc drive, power and controller drift faults. The diagnostic is free and you get a fixed quote before any work starts." } },
         { "@type": "Question", "name": "Do you repair water-damaged phones?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Drop in or book online for a free diagnostic. We have a strong success rate with water damage, especially if you act quickly. Don't charge it first." } }
       ]
     }
@@ -453,15 +478,25 @@
             display: none;
             position: fixed; bottom: 0; left: 0; right: 0;
             background: white; border-top: 1px solid #e2e8f0;
-            padding: 10px 14px; z-index: 48;
+            padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); z-index: 48;
             box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-            gap: 8px;
+            gap: 6px;
         }
-        @media (max-width: 768px) {
+        .mobile-cta-item {
+            flex: 1 1 0; min-width: 0; min-height: 50px; border-radius: 12px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+            font-weight: 800; font-size: 11px; line-height: 1; text-decoration: none; white-space: nowrap;
+        }
+        .mobile-cta-item i { font-size: 16px; }
+        @media (max-width: 767px) {
             .mobile-cta-bar { display: flex !important; }
-            .whatsapp-btn { bottom: 88px; }
-            body { padding-bottom: 72px; }
+            /* WhatsApp lives in the bottom bar on phones, so the floating bubble would only cover content */
+            .whatsapp-btn { display: none; }
+            body { padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
         }
+        /* Swipeable phone rail on the homepage */
+        .phone-rail { scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-padding-left: 16px; }
+        .phone-rail::-webkit-scrollbar { display: none; }
         /* Review card */
         .review-card { transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.2s cubic-bezier(0.23, 1, 0.32, 1); }
         @media (hover: hover) and (pointer: fine) {
@@ -498,18 +533,19 @@
                 <li><a href="/iphone-repair-windsor.html" style="color:#059669;font-weight:700">iPhone screen repair &amp; battery replacement</a> — from £39.99</li>
                 <li><a href="/samsung-repair-windsor.html" style="color:#059669;font-weight:700">Samsung &amp; Android phone repairs</a></li>
                 <li><a href="/ipad-repair-windsor.html" style="color:#059669;font-weight:700">iPad &amp; tablet repairs</a></li>
-                <li><a href="/console-repair-windsor.html" style="color:#059669;font-weight:700">PlayStation, Xbox &amp; Nintendo Switch console repairs</a></li>
+                <li><a href="/console-repair-windsor.html" style="color:#059669;font-weight:700">PlayStation, Xbox &amp; Nintendo Switch console repairs</a> — <a href="/ps5-hdmi-repair-windsor.html" style="color:#059669">HDMI port repair</a>, deep-clean maintenance service and <a href="/ps5-liquid-metal-service-windsor.html" style="color:#059669">PS5 liquid metal service</a></li>
                 <li>Charging port, camera, speaker &amp; water damage repairs</li>
                 <li><a href="/phones-for-sale-windsor.html" style="color:#059669;font-weight:700">Refurbished phones for sale</a> with a 3-year warranty · trade-ins · <a href="/sell-my-phone-windsor.html" style="color:#059669;font-weight:700">cash for old phones</a></li>
                 <li>Mail-in repair service across the UK</li>
             </ul>
             <p style="margin:0 0 14px;color:#64748b">Guides: <a href="/screen-quality-windsor.html" style="color:#059669">screen quality compared</a> · <a href="/oem-parts-windsor.html" style="color:#059669">genuine &amp; OEM parts</a> · <a href="/where-to-repair-your-phone-in-windsor.html" style="color:#059669">where to repair your phone in Windsor</a> · <a href="/shop-in-windsor.html" style="color:#059669">the shop on Peascod Street</a> · <a href="/phones/" style="color:#059669">all phones in stock</a></p>
+            <p style="margin:0 0 14px"><a href="https://rewards.windsor-express.co.uk/join" style="color:#059669;font-weight:700">Windsor Express Rewards</a> — get a loyalty card on your phone: 1 point per £1, £7 off every 100 points.</p>
             <p style="margin:0 0 14px"><strong>Windsor Express</strong><br>Queen Annes Court, 3 Peascod St, Windsor SL4 1DG<br><a href="tel:+447912150397" style="color:#059669;font-weight:700">07912 150397</a> · Mon–Sat 10am–8pm · Sun 10:30am–7pm</p>
             <p style="margin:0 0 10px;color:#64748b">Serving Windsor and the whole area: <a href="/phone-repair-slough.html" style="color:#059669">phone repair for Slough</a>, <a href="/phone-repair-maidenhead.html" style="color:#059669">Maidenhead</a>, <a href="/phone-repair-eton.html" style="color:#059669">Eton</a>, <a href="/phone-repair-ascot.html" style="color:#059669">Ascot &amp; Sunningdale</a>, <a href="/phone-repair-staines.html" style="color:#059669">Staines-upon-Thames</a>, <a href="/phone-repair-egham.html" style="color:#059669">Egham &amp; Virginia Water</a> and <a href="/phone-repair-datchet.html" style="color:#059669">Datchet, Old Windsor &amp; Wraysbury</a> — see <a href="/areas-we-cover.html" style="color:#059669;font-weight:700">all areas we cover</a>.</p>
             <p style="margin:0;color:#64748b">Loading the booking system…</p>
         </div>
     </div>
-    <script src="/app.js?v=20261105" defer></script>
+    <script src="/app.js?v=20261110" defer></script>
 
 </body>
 </html>
