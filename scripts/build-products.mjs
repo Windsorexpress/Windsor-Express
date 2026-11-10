@@ -409,6 +409,25 @@ function hubPage(phones) {
 ${footer}`;
 }
 
+// --- crawlable stock list on the shop page -------------------------------
+// phones-for-sale-windsor.html is linked from every page on the site, but its
+// grid is filled by JavaScript, so before this its raw HTML had no product
+// links at all. Writing the list in here gives crawlers a path to every phone.
+function updateShopPage(phones) {
+  const file = path.join(root, "phones-for-sale-windsor.html");
+  const html = fs.readFileSync(file, "utf8");
+  const live = phones.filter(inStock);
+  const list = live.length
+    ? `<ul class="other-list static-stock" style="text-align:left;max-width:620px;margin:22px auto 0">
+          ${live.map((p) => `<li><a href="/phones/${slugFor(p)}/">${escapeHtml(titleFor(p))}</a> — ${money(pricingFor(p).current)}${p.condition ? ` · ${escapeHtml(p.condition)}` : ""}</li>`).join("\n          ")}
+        </ul>
+        <p style="margin-top:14px"><a href="/phones/">All phones in stock →</a></p>`
+    : `<p><a href="/phones/">All phones in stock →</a></p>`;
+  const next = html.replace(/<!-- stock:start -->[\s\S]*?<!-- stock:end -->/, `<!-- stock:start -->\n        ${list}\n        <!-- stock:end -->`);
+  if (next === html && !html.includes("<!-- stock:start -->")) throw new Error("stock markers missing from phones-for-sale-windsor.html");
+  return writeIfChanged(file, next);
+}
+
 // --- sitemap -----------------------------------------------------------
 
 function generatedLastmods(xml) {
@@ -504,6 +523,9 @@ for (const phone of phones) {
 const hubUrl = `${SITE}/phones/`;
 if (writeIfChanged(path.join(outDir, "index.html"), hubPage(phones))) {
   changedGeneratedUrls.add(hubUrl);
+}
+if (updateShopPage(phones)) {
+  changedGeneratedUrls.add(`${SITE}/phones-for-sale-windsor.html`);
 }
 const sitemapCount = updateSitemap(phones, changedGeneratedUrls);
 
