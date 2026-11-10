@@ -97,7 +97,7 @@
 @media (max-width: 767px) {
   .we-callbar {
     position: fixed; z-index: 900; left: 0; right: 0; bottom: 0;
-    display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 6px;
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px;
     padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
     background: #ffffff; border-top: 1px solid #e5e7eb;
     box-shadow: 0 -4px 16px rgba(0,0,0,.08);
@@ -105,12 +105,13 @@
   }
   .we-callbar a {
     display: flex; align-items: center; justify-content: center;
-    min-height: 48px; border-radius: 12px; font-weight: 800; font-size: 14px;
+    min-height: 48px; border-radius: 12px; font-weight: 800; font-size: 13px;
     text-decoration: none; text-align: center; line-height: 1.1;
   }
   .we-callbar-call { background: #10b981; color: #fff; }
   .we-callbar-wa { background: #25D366; color: #fff; }
   .we-callbar-map { background: #f3f4f6; color: #111827; }
+  .we-callbar-rewards { background: #ecfdf5; color: #047857; border: 2px solid #10b981; }
   body.we-has-callbar { padding-bottom: 72px; }
 }
 
@@ -140,3 +141,38 @@
 }
 .we-findus a:hover, .we-findus a:focus-visible { background: #a7f3d0; }
 .we-findus-pin { font-size: 15px; }
+
+.we-findus-short { display: none; }
+@media (max-width: 767px) {
+  .we-findus { flex-wrap: nowrap; justify-content: space-between; gap: 8px; padding: 7px 12px; font-size: 12px; line-height: 1.35; text-align: left; }
+  .we-findus-long, .we-findus-pin { display: none; }
+  .we-findus-short { display: inline; }
+}
+
+/* Loyalty link injected into static-page headers (see site-common.js) */
+.we-rewards-link {
+  display: inline-flex; align-items: center; margin-left: auto; margin-right: 10px;
+  padding: 8px 14px; border: 2px solid #10b981; border-radius: 999px;
+  color: #047857; background: #fff; font: 800 14px/1 "DM Sans", system-ui, sans-serif;
+  text-decoration: none; white-space: nowrap;
+}
+.we-rewards-link:hover, .we-rewards-link:focus-visible { background: #ecfdf5; }
+.navlinks .we-rewards-link { margin: 0; }
+@media (max-width: 767px) {
+  /* On phones Rewards sits in the bottom bar instead, where there is room for it */
+  header .nav > .we-rewards-link { display: none; }
+}
+
+/* Phone product pages: Buy / WhatsApp / Rewards */
+@media (max-width: 767px) {
+  .we-callbar.we-callbar-buy { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr); }
+  .we-callbar-buy .we-callbar-call { font-size: 15px; }
+}
+/* Shop pages hide their text nav links on phones; keep Rewards visible there */
+@media (max-width: 600px) {
+  header .navlinks { gap: 8px !important; }
+  header .navlinks .we-rewards-link { display: inline-flex !important; padding: 7px 9px; font-size: 12px; }
+}
+@media (max-width: 379px) {
+  header .navlinks .we-rw-label { display: none; }
+}
