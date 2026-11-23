@@ -111,7 +111,9 @@
     bar.innerHTML =
       '<a class="we-callbar-call" href="tel:+447912150397" data-track="call_click" aria-label="Call Windsor Express on 07912 150397">Call us</a>' +
       '<a class="we-callbar-wa" href="https://wa.me/447912150397" target="_blank" rel="noopener" data-track="whatsapp_click">WhatsApp</a>' +
-      '<a class="we-callbar-map" href="https://www.google.com/maps/dir/?api=1&amp;destination=Windsor%20Express%2C%203%20Peascod%20St%2C%20Windsor%20SL4%201DG" target="_blank" rel="noopener" data-track="directions_click">Directions</a>' +
+      (SHOP_CLOSED
+        ? '<a class="we-callbar-map" href="' + MAIL_IN_URL + '" data-track="mailin_bar_click">Post-in repair</a>'
+        : '<a class="we-callbar-map" href="https://www.google.com/maps/dir/?api=1&amp;destination=Windsor%20Express%2C%203%20Peascod%20St%2C%20Windsor%20SL4%201DG" target="_blank" rel="noopener" data-track="directions_click">Directions</a>') +
       '<a class="we-callbar-rewards" href="' + REWARDS_URL + '" data-track="rewards_click">Rewards</a>';
     document.body.appendChild(bar);
     document.body.classList.add("we-has-callbar");
@@ -134,28 +136,30 @@
     else if (cta) cta.parentNode.insertBefore(link, cta);
   }
 
-  // "Find us" notice while the shop's outside signs are down. Customers arriving
-  // from Google Maps look for a fascia that isn't there, so tell them what to
-  // look for instead. Set SHOW_FIND_US_NOTICE to false once the new shopfront
-  // signs are up.
-  var SHOW_FIND_US_NOTICE = true;
-  var FIND_US_SKIP = /\/(admin|connection-test)\.html$/;
-  function addFindUsNotice() {
-    if (!SHOW_FIND_US_NOTICE || FIND_US_SKIP.test(window.location.pathname)) return;
+  // Temporary closure notice (Nov 2026). The Peascod Street shop is closed
+  // while a lease issue is sorted out; repairs carry on by post. Set
+  // SHOP_CLOSED to false when the shop reopens (and the same flag in
+  // src/app.jsx and scripts/product-data.mjs).
+  var SHOP_CLOSED = true;
+  var MAIL_IN_URL = "/mail-in-phone-repair.html";
+  var NOTICE_SKIP = /\/(admin|connection-test)\.html$/;
+  function addClosureNotice() {
+    if (!SHOP_CLOSED || NOTICE_SKIP.test(window.location.pathname)) return;
     if (document.getElementById("we-findus")) return;
+    var onMailIn = window.location.pathname === MAIL_IN_URL;
     var note = document.createElement("div");
     note.id = "we-findus";
-    note.className = "we-findus";
+    note.className = "we-findus we-closed";
     note.setAttribute("role", "note");
     note.innerHTML =
-      '<span class="we-findus-pin" aria-hidden="true">📍</span>' +
-      '<span class="we-findus-long"><strong>Open as normal.</strong> Our outside signs are temporarily down. ' +
-      'Find us at 3 Queen Annes Court, the bottom of Peascod Street. ' +
-      'Look for the Windsor Express poster in the window.</span>' +
+      '<span class="we-findus-pin" aria-hidden="true">📦</span>' +
+      '<span class="we-findus-long"><strong>Our Peascod Street shop is temporarily closed</strong> due to a lease issue. ' +
+      'Repairs carry on by post — same parts, same prices, same 12-month warranty.</span>' +
       // Phones get a two-line version: the full notice took a fifth of the screen.
-      '<span class="we-findus-short"><strong>Open as normal</strong> — signs are down. ' +
-      '3 Queen Annes Court, bottom of Peascod St.</span>' +
-      '<a href="https://maps.app.goo.gl/pZWxtjh1QgyAGVUZ9" target="_blank" rel="noopener" data-track="findus_directions_click">Directions</a>';
+      '<span class="we-findus-short"><strong>Shop temporarily closed.</strong> ' +
+      'Repairs by post at the same prices.</span>' +
+      '<a href="' + (onMailIn ? "/#repair-funnel" : MAIL_IN_URL) + '" data-track="closure_notice_click">' +
+      (onMailIn ? "Book now" : "Book a mail-in repair") + '</a>';
     document.body.insertBefore(note, document.body.firstChild);
   }
 
@@ -173,7 +177,7 @@
   }, true);
 
   document.addEventListener("DOMContentLoaded", function () {
-    addFindUsNotice();
+    addClosureNotice();
     addCallBar();
     addRewardsLink();
     var choice = getChoice();

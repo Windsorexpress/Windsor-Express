@@ -17,7 +17,7 @@ import {
   fetchPhones, fetchApprovedReviews,
   slugFor, modelKeyFor, brandFor, titleFor, pricingFor, inStock,
   schemaCondition, CONDITION_COPY, RETURN_POLICY, SHIPPING_DETAILS,
-  identifiers, priceValidUntil, escapeHtml, jsonLd
+  identifiers, priceValidUntil, escapeHtml, jsonLd, SHOP_CLOSED
 } from "./product-data.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -62,12 +62,12 @@ function head({ title, description, canonical, image, schema, noindex }) {
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/phone-shop-base.css">
 <link rel="stylesheet" href="/phone-shop.css">
-<link rel="stylesheet" href="/site-common.css?v=20261110">
-<script src="/site-common.js?v=20261110" defer></script>
+<link rel="stylesheet" href="/site-common.css?v=20261123">
+<script src="/site-common.js?v=20261123" defer></script>
 ${schema.map((s) => `<script type="application/ld+json">\n${jsonLd(s)}\n</script>`).join("\n")}
 </head>
 <body>
-<div class="announcement">Free click &amp; collect in Windsor <span>&middot;</span> Tracked UK delivery <span>&middot;</span> 3-year warranty</div>
+<div class="announcement">${SHOP_CLOSED ? "Tracked UK delivery <span>&middot;</span> 3-year warranty <span>&middot;</span> Windsor shop temporarily closed" : "Free click &amp; collect in Windsor <span>&middot;</span> Tracked UK delivery <span>&middot;</span> 3-year warranty"}</div>
 <header>
   <div class="wrap nav">
     <a class="logo" href="/">WINDSOR <span>EXPRESS</span></a>
@@ -83,7 +83,7 @@ ${schema.map((s) => `<script type="application/ld+json">\n${jsonLd(s)}\n</script
 const footer = `<footer><div class="wrap">
 <p><a href="/privacy.html">Privacy &amp; cookies</a> · <a href="/terms.html">Terms</a> · <a href="/returns.html">Returns</a> · <a href="/warranty.html">Warranty</a> · <button type="button" data-cookie-settings style="border:0;background:none;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">Cookie settings</button></p>
 <p><a href="/">Windsor Express</a> · ${BUSINESS.street}, ${BUSINESS.city} ${BUSINESS.postcode}<br>
-<a href="tel:${BUSINESS.phone}">07912 150397</a> · Mon–Sat 10am–8pm · Sun 10:30am–7pm</p>
+<a href="tel:${BUSINESS.phone}">07912 150397</a> · ${SHOP_CLOSED ? 'Shop temporarily closed · <a href="/mail-in-phone-repair.html">repairs by post</a>' : "Mon–Sat 10am–8pm · Sun 10:30am–7pm"}</p>
 <p>Serving Windsor, Eton, Datchet, Old Windsor, Slough, Maidenhead, Ascot, Staines-upon-Thames, Egham, Virginia Water &amp; Wraysbury · <a href="/areas-we-cover.html">All areas we cover</a></p>
 </div></footer>
 </body>
@@ -125,7 +125,7 @@ function productSchema(phone, canonical, reviews) {
       priceValidUntil: priceValidUntil(),
       itemCondition: schemaCondition(phone),
       availability: available ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-      availableAtOrFrom: { "@id": SITE + "/#business" },
+      ...(SHOP_CLOSED ? {} : { availableAtOrFrom: { "@id": SITE + "/#business" } }),
       seller: { "@id": SITE + "/#business" },
       hasMerchantReturnPolicy: RETURN_POLICY,
       shippingDetails: SHIPPING_DETAILS
@@ -165,7 +165,7 @@ function descriptionFor(phone) {
     phone.battery_health ? `Battery health ${phone.battery_health}%.` : "",
     "Unlocked to all networks,",
     `${WARRANTY_MONTHS / 12}-year Windsor Express warranty,`,
-    "free click & collect from Peascod Street or tracked UK delivery."
+    SHOP_CLOSED ? "tracked UK delivery." : "free click & collect from Peascod Street or tracked UK delivery."
   ];
   return bits.filter(Boolean).join(" ").replace(/\s+/g, " ");
 }
@@ -245,7 +245,7 @@ function productPage(phone, reviews, others) {
 
       ${available
         ? `<a class="buy-btn" href="/?phone=${encodeURIComponent(phone.id)}">Reserve or buy this ${escapeHtml(brand)} →</a>
-           <p class="stock-line in">In stock now at our Peascod Street shop</p>`
+           <p class="stock-line in">${SHOP_CLOSED ? "In stock now · ships tracked across the UK" : "In stock now at our Peascod Street shop"}</p>`
         : `<p class="stock-line out"><strong>Now sold.</strong> This exact handset has gone — but our stock changes weekly.</p>
            <a class="buy-btn" href="/phones-for-sale-windsor.html">See what's in stock today →</a>`}
 
@@ -258,11 +258,11 @@ function productPage(phone, reviews, others) {
       </ul>
 
       ${available ? `<div class="fulfilment">
-        <div class="fulfil-card">
+        ${SHOP_CLOSED ? "" : `<div class="fulfil-card">
           <span class="fulfil-label">Collect in Windsor</span>
           <span class="fulfil-price">Free</span>
           <span class="fulfil-note">Ready today on Peascod Street</span>
-        </div>
+        </div>`}
         <div class="fulfil-card">
           <span class="fulfil-label">Tracked UK delivery</span>
           <span class="fulfil-price">${money(POSTAGE_FEE)}</span>
@@ -280,7 +280,7 @@ function productPage(phone, reviews, others) {
       <div class="shop-note">
         <p><strong>★ 5.0 on Google</strong> · 500+ devices fixed for Windsor locals</p>
         <p>${BUSINESS.street}, ${BUSINESS.city} ${BUSINESS.postcode}<br>
-        Mon–Sat 10am–8pm · Sun 10:30am–7pm · no appointment needed</p>
+        ${SHOP_CLOSED ? "Shop temporarily closed · phones ship by tracked UK delivery" : "Mon–Sat 10am–8pm · Sun 10:30am–7pm · no appointment needed"}</p>
       </div>
     </div>
   </div>
@@ -356,8 +356,10 @@ function productPage(phone, reviews, others) {
 
   <section class="product-section">
     <h2>Buying a used phone in Windsor</h2>
-    <p>We are a physical shop on Peascod Street, two minutes from Windsor Castle — not a marketplace listing.
-       You can hold the handset, check the screen and battery figure, and ask us anything before paying.
+    <p>${SHOP_CLOSED
+      ? "We are an independent Windsor business, not a marketplace listing. Our Peascod Street shop is temporarily closed, so phones are sent by tracked UK delivery — message us on WhatsApp for extra photos, the battery figure or anything else before you pay."
+      : `We are a physical shop on Peascod Street, two minutes from Windsor Castle — not a marketplace listing.
+       You can hold the handset, check the screen and battery figure, and ask us anything before paying.`}
        Every phone is checked, wiped and sold unlocked with a ${WARRANTY_MONTHS / 12}-year warranty.</p>
     <p>Got an old phone? We take <a href="/sell-my-phone-windsor.html">trade-ins and buy phones for cash</a>,
        so the price above can come down. Cracked screen on your current handset instead?

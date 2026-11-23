@@ -3,9 +3,16 @@ const { useState, useEffect, useRef } = React;
         const OWNER_EMAIL = "tanish.ratala@gmail.com";
         const SHOP_PHONE  = "+447912150397";
         const INITIAL_PHONE_ID = new URLSearchParams(window.location.search).get('phone');
+        // Shop temporarily closed (lease issue at Queen Annes Court, Nov 2026).
+        // While true: repairs are mail-in only, phones ship by post only, and
+        // in-store copy is swapped out. Set to false when the shop reopens.
+        const SHOP_CLOSED = true;
+        const DEFAULT_SERVICE = SHOP_CLOSED ? 'mail-in' : 'walk-in';
+        const DEFAULT_FULFILMENT = SHOP_CLOSED ? 'postage' : 'collect';
         // Google Maps listing (reviews live here) — opens the business profile
         // Real opening status in UK time, so the hero never says "Open now" at midnight.
         function shopOpenLabel() {
+            if (SHOP_CLOSED) return 'Shop temporarily closed · repairs by post';
             try {
                 const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date());
                 const get = (t) => (parts.find(p => p.type === t) || {}).value;
@@ -155,25 +162,25 @@ const { useState, useEffect, useRef } = React;
         const TIME_SLOTS = buildTimeSlots();
         const FAQ_ITEMS = [
             { q: "How long does a repair take?",
-              a: "Most iPhone and Samsung screen repairs are done in under 30 minutes. Battery replacements typically take 30–60 minutes. We'll give you an accurate time estimate when you drop in." },
+              a: "Most iPhone and Samsung screen repairs are done in under 30 minutes. Battery replacements typically take 30–60 minutes. " + (SHOP_CLOSED ? "While our shop is temporarily closed, mail-in repairs are usually done within 24 hours of your device arriving, then posted straight back." : "We'll give you an accurate time estimate when you drop in.") },
             { q: "Is my data safe with you?",
               a: "100% guaranteed. Our technicians only access the hardware — we never look at your personal photos, messages, or apps. Your data stays completely private." },
             { q: "Do all repairs come with a warranty?",
               a: "Every repair is backed by a 12-month warranty on parts and labour. If anything goes wrong with our work, we fix it for free — no questions asked." },
-            { q: "Can I send my phone by post?",
-              a: "Yes! Book the mail-in option online and we'll email you secure prepaid postage instructions. Once repaired, we post it straight back to your door." },
+            { q: SHOP_CLOSED ? "Is the shop open? How do I get a repair?" : "Can I send my phone by post?",
+              a: SHOP_CLOSED ? "Our Peascod Street shop is temporarily closed because of an issue with the building's lease, but repairs carry on by post. Book online, we email you secure prepaid postage instructions, and once it's fixed we post it straight back to your door. Same parts, same prices, same 12-month warranty." : "Yes! Book the mail-in option online and we'll email you secure prepaid postage instructions. Once repaired, we post it straight back to your door." },
             { q: "Can I trade in my old phone when buying one?",
-              a: "Yes! Choose the trade-in option at checkout (or tell us in store) and we'll value your old phone and knock that amount off any handset we sell. Prefer cash? We'll buy it outright instead." },
+              a: SHOP_CLOSED ? "Yes. Choose the trade-in option at checkout and we'll value your old phone and knock that amount off any handset we sell. Prefer cash? Ask for a quote and we'll make you an offer." : "Yes! Choose the trade-in option at checkout (or tell us in store) and we'll value your old phone and knock that amount off any handset we sell. Prefer cash? We'll buy it outright instead." },
             { q: "How much does an iPhone screen repair cost in Windsor?",
               a: "iPhone screen repairs start at £39.99, depending on the model and the screen quality you choose. You'll see the exact price for your model when you book online — and every screen comes with our 12-month warranty." },
-            { q: "Where can I find you in Windsor?",
-              a: "Queen Annes Court, 3 Peascod Street, Windsor SL4 1DG — right in the town centre, two minutes' walk from Windsor Castle. Open seven days a week, no appointment needed." },
+            { q: SHOP_CLOSED ? "Can I still visit you in Windsor?" : "Where can I find you in Windsor?",
+              a: SHOP_CLOSED ? "Not at the moment. Our shop at Queen Annes Court, 3 Peascod Street is temporarily closed due to a lease issue, so please don't travel in. Book a mail-in repair online instead, or call or WhatsApp us on 07912 150397 and we'll help." : "Queen Annes Court, 3 Peascod Street, Windsor SL4 1DG — right in the town centre, two minutes' walk from Windsor Castle. Open seven days a week, no appointment needed." },
             { q: "What payment methods do you accept?",
-              a: "Pay online by card at checkout, or pay in store with cash, all major credit and debit cards, Apple Pay, and Google Pay — whatever works best for you." },
+              a: SHOP_CLOSED ? "Pay online by card when you book, or choose pay after repair and we'll send you a secure card payment link before we post your device back." : "Pay online by card at checkout, or pay in store with cash, all major credit and debit cards, Apple Pay, and Google Pay — whatever works best for you." },
             { q: "Do you repair PS5 and Xbox consoles?",
               a: "Yes. HDMI port repair is £85, a maintenance clean with fresh thermal paste is £50, and a PS5 liquid metal service is £85. We also fix disc drive, power and controller drift faults, with a free diagnostic and a fixed quote before any work starts." },
             { q: "Do you repair water-damaged phones?",
-              a: "Yes — drop in or book online for a free diagnostic. We have a strong success rate with water damage, especially if you act quickly. Don't charge it first!" }
+              a: SHOP_CLOSED ? "Yes. Book a mail-in repair online for a free diagnostic, and post it to us as soon as you can. We have a strong success rate with water damage, especially if you act quickly. Don't charge it first!" : "Yes — drop in or book online for a free diagnostic. We have a strong success rate with water damage, especially if you act quickly. Don't charge it first!" }
         ];
         // --- GEMINI ---
         const callGemini = async (prompt, isJson = false) => {
@@ -261,7 +268,7 @@ const { useState, useEffect, useRef } = React;
             try {
                 return await fsPost({
                         _subject: `🚨 NEW ${data.serviceType.toUpperCase()} BOOKING: ${data.brand} ${data.model || ''}`,
-                        _autoresponse: `Hi ${data.name || 'there'},\n\nThank you for booking your repair with Windsor Express. We've received your request and a member of our team will be in touch shortly to confirm everything.\n\nYOUR BOOKING\n----------------------------------------\nDevice:   ${data.brand} ${data.model || ''}\nIssue:    ${data.issue}\nService:  ${data.serviceType === 'mail-in' ? 'Mail-in repair' : 'Walk-in / in-store'}\nEstimate: ${data.total != null ? gbp(data.total) : (data.quotedPrice || 'To be confirmed')}\n${data.freeProtector ? 'Freebie:  FREE tempered glass screen protector (worth £10)\n' : ''}${data.discount > 0 ? 'Discount: 10% first-repair discount (-' + gbp(data.discount) + ')\n' : ''}Payment:  ${data.paymentMethod === 'online' ? 'Paid online' : 'Pay in store'}\n----------------------------------------\n\n${data.serviceType === 'mail-in' ? "As you chose mail-in, we'll email your prepaid postage instructions shortly so you can send your device to us safely." : "Please drop in at your selected time and we'll take care of the rest."}\n\nIf you need anything in the meantime, just call us on 07912 150397 and we'll be happy to help.\n\nThank you for choosing us,\nThe Windsor Express Team\nPhone Repairs & Sales\nwindsor-express.co.uk`,
+                        _autoresponse: `Hi ${data.name || 'there'},\n\nThank you for booking your repair with Windsor Express. We've received your request and a member of our team will be in touch shortly to confirm everything.\n\nYOUR BOOKING\n----------------------------------------\nDevice:   ${data.brand} ${data.model || ''}\nIssue:    ${data.issue}\nService:  ${data.serviceType === 'mail-in' ? 'Mail-in repair' : 'Walk-in / in-store'}\nEstimate: ${data.total != null ? gbp(data.total) : (data.quotedPrice || 'To be confirmed')}\n${data.freeProtector ? 'Freebie:  FREE tempered glass screen protector (worth £10)\n' : ''}${data.discount > 0 ? 'Discount: 10% first-repair discount (-' + gbp(data.discount) + ')\n' : ''}Payment:  ${data.paymentMethod === 'online' ? 'Paid online' : (SHOP_CLOSED ? 'Pay after repair (we send a secure payment link before posting it back)' : 'Pay in store')}\n----------------------------------------\n\n${data.serviceType === 'mail-in' ? "As you chose mail-in, we'll email your prepaid postage instructions shortly so you can send your device to us safely." : "Please drop in at your selected time and we'll take care of the rest."}\n\nIf you need anything in the meantime, just call us on 07912 150397 and we'll be happy to help.\n\nThank you for choosing us,\nThe Windsor Express Team\nPhone Repairs & Sales\nwindsor-express.co.uk`,
                         email: data.email, name: data.name,
                         "Service Type":       data.serviceType === 'mail-in' ? "📦 Mail-In" : "🏬 Walk-in",
                         "Device":             `${data.brand} ${data.model || ''}`,
@@ -272,7 +279,7 @@ const { useState, useEffect, useRef } = React;
                         "Free Offer":         data.freeProtector ? "🎁 FREE screen protector (exit offer — fit at no charge)" : "None",
                         "Discount":           data.discount > 0 ? `🏷️ 10% FIRST-REPAIR (-${gbp(data.discount)}) — verify first visit before charging` : "None",
                         "Order Total":        data.total != null ? gbp(data.total) : (data.quotedPrice || "TBC"),
-                        "Payment":            data.paymentMethod === 'online' ? "💳 Paying online (Stripe)" : "🏬 Pay in store",
+                        "Payment":            data.paymentMethod === 'online' ? "💳 Paying online (Stripe)" : (SHOP_CLOSED ? "🧾 Pay after repair — send payment link" : "🏬 Pay in store"),
                         "Drop-off Time":      data.time || "N/A",
                         "Return Address":     data.address || "N/A",
                         "Customer":           `${data.name} | ${data.phone} | ${data.email}`
@@ -316,7 +323,7 @@ const { useState, useEffect, useRef } = React;
                 <div className="max-w-7xl mx-auto px-2 md:px-4 flex items-center justify-center md:flex-wrap gap-x-3 md:gap-x-6 gap-y-1 text-[11px] md:text-sm font-semibold whitespace-nowrap">
                     <span className="flex items-center gap-1 md:gap-1.5"><i className="fas fa-shield-halved"></i> No Fix, No Fee</span>
                     <span className="text-white/30 hidden md:block">·</span>
-                    <span className="flex items-center gap-1 md:gap-1.5"><i className="fas fa-clock"></i> 30-Min Repairs</span>
+                    <span className="flex items-center gap-1 md:gap-1.5"><i className={`fas ${SHOP_CLOSED ? 'fa-box' : 'fa-clock'}`}></i> {SHOP_CLOSED ? 'Repairs by Post' : '30-Min Repairs'}</span>
                     <span className="text-white/30 hidden md:block">·</span>
                     <span className="flex items-center gap-1 md:gap-1.5"><i className="fas fa-medal"></i> 12-Month Warranty</span>
                     <span className="text-white/30 hidden md:block">·</span>
@@ -343,7 +350,7 @@ const { useState, useEffect, useRef } = React;
             </div>
         );
         const ServicesTicker = () => {
-            const items = ["iPhone screens fixed in ~30 min", "Samsung battery swaps", "PS5 & Xbox HDMI repair", "PS5 liquid metal service", "Console deep clean", "Joy-Con drift sorted", "Cash for old phones", "Trade-in & upgrade deals", "iPad & tablet repairs", "Water damage rescue", "3-year warranty on phones"];
+            const items = [SHOP_CLOSED ? "UK-wide mail-in repairs" : "iPhone screens fixed in ~30 min", "Samsung battery swaps", "PS5 & Xbox HDMI repair", "PS5 liquid metal service", "Console deep clean", "Joy-Con drift sorted", "Cash for old phones", "Trade-in & upgrade deals", "iPad & tablet repairs", "Water damage rescue", "3-year warranty on phones"];
             const row = items.map((t, i) => (
                 <span key={i} className="inline-flex items-center">
                     <span className="mx-5">{t}</span>
@@ -366,11 +373,15 @@ const { useState, useEffect, useRef } = React;
                         <p className="text-gray-400 font-medium text-lg">Three steps from broken to fixed</p>
                     </div>
                     <div className="flex flex-col md:flex-row items-center md:items-start gap-10 md:gap-0">
-                        {[
+                        {(SHOP_CLOSED ? [
+                            { n: "01", title: "Book Online",      body: "Pick your device and the fault and see your price. Same prices as our Windsor shop. Takes under 2 minutes.", icon: "fa-calendar-check", bg: "bg-brand-500" },
+                            { n: "02", title: "Post It In",       body: "We email you secure prepaid postage instructions. Pack it up and send it to us, tracked.",            icon: "fa-box",            bg: "bg-gray-800"  },
+                            { n: "03", title: "We Post It Back",  body: "Usually repaired within 24 hours of arrival, tested, then posted straight back with a 12-month warranty.", icon: "fa-truck-fast", bg: "bg-brand-600" }
+                        ] : [
                             { n: "01", title: "Book Online",      body: "Pick your device, describe the issue, and choose a time slot. Takes under 2 minutes.",           icon: "fa-calendar-check",       bg: "bg-brand-500"  },
                             { n: "02", title: "Drop It Off",      body: "Choose a preferred drop-off time on Peascod Street. We confirm the time with you after booking.", icon: "fa-store",                bg: "bg-gray-800"   },
                             { n: "03", title: "Collect It Fixed", body: "Most repairs done in 30 minutes. We text you when it's ready — good as new and fully tested.",  icon: "fa-mobile-screen-button", bg: "bg-brand-600"  }
-                        ].map(({ n, title, body, icon, bg }, i) => (
+                        ]).map(({ n, title, body, icon, bg }, i) => (
                             <React.Fragment key={i}>
                                 <div className="flex-1 w-full md:w-auto flex flex-col items-center text-center px-6">
                                     <div className={`w-16 h-16 ${bg} rounded-2xl flex items-center justify-center text-white text-2xl mb-4 shadow-lg`}>
@@ -546,7 +557,7 @@ const { useState, useEffect, useRef } = React;
             // Repair
             const [funnelStep, setFunnelStep]   = useState(INITIAL_BOOK_CONSOLE ? 2 : 1);
             const [bookingData, setBookingData] = useState({
-                serviceType: 'walk-in', brand: INITIAL_BOOK_CONSOLE ? CONSOLE_BRAND : '', model: '', issue: '',
+                serviceType: DEFAULT_SERVICE, brand: INITIAL_BOOK_CONSOLE ? CONSOLE_BRAND : '', model: '', issue: '',
                 quality: '', qualityKey: '', quotedPrice: '', time: '', phone: '', name: '', email: '', address: '',
                 addons: [], paymentMethod: 'in_store'
             });
@@ -565,7 +576,7 @@ const { useState, useEffect, useRef } = React;
             const [phones, setPhones]               = useState([]);
             const [phonesLoading, setPhonesLoading] = useState(true);
             const [selectedPhone, setSelectedPhone] = useState(null);
-            const [purchaseData, setPurchaseData]   = useState({ addons: [], fulfillment: 'collect', paymentMethod: 'online', name: '', phone: '', email: '', address: '', tradeIn: false, tradeDevice: '', tradeCondition: '' });
+            const [purchaseData, setPurchaseData]   = useState({ addons: [], fulfillment: DEFAULT_FULFILMENT, paymentMethod: 'online', name: '', phone: '', email: '', address: '', tradeIn: false, tradeDevice: '', tradeCondition: '' });
             const [isBuying, setIsBuying]           = useState(false);
             const openedInitialPhone = useRef(false);
             // AI
@@ -655,7 +666,7 @@ const { useState, useEffect, useRef } = React;
                 const phone = phones.find(item => String(item.id) === String(INITIAL_PHONE_ID));
                 if (!phone) return;
                 setSelectedPhone(phone);
-                setPurchaseData({ addons: [], fulfillment: 'collect', paymentMethod: 'online', name: '', phone: '', email: '', address: '', tradeIn: false, tradeDevice: '', tradeCondition: '' });
+                setPurchaseData({ addons: [], fulfillment: DEFAULT_FULFILMENT, paymentMethod: 'online', name: '', phone: '', email: '', address: '', tradeIn: false, tradeDevice: '', tradeCondition: '' });
                 setView('checkout');
                 window.scrollTo(0, 0);
                 track('phone_deep_link_open', { product_id: phone.id });
@@ -709,13 +720,23 @@ const { useState, useEffect, useRef } = React;
                 }
                 if (p) window.history.replaceState({}, '', window.location.pathname);
             }, []);
+            // Landing pages link to /#repair-funnel. The funnel only exists once React
+            // has rendered, so the browser's own jump to the anchor misses it.
+            useEffect(() => {
+                if (window.location.hash !== '#repair-funnel') return;
+                const t = setTimeout(() => {
+                    const el = document.getElementById('repair-funnel');
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 150);
+                return () => clearTimeout(t);
+            }, []);
             const resetForms = () => {
                 setFunnelStep(1); setShowAIPrompt(false); setAiMsg(''); setConsoleSvc('');
                 try { setFirstTimer(!window.localStorage.getItem('we_booked')); } catch (e) { setFirstTimer(true); }
-                setBookingData({ serviceType: 'walk-in', brand: '', model: '', issue: '', quality: '', qualityKey: '', quotedPrice: '', time: '', phone: '', name: '', email: '', address: '', addons: [], paymentMethod: 'in_store' });
+                setBookingData({ serviceType: DEFAULT_SERVICE, brand: '', model: '', issue: '', quality: '', qualityKey: '', quotedPrice: '', time: '', phone: '', name: '', email: '', address: '', addons: [], paymentMethod: 'in_store' });
                 setSellData({ device: '', condition: '', name: '', phone: '', email: '', intent: 'cash' });
                 setSelectedPhone(null);
-                setPurchaseData({ addons: [], fulfillment: 'collect', paymentMethod: 'online', name: '', phone: '', email: '', address: '', tradeIn: false, tradeDevice: '', tradeCondition: '' });
+                setPurchaseData({ addons: [], fulfillment: DEFAULT_FULFILMENT, paymentMethod: 'online', name: '', phone: '', email: '', address: '', tradeIn: false, tradeDevice: '', tradeCondition: '' });
             };
             const goHome = () => {
                 resetForms(); setConfirmation(null); setView('home');
@@ -861,9 +882,9 @@ const { useState, useEffect, useRef } = React;
                     heading: 'Booking Confirmed!',
                     summary: `${deviceLabel(bookingData)} — ${bookingData.issue}${bookingData.quality ? ' (' + bookingData.quality + ')' : ''}`,
                     detail: bookingData.serviceType === 'walk-in' ? (bookingData.time || 'Walk in any time') : 'Mail-in repair',
-                    total: repairBase !== null ? gbp(total) + (isConsole ? ' · pay in store' : '') : (isConsole ? "Free diagnostic — fixed quote before any work" : "Free quote — we'll confirm your price"),
+                    total: repairBase !== null ? gbp(total) + (isConsole ? (SHOP_CLOSED ? ' · pay after repair' : ' · pay in store') : '') : (isConsole ? "Free diagnostic — fixed quote before any work" : "Free quote — we'll confirm your price"),
                     freebie: wasFree && !isConsole,
-                    tradeNote: discount > 0 ? `🏷️ 10% first-repair discount applied (−${gbp(discount)}) — we'll confirm your first visit in store.` : null,
+                    tradeNote: discount > 0 ? `🏷️ 10% first-repair discount applied (−${gbp(discount)}) — we'll confirm it's your first repair with us.` : null,
                     next: bookingData.serviceType === 'walk-in'
                         ? (isConsole
                             ? ["We'll confirm your preferred drop-off time by text or email",
@@ -892,15 +913,19 @@ const { useState, useEffect, useRef } = React;
                         detail: `Condition: ${sellData.condition || 'to be checked'}`,
                         total: isTrade ? 'Trade-in value coming your way' : 'Cash offer coming your way',
                         next: isTrade
-                            ? ["We'll call or email you within a few hours with your trade-in value", "Happy with it? Pick any phone we sell and pay only the difference", "Bring your old phone in — we check it, you walk out with your upgrade"]
-                            : ["We'll call or email you within a few hours with our best cash offer", "No obligation — if you're happy, just bring your device in", "We check it on the spot and pay you instantly in cash"]
+                            ? (SHOP_CLOSED
+                                ? ["We'll call or email you within a few hours with your trade-in value", "Happy with it? Pick any phone we sell and pay only the difference", "We'll agree with you how to get your old phone to us while the shop is closed"]
+                                : ["We'll call or email you within a few hours with your trade-in value", "Happy with it? Pick any phone we sell and pay only the difference", "Bring your old phone in — we check it, you walk out with your upgrade"])
+                            : (SHOP_CLOSED
+                                ? ["We'll call or email you within a few hours with our best offer", "No obligation — if you're happy with it, we'll take it from there", "We'll agree with you how to get your device to us while the shop is closed"]
+                                : ["We'll call or email you within a few hours with our best cash offer", "No obligation — if you're happy, just bring your device in", "We check it on the spot and pay you instantly in cash"])
                     });
                 }
                 else alert("❌ Something went wrong. Please call 07912 150397.");
             };
             const openBuy = (phone) => {
                 setSelectedPhone(phone);
-                setPurchaseData({ addons: [], fulfillment: 'collect', paymentMethod: 'online', name: '', phone: '', email: '', address: '', tradeIn: false, tradeDevice: '', tradeCondition: '' });
+                setPurchaseData({ addons: [], fulfillment: DEFAULT_FULFILMENT, paymentMethod: 'online', name: '', phone: '', email: '', address: '', tradeIn: false, tradeDevice: '', tradeCondition: '' });
                 setView('checkout');
                 try { window.history.replaceState({}, '', `/?phone=${encodeURIComponent(phone.id)}`); } catch (err) {}
                 window.scrollTo(0, 0);
@@ -1010,7 +1035,7 @@ const { useState, useEffect, useRef } = React;
                             </div>
                         ) : (
                             <div className="mt-3 bg-gray-900 text-white text-xs font-bold px-3 py-2 rounded-lg text-center">
-                                🏷️ First repair with us? <span className="text-brand-400">10% off</span> when you book online & pay in store
+                                🏷️ First repair with us? <span className="text-brand-400">10% off</span> when you book online & {SHOP_CLOSED ? 'pay after repair' : 'pay in store'}
                             </div>
                         )}
                     </div>
@@ -1019,11 +1044,14 @@ const { useState, useEffect, useRef } = React;
                         {funnelStep === 1 && (
                             <div className="fade-in">
                                 <div className="flex bg-gray-100 rounded-xl p-1 mb-5 md:mb-7 max-w-xs mx-auto">
-                                    {['walk-in', 'mail-in'].map(t => (
+                                    {SHOP_CLOSED && (
+                                        <p className="sr-only">Our shop is temporarily closed, so repairs are mail-in only.</p>
+                                    )}
+                                    {(SHOP_CLOSED ? ['mail-in'] : ['walk-in', 'mail-in']).map(t => (
                                         <button key={t} onClick={() => setBookingData({ ...bookingData, serviceType: t })}
                                             className={`flex-1 py-2.5 rounded-lg font-bold text-xs md:text-sm transition-all ${bookingData.serviceType === t ? 'bg-white shadow text-brand-600' : 'text-gray-400 hover:text-gray-600'}`}>
                                             <i className={`fas ${t === 'walk-in' ? 'fa-store' : 'fa-box'} mr-1.5`}></i>
-                                            {t === 'walk-in' ? 'Walk-in' : 'Mail-in (UK)'}
+                                            {t === 'walk-in' ? 'Walk-in' : (SHOP_CLOSED ? 'Mail-in repair · UK-wide' : 'Mail-in (UK)')}
                                         </button>
                                     ))}
                                 </div>
@@ -1269,7 +1297,7 @@ const { useState, useEffect, useRef } = React;
                                     {bookingData.quotedPrice
                                         ? <div>
                                             <div className="font-display text-4xl font-black text-brand-500 mt-2">{bookingData.quotedPrice}</div>
-                                            {isConsole && <p className="text-xs text-gray-500 font-medium mt-1">Fixed price · paid in store when you collect · no fix, no fee</p>}
+                                            {isConsole && <p className="text-xs text-gray-500 font-medium mt-1">{SHOP_CLOSED ? 'Fixed price · paid after repair, before we post it back · no fix, no fee' : 'Fixed price · paid in store when you collect · no fix, no fee'}</p>}
                                           </div>
                                         : isConsole
                                         ? <div className="mt-3">
@@ -1380,7 +1408,7 @@ const { useState, useEffect, useRef } = React;
                                                 placeholder="Full return address (including postcode)" required
                                                 className="w-full p-4 border-2 border-gray-200 focus:border-brand-500 rounded-xl outline-none min-h-[90px] font-medium placeholder-gray-300 resize-none transition-colors" />
                                             <p className="text-xs text-gray-400 font-medium mt-1.5 flex items-center gap-1">
-                                                <i className="fas fa-info-circle text-brand-400"></i> We'll email prepaid postage instructions after you book.
+                                                <i className="fas fa-info-circle text-brand-400"></i> We'll email prepaid postage instructions after you book.{SHOP_CLOSED ? ' Same prices and 12-month warranty as our Windsor shop.' : ''}
                                             </p>
                                         </div>
                                     )}
@@ -1390,7 +1418,7 @@ const { useState, useEffect, useRef } = React;
                                         <div className="grid grid-cols-2 gap-3">
                                             <button type="button" onClick={() => setBookingData({ ...bookingData, paymentMethod: 'in_store' })}
                                                 className={`p-4 rounded-xl border-2 font-bold text-sm transition-all ${bookingData.paymentMethod === 'in_store' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
-                                                <i className="fas fa-store block text-lg mb-1"></i>Pay in store
+                                                <i className={`fas ${SHOP_CLOSED ? 'fa-receipt' : 'fa-store'} block text-lg mb-1`}></i>{SHOP_CLOSED ? 'Pay after repair' : 'Pay in store'}
                                             </button>
                                             <button type="button" disabled={repairBase === null || isConsole} onClick={() => setBookingData({ ...bookingData, paymentMethod: 'online' })}
                                                 className={`p-4 rounded-xl border-2 font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed ${bookingData.paymentMethod === 'online' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
@@ -1398,10 +1426,10 @@ const { useState, useEffect, useRef } = React;
                                             </button>
                                         </div>
                                         {isConsole
-                                            ? <p className="text-xs text-gray-400 font-medium mt-1.5">Console repairs are paid in store when you collect, after we've checked it over.</p>
-                                            : repairBase === null && <p className="text-xs text-gray-400 font-medium mt-1.5">Online payment unlocks once your repair has a price — pay in store works perfectly for now.</p>}
+                                            ? <p className="text-xs text-gray-400 font-medium mt-1.5">{SHOP_CLOSED ? "Console repairs are paid after we've checked it over and fixed it, before we post it back." : "Console repairs are paid in store when you collect, after we've checked it over."}</p>
+                                            : repairBase === null && <p className="text-xs text-gray-400 font-medium mt-1.5">{SHOP_CLOSED ? 'Online payment unlocks once your repair has a price — pay after repair works perfectly for now.' : 'Online payment unlocks once your repair has a price — pay in store works perfectly for now.'}</p>}
                                         {firstTimer && repairBase !== null && bookingData.paymentMethod === 'online' && (
-                                            <p className="text-xs text-amber-600 font-semibold mt-1.5"><i className="fas fa-circle-info mr-1"></i>Your 10% first-repair discount is redeemed in store — choose "Pay in store" to keep it.</p>
+                                            <p className="text-xs text-amber-600 font-semibold mt-1.5"><i className="fas fa-circle-info mr-1"></i>{SHOP_CLOSED ? 'Your 10% first-repair discount comes off when you pay after repair — choose "Pay after repair" to keep it.' : 'Your 10% first-repair discount is redeemed in store — choose "Pay in store" to keep it.'}</p>
                                         )}
                                     </div>
                                     <button type="submit"
@@ -1411,7 +1439,7 @@ const { useState, useEffect, useRef } = React;
                                             : (bookingData.serviceType === 'walk-in' ? (isConsole ? '🎮 Book My Free Diagnostic' : '🔒 Book My 30-Min Repair') : '📦 Request Mail-In Repair')}
                                     </button>
                                     <p className="text-center text-xs text-gray-400 font-medium">
-                                        {bookingData.paymentMethod === 'online' ? "Secure card payment via Stripe — you'll be redirected." : "No payment now — pay in-store on the day."}
+                                        {bookingData.paymentMethod === 'online' ? "Secure card payment via Stripe — you'll be redirected." : (SHOP_CLOSED ? "No payment now — we send you a secure payment link once it's fixed." : "No payment now — pay in-store on the day.")}
                                     </p>
                                     <p className="text-center text-xs text-gray-400 font-medium">
                                         Questions first? <a href={`https://wa.me/447912150397?text=${waMsg}`} target="_blank" rel="noopener noreferrer" className="text-brand-600 font-bold underline underline-offset-2 hover:text-brand-700 transition-colors">WhatsApp us</a> — we reply fast.
@@ -1545,7 +1573,9 @@ const { useState, useEffect, useRef } = React;
                             <span><i className="fas fa-circle-check text-brand-500 mr-1.5"></i>3-year phone warranty</span>
                             <span><i className="fas fa-lock-open text-brand-500 mr-1.5"></i>Unlocked</span>
                             <span><i className="fas fa-clipboard-check text-brand-500 mr-1.5"></i>Fully tested</span>
-                            <span><i className="fas fa-store text-brand-500 mr-1.5"></i>Reserve &amp; pay on collection</span>
+                            {SHOP_CLOSED
+                                ? <span><i className="fas fa-truck-fast text-brand-500 mr-1.5"></i>Tracked UK delivery</span>
+                                : <span><i className="fas fa-store text-brand-500 mr-1.5"></i>Reserve &amp; pay on collection</span>}
                         </div>
                     </div>
                     {/* TRADE-IN STRIP */}
@@ -1715,9 +1745,9 @@ const { useState, useEffect, useRef } = React;
                                 <div>
                                     <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">How do you want it?</div>
                                     <div className="grid grid-cols-2 gap-3">
-                                        <button type="button" onClick={() => setFulfillment('collect')}
-                                            className={`p-4 rounded-xl border-2 font-bold text-sm transition-all ${purchaseData.fulfillment === 'collect' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
-                                            <i className="fas fa-store block text-lg mb-1"></i>Collect in store<span className="block text-xs font-medium text-gray-400 mt-0.5">Free</span>
+                                        <button type="button" disabled={SHOP_CLOSED} onClick={() => setFulfillment('collect')}
+                                            className={`p-4 rounded-xl border-2 font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed ${purchaseData.fulfillment === 'collect' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
+                                            <i className="fas fa-store block text-lg mb-1"></i>Collect in store<span className="block text-xs font-medium text-gray-400 mt-0.5">{SHOP_CLOSED ? 'Shop temporarily closed' : 'Free'}</span>
                                         </button>
                                         <button type="button" onClick={() => setFulfillment('postage')}
                                             className={`p-4 rounded-xl border-2 font-bold text-sm transition-all ${purchaseData.fulfillment === 'postage' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
@@ -1835,8 +1865,8 @@ const { useState, useEffect, useRef } = React;
                             </a>
                             <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 text-center mb-5">
                                 <div className="font-bold text-gray-900 text-sm mb-0.5">Windsor Express</div>
-                                <p className="text-gray-500 text-xs font-medium">Queen Annes Court, 3 Peascod St, Windsor SL4 1DG</p>
-                                <p className="text-gray-400 text-xs font-medium mt-0.5">Mon–Sat 10am–8pm · Sun 10:30am–7pm</p>
+                                <p className="text-gray-500 text-xs font-medium">{SHOP_CLOSED ? 'Repairs by post · same prices · 12-month warranty' : 'Queen Annes Court, 3 Peascod St, Windsor SL4 1DG'}</p>
+                                <p className="text-gray-400 text-xs font-medium mt-0.5">{SHOP_CLOSED ? 'Our Windsor shop is temporarily closed' : 'Mon–Sat 10am–8pm · Sun 10:30am–7pm'}</p>
                                 <div className="flex justify-center gap-2 mt-3 flex-wrap">
                                     <a href={`tel:${SHOP_PHONE}`} className="bg-gray-900 hover:bg-black text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-colors">
                                         <i className="fas fa-phone mr-1.5"></i>Call us
@@ -1844,9 +1874,9 @@ const { useState, useEffect, useRef } = React;
                                     <a href="https://wa.me/447912150397" target="_blank" rel="noopener noreferrer" className="bg-[#25D366] hover:opacity-90 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-opacity">
                                         <i className="fab fa-whatsapp mr-1.5"></i>WhatsApp
                                     </a>
-                                    <a href={GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer" className="bg-white border border-gray-200 hover:border-brand-500 text-gray-700 text-xs font-bold px-4 py-2.5 rounded-xl transition-colors">
+                                    {!SHOP_CLOSED && <a href={GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer" className="bg-white border border-gray-200 hover:border-brand-500 text-gray-700 text-xs font-bold px-4 py-2.5 rounded-xl transition-colors">
                                         <i className="fas fa-location-dot mr-1.5 text-brand-500"></i>Directions
-                                    </a>
+                                    </a>}
                                 </div>
                             </div>
                             <button onClick={goHome} className="w-full bg-brand-500 hover:bg-brand-600 text-white font-display font-black text-xl py-4 rounded-xl shadow-lg transition-colors">
@@ -1916,12 +1946,12 @@ const { useState, useEffect, useRef } = React;
                                         </button>
                                     ))}
                                 </div>
-                                <div className="grid grid-cols-3 gap-2 mt-2">
+                                <div className={`grid ${SHOP_CLOSED ? 'grid-cols-2' : 'grid-cols-3'} gap-2 mt-2`}>
                                     <a href={`tel:${SHOP_PHONE}`} className="flex flex-col items-center gap-1 bg-gray-100 rounded-2xl py-3 text-xs font-bold text-gray-900"><i className="fas fa-phone text-brand-600"></i>Call</a>
                                     <a href={`https://wa.me/447912150397?text=${waMsg}`} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-1 bg-gray-100 rounded-2xl py-3 text-xs font-bold text-gray-900"><i className="fab fa-whatsapp text-brand-600"></i>WhatsApp</a>
-                                    <a href={GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-1 bg-gray-100 rounded-2xl py-3 text-xs font-bold text-gray-900"><i className="fas fa-location-dot text-brand-600"></i>Directions</a>
+                                    {!SHOP_CLOSED && <a href={GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-1 bg-gray-100 rounded-2xl py-3 text-xs font-bold text-gray-900"><i className="fas fa-location-dot text-brand-600"></i>Directions</a>}
                                 </div>
-                                <p className="text-center text-xs text-gray-400 font-medium mt-3">3 Peascod St, Windsor SL4 1DG · Mon–Sat 10–8 · Sun 10:30–7</p>
+                                <p className="text-center text-xs text-gray-400 font-medium mt-3">{SHOP_CLOSED ? 'Shop temporarily closed · mail-in repairs UK-wide' : '3 Peascod St, Windsor SL4 1DG · Mon–Sat 10–8 · Sun 10:30–7'}</p>
                             </div>
                         </div>
                     )}
@@ -2026,26 +2056,30 @@ const { useState, useEffect, useRef } = React;
                                 <div className="relative max-w-4xl mx-auto">
                                     <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 text-xs md:text-sm font-bold px-3 md:px-4 py-1.5 md:py-2 rounded-full mb-4 md:mb-8">
                                         <span className="live-dot"></span>
-                                        {shopOpenLabel()} · Peascod Street, Windsor
+                                        {SHOP_CLOSED ? 'Shop temporarily closed · mail-in repairs open' : `${shopOpenLabel()} · Peascod Street, Windsor`}
                                     </div>
                                     <h1 className="font-display text-[56px] sm:text-7xl md:text-8xl lg:text-[108px] font-black text-gray-900 leading-[0.95] md:leading-none mb-3 md:mb-5">
-                                        <span className="block font-sans text-xs md:text-base font-bold text-brand-600 tracking-[0.2em] md:tracking-[0.25em] uppercase mb-2 md:mb-4">Phone Repair in Windsor</span>
+                                        <span className="block font-sans text-xs md:text-base font-bold text-brand-600 tracking-[0.2em] md:tracking-[0.25em] uppercase mb-2 md:mb-4">{SHOP_CLOSED ? 'Phone Repair by Post · UK-wide' : 'Phone Repair in Windsor'}</span>
                                         Drop it?<br/>
                                         <span className="text-brand-500">We fix it.</span>
                                     </h1>
                                     <p className="text-gray-500 text-[15px] md:text-xl font-medium mb-5 md:mb-10 max-w-2xl mx-auto leading-snug md:leading-relaxed">
+                                        {SHOP_CLOSED ? (<>
+                                            Our Peascod Street shop is <strong className="text-gray-800">temporarily closed</strong> due to a lease issue — but we're still fixing phones. <strong className="text-gray-800">Book online and post it in</strong>: same parts, <strong className="text-gray-800">same prices</strong>, same 12-month warranty.
+                                        </>) : (<>
                                         Screens fixed in <strong className="text-gray-800">under 30 minutes</strong> on Peascod Street — plus <strong className="text-gray-800">quality used phones to buy</strong>, and <strong className="text-gray-800">cash or trade-in credit</strong> for your old device.
+                                        </>)}
                                     </p>
                                     {/* FOUR PATHS — phone repair / console / buy / sell-trade. 2×2 on phones so the booking form stays near the top. */}
                                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 max-w-4xl mx-auto mb-6 md:mb-12 text-left">
                                         {[
-                                            { icon: 'fa-screwdriver-wrench',   title: 'Repair My Phone',   sub: 'Screens from £39.99 · ~30 min',            cta: 'Book below ↓',
+                                            { icon: 'fa-screwdriver-wrench',   title: 'Repair My Phone',   sub: SHOP_CLOSED ? 'Screens from £39.99 · by post' : 'Screens from £39.99 · ~30 min',            cta: 'Book below ↓',
                                               onClick: () => { track('hero_path_click', { path: 'repair' }); const el = document.getElementById('repair-funnel'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } },
                                             { icon: 'fa-gamepad',              title: 'Console Repair',    sub: 'HDMI £85 · clean £50 · liquid metal £85',   cta: GTA6_OUT ? 'Book a service →' : 'Get GTA 6 ready →', dark: true,
                                               onClick: () => { track('hero_path_click', { path: 'console' }); openConsole('', 'hero'); } },
                                             { icon: 'fa-mobile-screen-button', title: 'Buy a Used Phone',  sub: 'Unlocked · 3-year warranty',                cta: 'Shop phones →',
                                               onClick: () => { track('hero_path_click', { path: 'buy' }); window.location.href = '/phones-for-sale-windsor.html'; } },
-                                            { icon: 'fa-arrows-rotate',        title: 'Sell or Trade In',  sub: 'Instant cash or money off',                 cta: 'Get a quote →',
+                                            { icon: 'fa-arrows-rotate',        title: 'Sell or Trade In',  sub: SHOP_CLOSED ? 'Cash offer or money off' : 'Instant cash or money off',                 cta: 'Get a quote →',
                                               onClick: () => { track('hero_path_click', { path: 'sell' }); goSell('cash'); } }
                                         ].map(({ icon, title, sub, cta, onClick, dark }, i) => (
                                             <div key={i} onClick={onClick} role="button" className={`funnel-card card-shine rounded-2xl p-3.5 sm:p-5 ${dark ? 'border-gray-900 bg-gray-900' : 'border-gray-200 bg-white'}`}>
@@ -2209,7 +2243,8 @@ const { useState, useEffect, useRef } = React;
                                 </div>
                             </section>
                             {/* AGE-RESTRICTED IN-STORE PRODUCTS */}
-                            <section className="py-10 md:py-16 bg-white border-t border-gray-100 px-4">
+                            {!SHOP_CLOSED && (
+<section className="py-10 md:py-16 bg-white border-t border-gray-100 px-4">
                                 <div className="max-w-5xl mx-auto">
                                     <div className="text-center mb-10">
                                         <div className="inline-flex items-center gap-2 bg-gray-900 text-white text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-4">
@@ -2236,6 +2271,7 @@ const { useState, useEffect, useRef } = React;
                                     </div>
                                 </div>
                             </section>
+                            )}
                             {/* REVIEWS */}
                             <section className="py-10 md:py-16 bg-gray-50 border-t border-gray-100 px-4">
                                 <div className="max-w-7xl mx-auto">
@@ -2283,25 +2319,26 @@ const { useState, useEffect, useRef } = React;
                                     <div className="grid md:grid-cols-2 gap-x-10 gap-y-8 text-gray-500 text-sm font-medium leading-relaxed">
                                         <div>
                                             <h3 className="font-display text-2xl font-bold text-gray-800 mb-2">iPhone & Samsung repair in Windsor</h3>
-                                            <p>Cracked screen, dying battery or a phone that won't charge? Our technicians repair every iPhone and Samsung Galaxy model in store on Peascod Street, with most screen repairs done in under 30 minutes while you wait. iPhone screen repairs start at £39.99, every part we fit is covered by a 12-month warranty, and if we can't fix it you don't pay a penny. Walk in seven days a week or book a slot online — and if you're not local, our tracked mail-in service covers the whole of the UK.</p>
+                                            <p>{SHOP_CLOSED ? "Cracked screen, dying battery or a phone that won't charge? Our Peascod Street shop is temporarily closed while a lease issue is sorted out, but our technicians are still repairing every iPhone and Samsung Galaxy model through our tracked mail-in service, which covers the whole of the UK. Book online, post it in with our prepaid instructions, and it's usually repaired within 24 hours of arrival and posted straight back. iPhone screen repairs start at £39.99 (the same prices as our shop), every part we fit is covered by a 12-month warranty, and if we can't fix it you don't pay a penny." : <>Cracked screen, dying battery or a phone that won't charge? Our technicians repair every iPhone and Samsung Galaxy model in store on Peascod Street, with most screen repairs done in under 30 minutes while you wait. iPhone screen repairs start at £39.99, every part we fit is covered by a 12-month warranty, and if we can't fix it you don't pay a penny. Walk in seven days a week or book a slot online — and if you're not local, our tracked mail-in service covers the whole of the UK.</>}</p>
                                         </div>
                                         <div>
                                             <h3 className="font-display text-2xl font-bold text-gray-800 mb-2">iPad, tablet & games console repair</h3>
-                                            <p>We don't just fix phones. Bring us your iPad or Android tablet for screen and battery replacement, or your PlayStation, Xbox or Nintendo Switch for <a href="/ps5-hdmi-repair-windsor.html" className="text-brand-600 font-bold underline underline-offset-2">HDMI port repairs</a>, a deep-clean maintenance service, <a href="/ps5-liquid-metal-service-windsor.html" className="text-brand-600 font-bold underline underline-offset-2">PS5 liquid metal servicing</a>, drive faults and controller drift. Laptops and other devices are welcome too — drop in for a free, no-obligation diagnostic and an honest quote before any work starts.</p>
+                                            <p>We don't just fix phones. Bring us your iPad or Android tablet for screen and battery replacement, or your PlayStation, Xbox or Nintendo Switch for <a href="/ps5-hdmi-repair-windsor.html" className="text-brand-600 font-bold underline underline-offset-2">HDMI port repairs</a>, a deep-clean maintenance service, <a href="/ps5-liquid-metal-service-windsor.html" className="text-brand-600 font-bold underline underline-offset-2">PS5 liquid metal servicing</a>, drive faults and controller drift. Laptops and other devices are welcome too — {SHOP_CLOSED ? 'book a mail-in repair' : 'drop in'} for a free, no-obligation diagnostic and an honest quote before any work starts.</p>
                                         </div>
                                         <div>
                                             <h3 className="font-display text-2xl font-bold text-gray-800 mb-2">Buy refurbished phones with warranty</h3>
-                                            <p>Looking for a second-hand phone in Windsor you can actually trust? Every refurbished handset we sell is fully tested, unlocked to all networks and backed by a 3-year Windsor Express warranty. Collect in store the same day or have it posted to your door, tracked. Trade in your old phone at checkout and pay only the difference.</p>
+                                            <p>Looking for a second-hand phone in Windsor you can actually trust? Every refurbished handset we sell is fully tested, unlocked to all networks and backed by a 3-year Windsor Express warranty. {SHOP_CLOSED ? 'While our shop is temporarily closed, every phone is posted to your door, tracked.' : 'Collect in store the same day or have it posted to your door, tracked.'} Trade in your old phone at checkout and pay only the difference.</p>
                                         </div>
                                         <div>
                                             <h3 className="font-display text-2xl font-bold text-gray-800 mb-2">Sell your phone for cash in Windsor</h3>
-                                            <p>Upgrading, decluttering or just need cash today? We buy phones, tablets and other devices in any condition — flawless, worn or broken — and pay on the spot. Get a quote online in under a minute, bring your device in, and walk out with cash in hand. Serving Windsor, Eton, Datchet, Old Windsor, Slough, Maidenhead, Ascot, Staines, Egham and Virginia Water.</p>
+                                            <p>Upgrading, decluttering or just need cash today? We buy phones, tablets and other devices in any condition — flawless, worn or broken. {SHOP_CLOSED ? "Get a quote online in under a minute and we'll come back to you with an offer and agree how to complete the sale while our shop is closed." : 'Get a quote online in under a minute, bring your device in, and walk out with cash in hand.'} Serving Windsor, Eton, Datchet, Old Windsor, Slough, Maidenhead, Ascot, Staines, Egham and Virginia Water.</p>
                                         </div>
                                     </div>
                                 </div>
                             </section>
                             {/* MAP + SHOPFRONT */}
-                            <section className="py-10 md:py-16 bg-gray-50 border-t border-gray-100 px-4">
+                            {!SHOP_CLOSED && (
+<section className="py-10 md:py-16 bg-gray-50 border-t border-gray-100 px-4">
                                 <div className="max-w-6xl mx-auto">
                                     <div className="text-center mb-8">
                                         <h2 className="font-display text-4xl md:text-5xl font-black text-gray-900 mb-2">Find Us</h2>
@@ -2328,6 +2365,7 @@ const { useState, useEffect, useRef } = React;
                                     </div>
                                 </div>
                             </section>
+                            )}
                         </main>
                     )}
                     {view === 'booking' && (
@@ -2367,7 +2405,7 @@ const { useState, useEffect, useRef } = React;
                             </div>
                             <div>
                                 <h3 className="font-bold text-xs uppercase tracking-widest text-gray-500 mb-4">Contact</h3>
-                                <p className="text-gray-400 text-sm mb-2 font-medium">3 Peascod St, Windsor SL4 1DG</p>
+                                <p className="text-gray-400 text-sm mb-2 font-medium">{SHOP_CLOSED ? '3 Peascod St, Windsor SL4 1DG (shop temporarily closed)' : '3 Peascod St, Windsor SL4 1DG'}</p>
                                 <a href={`tel:${SHOP_PHONE}`} className="text-white font-bold hover:text-brand-400 transition-colors flex items-center gap-2 text-sm">
                                     <i className="fas fa-phone text-brand-500 text-xs"></i> 07912 150397
                                 </a>
@@ -2376,16 +2414,23 @@ const { useState, useEffect, useRef } = React;
                                 </a>
                             </div>
                             <div>
-                                <h3 className="font-bold text-xs uppercase tracking-widest text-gray-500 mb-4">Opening Hours</h3>
+                                <h3 className="font-bold text-xs uppercase tracking-widest text-gray-500 mb-4">{SHOP_CLOSED ? 'Shop Status' : 'Opening Hours'}</h3>
+                                {SHOP_CLOSED ? (
+                                <div className="space-y-2 text-sm text-gray-400 font-medium">
+                                    <p>Our Peascod Street shop is temporarily closed due to a lease issue.</p>
+                                    <p><a href="/mail-in-phone-repair.html" className="text-white font-bold hover:text-brand-400 transition-colors">Mail-in repairs are open — book online any time →</a></p>
+                                </div>
+                                ) : (
                                 <div className="space-y-2 text-sm text-gray-400 font-medium">
                                     <p>Mon – Sat: 10:00 AM – 8:00 PM</p>
                                     <p>Sunday: 10:30 AM – 7:00 PM</p>
                                 </div>
+                                )}
                             </div>
                         </div>
                         <div className="max-w-7xl mx-auto px-4 border-t border-gray-800 pt-8 text-center text-gray-600 text-xs font-medium leading-relaxed">
                             <p className="mb-2">
-                                <strong className="text-gray-500">Services:</strong> <a href="/iphone-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">iPhone Repair Windsor</a> · <a href="/samsung-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Samsung Repair</a> · <a href="/ipad-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">iPad &amp; Tablet Repair</a> · <a href="/console-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Games Console Repair</a> · <a href="/ps5-hdmi-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">PS5 HDMI Repair</a> · <a href="/ps5-liquid-metal-service-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">PS5 Liquid Metal Service</a> · Water Damage · Charging Port Fix · <a href="/phones-for-sale-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Buy Refurbished Phones</a> · <a href="/sell-my-phone-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Sell My Phone for Cash</a> · Device Trade-In
+                                <strong className="text-gray-500">Services:</strong> <a href="/mail-in-phone-repair.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Mail-In Phone Repair (UK)</a> · <a href="/iphone-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">iPhone Repair Windsor</a> · <a href="/samsung-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Samsung Repair</a> · <a href="/ipad-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">iPad &amp; Tablet Repair</a> · <a href="/console-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Games Console Repair</a> · <a href="/ps5-hdmi-repair-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">PS5 HDMI Repair</a> · <a href="/ps5-liquid-metal-service-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">PS5 Liquid Metal Service</a> · Water Damage · Charging Port Fix · <a href="/phones-for-sale-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Buy Refurbished Phones</a> · <a href="/sell-my-phone-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Sell My Phone for Cash</a> · Device Trade-In
                             </p>
                             <p className="mb-2">
                                 <strong className="text-gray-500">Shop:</strong> <a href="/phones/" className="hover:text-brand-400 underline underline-offset-2 transition-colors">All phones in stock</a> · <a href="/phones-for-sale-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Phones for sale in Windsor</a> · <a href="/sell-my-phone-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Sell your phone</a> · <a href="/where-to-repair-your-phone-in-windsor.html" className="hover:text-brand-400 underline underline-offset-2 transition-colors">Where to repair your phone in Windsor</a>

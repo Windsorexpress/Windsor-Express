@@ -19,7 +19,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  STORE_CODE, fetchPhones, titleFor, pricingFor, inStock, escapeHtml
+  STORE_CODE, SHOP_CLOSED, fetchPhones, titleFor, pricingFor, inStock, escapeHtml
 } from "./product-data.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -29,7 +29,8 @@ const live = phones.filter(inStock);
 
 function itemXml(phone) {
   const p = pricingFor(phone);
-  const qty = Math.max(0, Number(phone.stock || 0));
+  // Shop temporarily closed: nothing is on the shelf to collect.
+  const qty = SHOP_CLOSED ? 0 : Math.max(0, Number(phone.stock || 0));
   const rows = [
     ["g:store_code", STORE_CODE],
     ["g:id", phone.id],
@@ -37,8 +38,7 @@ function itemXml(phone) {
     ["g:availability", qty > 0 ? "in_stock" : "out_of_stock"],
     ["g:price", `${p.current.toFixed(2)} GBP`],
     // Collection from the shop counter, ready the same day.
-    ["g:pickup_method", "buy"],
-    ["g:pickup_sla", "same_day"]
+    ...(SHOP_CLOSED ? [] : [["g:pickup_method", "buy"], ["g:pickup_sla", "same_day"]])
   ];
   return `    <item>\n${rows
     .map(([k, v]) => `      <${k}>${escapeHtml(v)}</${k}>`)
@@ -51,7 +51,7 @@ function renderXml(lastBuildDate) {
   <channel>
     <title>Windsor Express — local shop inventory</title>
     <link>https://www.windsor-express.co.uk/phones-for-sale-windsor.html</link>
-    <description>Stock physically available to collect at Windsor Express, 3 Peascod Street, Windsor SL4 1DG.</description>
+    <description>${SHOP_CLOSED ? "Windsor Express, 3 Peascod Street, Windsor SL4 1DG is temporarily closed. No stock is available to collect; phones ship by tracked UK delivery." : "Stock physically available to collect at Windsor Express, 3 Peascod Street, Windsor SL4 1DG."}</description>
     <lastBuildDate>${lastBuildDate}</lastBuildDate>
 ${live.map(itemXml).join("\n")}
   </channel>
