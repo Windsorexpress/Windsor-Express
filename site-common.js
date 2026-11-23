@@ -112,7 +112,7 @@
       '<a class="we-callbar-call" href="tel:+447912150397" data-track="call_click" aria-label="Call Windsor Express on 07912 150397">Call us</a>' +
       '<a class="we-callbar-wa" href="https://wa.me/447912150397" target="_blank" rel="noopener" data-track="whatsapp_click">WhatsApp</a>' +
       (SHOP_CLOSED
-        ? '<a class="we-callbar-map" href="' + MAIL_IN_URL + '" data-track="mailin_bar_click">Post-in repair</a>'
+        ? '<a class="we-callbar-map" href="' + VISIT_URL + '" data-track="visit_bar_click">Book a visit</a>'
         : '<a class="we-callbar-map" href="https://www.google.com/maps/dir/?api=1&amp;destination=Windsor%20Express%2C%203%20Peascod%20St%2C%20Windsor%20SL4%201DG" target="_blank" rel="noopener" data-track="directions_click">Directions</a>') +
       '<a class="we-callbar-rewards" href="' + REWARDS_URL + '" data-track="rewards_click">Rewards</a>';
     document.body.appendChild(bar);
@@ -137,29 +137,30 @@
   }
 
   // Temporary closure notice (Nov 2026). The Peascod Street shop is closed
-  // while a lease issue is sorted out; repairs carry on by post. Set
+  // while a lease issue is sorted out; repairs are done at the customer's
+  // home or work (or taken away and brought back). Set
   // SHOP_CLOSED to false when the shop reopens (and the same flag in
   // src/app.jsx and scripts/product-data.mjs).
   var SHOP_CLOSED = true;
-  var MAIL_IN_URL = "/mail-in-phone-repair.html";
+  var VISIT_URL = "/phone-repair-at-home.html";
   var NOTICE_SKIP = /\/(admin|connection-test)\.html$/;
   function addClosureNotice() {
     if (!SHOP_CLOSED || NOTICE_SKIP.test(window.location.pathname)) return;
     if (document.getElementById("we-findus")) return;
-    var onMailIn = window.location.pathname === MAIL_IN_URL;
+    var onVisitPage = window.location.pathname === VISIT_URL;
     var note = document.createElement("div");
     note.id = "we-findus";
     note.className = "we-findus we-closed";
     note.setAttribute("role", "note");
     note.innerHTML =
-      '<span class="we-findus-pin" aria-hidden="true">📦</span>' +
-      '<span class="we-findus-long"><strong>Our Peascod Street shop is temporarily closed</strong> due to a lease issue. ' +
-      'Repairs carry on by post — same parts, same prices, same 12-month warranty.</span>' +
+      '<span class="we-findus-pin" aria-hidden="true">🚗</span>' +
+      '<span class="we-findus-long"><strong>Our Peascod Street shop is temporarily closed</strong> due to a lease issue, so we come to you. ' +
+      'Repairs at your home or work — same parts, same prices, same 12-month warranty.</span>' +
       // Phones get a two-line version: the full notice took a fifth of the screen.
       '<span class="we-findus-short"><strong>Shop temporarily closed.</strong> ' +
-      'Repairs by post at the same prices.</span>' +
-      '<a href="' + (onMailIn ? "/#repair-funnel" : MAIL_IN_URL) + '" data-track="closure_notice_click">' +
-      (onMailIn ? "Book now" : "Book a mail-in repair") + '</a>';
+      'We come to you, same prices.</span>' +
+      '<a href="' + (onVisitPage ? "/#repair-funnel" : VISIT_URL) + '" data-track="closure_notice_click">' +
+      (onVisitPage ? "Book now" : "Book a home visit") + '</a>';
     document.body.insertBefore(note, document.body.firstChild);
   }
 

@@ -83,7 +83,7 @@ ${schema.map((s) => `<script type="application/ld+json">\n${jsonLd(s)}\n</script
 const footer = `<footer><div class="wrap">
 <p><a href="/privacy.html">Privacy &amp; cookies</a> · <a href="/terms.html">Terms</a> · <a href="/returns.html">Returns</a> · <a href="/warranty.html">Warranty</a> · <button type="button" data-cookie-settings style="border:0;background:none;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">Cookie settings</button></p>
 <p><a href="/">Windsor Express</a> · ${BUSINESS.street}, ${BUSINESS.city} ${BUSINESS.postcode}<br>
-<a href="tel:${BUSINESS.phone}">07912 150397</a> · ${SHOP_CLOSED ? 'Shop temporarily closed · <a href="/mail-in-phone-repair.html">repairs by post</a>' : "Mon–Sat 10am–8pm · Sun 10:30am–7pm"}</p>
+<a href="tel:${BUSINESS.phone}">07912 150397</a> · ${SHOP_CLOSED ? 'Shop temporarily closed · <a href="/phone-repair-at-home.html">we come to you</a>' : "Mon–Sat 10am–8pm · Sun 10:30am–7pm"}</p>
 <p>Serving Windsor, Eton, Datchet, Old Windsor, Slough, Maidenhead, Ascot, Staines-upon-Thames, Egham, Virginia Water &amp; Wraysbury · <a href="/areas-we-cover.html">All areas we cover</a></p>
 </div></footer>
 </body>
