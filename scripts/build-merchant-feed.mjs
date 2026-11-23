@@ -16,7 +16,7 @@ import { fileURLToPath } from "node:url";
 import {
   SITE, POSTAGE_FEE, WARRANTY_MONTHS, HANDLING_DAYS, TRANSIT_DAYS,
   fetchPhones, slugFor, brandFor, titleFor, pricingFor, inStock,
-  feedCondition, gtinProp, escapeHtml
+  feedCondition, gtinProp, escapeHtml, SHOP_CLOSED
 } from "./product-data.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -36,7 +36,7 @@ function itemXml(phone) {
     phone.battery_health ? `Battery health ${phone.battery_health}%.` : "",
     phone.description || "",
     `Unlocked to all networks. ${WARRANTY_MONTHS / 12}-year warranty.`,
-    "Free click & collect from Peascod Street, or tracked UK delivery."
+    SHOP_CLOSED ? "Tracked UK delivery." : "Free click & collect from Peascod Street, or tracked UK delivery."
   ].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
 
   const rows = [
@@ -54,8 +54,8 @@ function itemXml(phone) {
     ["g:product_type", "Mobile Phones"],
     ["g:item_group_id", phone.model_key || ""],
     // Physical shop: enables free local listings once the Business Profile is linked.
-    ["g:pickup_method", "buy"],
-    ["g:pickup_sla", "same_day"]
+    // Dropped while the shop is temporarily closed, so nothing claims collection.
+    ...(SHOP_CLOSED ? [] : [["g:pickup_method", "buy"], ["g:pickup_sla", "same_day"]])
   ];
 
   // Sale pricing is expressed as price + sale_price so Shopping shows the discount.
@@ -83,8 +83,8 @@ function itemXml(phone) {
         <g:max_handling_time>${HANDLING_DAYS.max}</g:max_handling_time>
         <g:min_transit_time>${TRANSIT_DAYS.min}</g:min_transit_time>
         <g:max_transit_time>${TRANSIT_DAYS.max}</g:max_transit_time>
-      </g:shipping>
-      <g:pickup_cost>0.00 GBP</g:pickup_cost>`;
+      </g:shipping>${SHOP_CLOSED ? "" : `
+      <g:pickup_cost>0.00 GBP</g:pickup_cost>`}`;
 
   return `    <item>\n${simple}\n${shipping}\n    </item>`;
 }

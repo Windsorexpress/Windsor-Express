@@ -115,7 +115,7 @@
   body.we-has-callbar { padding-bottom: 72px; }
 }
 
-/* "Find us" notice while the outside signs are down (see site-common.js). */
+/* Top-of-page notice (temporary closure, see site-common.js). */
 .we-findus {
   display: flex;
   align-items: center;
@@ -176,3 +176,7 @@
 @media (max-width: 379px) {
   header .navlinks .we-rw-label { display: none; }
 }
+
+/* Temporary closure variant of the notice */
+.we-findus.we-closed { background: #0f172a; }
+.we-findus.we-closed strong { color: #fcd34d; }

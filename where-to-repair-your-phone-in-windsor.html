@@ -39,7 +39,7 @@
   "priceRange": "££",
   "currenciesAccepted": "GBP",
   "paymentAccepted": "Cash, Credit Card, Debit Card, Apple Pay, Google Pay",
-  "description": "Windsor Express is Windsor's independent shop on Peascod Street for fast device repair and general retail. We repair iPhones, Samsung and Android phones, iPads, tablets and games consoles (PlayStation, Xbox, Nintendo Switch), fitting XO7 soft OLED screens as standard and genuine Apple or Samsung service parts on request. We sell quality refurbished phones and pay instant cash for old devices and trade-ins, and we stock phone accessories, cold drinks, snacks, perfumes, vapes and Windsor souvenirs. Every repair carries a 12-month warranty with a no-fix-no-fee promise.",
+  "description": "Windsor Express is an independent phone, tablet and games console repair business from Windsor, Berkshire. Our Peascod Street shop is temporarily closed due to an issue with the building's lease, so we now come to customers: repairs are done at their home or work across Windsor, Slough, Maidenhead, Ascot, Staines, Egham and nearby, or taken away and brought back fixed, at the same prices and with the same 12-month warranty and no-fix-no-fee promise. We repair iPhones, Samsung and Android phones, iPads, tablets and games consoles (PlayStation, Xbox, Nintendo Switch), fitting XO7 soft OLED screens as standard and genuine Apple or Samsung service parts on request, run a UK-wide mail-in service for customers further afield, and sell quality refurbished phones with tracked UK delivery.",
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "Queen Annes Court, 3 Peascod St",
@@ -139,6 +139,10 @@
     {
       "@type": "AdministrativeArea",
       "name": "Berkshire"
+    },
+    {
+      "@type": "Country",
+      "name": "United Kingdom"
     }
   ],
   "hasOfferCatalog": {
@@ -256,9 +260,9 @@
     "Windsor Express Phone Repair",
     "Windsor Express Windsor"
   ],
-  "disambiguatingDescription": "Independent mixed retail and repair shop at Queen Annes Court, 3 Peascod Street, Windsor, Berkshire SL4 1DG, two minutes from Windsor Castle. Repairs phones, tablets and games consoles, sells refurbished handsets, and stocks phone accessories, drinks, snacks, perfumes, vapes and Windsor souvenirs. Also listed on Google as “Windsor Express - Mobile Phone Repair & Vape”. Not affiliated with the Slough and Windsor Express newspaper, with any coach or transport company trading as Windsor Express, or with any other business under a similar name.",
+  "disambiguatingDescription": "Independent mixed retail and repair shop at Queen Annes Court, 3 Peascod Street, Windsor, Berkshire SL4 1DG, two minutes from Windsor Castle. The shop is temporarily closed; repairs are carried out at customers' homes and workplaces. Repairs phones, tablets and games consoles, sells refurbished handsets, and stocks phone accessories, drinks, snacks, perfumes, vapes and Windsor souvenirs. Also listed on Google as “Windsor Express - Mobile Phone Repair & Vape”. Not affiliated with the Slough and Windsor Express newspaper, with any coach or transport company trading as Windsor Express, or with any other business under a similar name.",
   "email": "windsorexpress02@gmail.com",
-  "slogan": "Fixed in 30 minutes. Genuine parts on request. 12-month warranty.",
+  "slogan": "We come to you. Same prices. 12-month warranty.",
   "knowsAbout": [
     "iPhone screen repair",
     "iPhone battery replacement",
@@ -282,6 +286,79 @@
       "@type": "Offer",
       "itemOffered": {
         "@type": "Service",
+        "name": "Phone, tablet and console repair at your home or work (we come to you)",
+        "description": "Book online and we come to the customer's home or workplace. Most screen repairs are done on the spot in about 30 minutes; anything that needs longer is taken away and brought back fixed. Same prices as the Windsor shop, 12-month warranty, no fix no fee.",
+        "areaServed": [
+          {
+            "@type": "Place",
+            "name": "Windsor"
+          },
+          {
+            "@type": "Place",
+            "name": "Eton"
+          },
+          {
+            "@type": "Place",
+            "name": "Datchet"
+          },
+          {
+            "@type": "Place",
+            "name": "Old Windsor"
+          },
+          {
+            "@type": "Place",
+            "name": "Wraysbury"
+          },
+          {
+            "@type": "Place",
+            "name": "Slough"
+          },
+          {
+            "@type": "Place",
+            "name": "Langley"
+          },
+          {
+            "@type": "Place",
+            "name": "Burnham"
+          },
+          {
+            "@type": "Place",
+            "name": "Maidenhead"
+          },
+          {
+            "@type": "Place",
+            "name": "Ascot"
+          },
+          {
+            "@type": "Place",
+            "name": "Sunningdale"
+          },
+          {
+            "@type": "Place",
+            "name": "Bracknell"
+          },
+          {
+            "@type": "Place",
+            "name": "Staines-upon-Thames"
+          },
+          {
+            "@type": "Place",
+            "name": "Egham"
+          },
+          {
+            "@type": "Place",
+            "name": "Virginia Water"
+          }
+        ]
+      },
+      "url": "https://www.windsor-express.co.uk/phone-repair-at-home.html",
+      "availability": "https://schema.org/InStock",
+      "priceCurrency": "GBP"
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
         "name": "Genuine Apple and Samsung service parts fitted on request",
         "description": "Genuine manufacturer service parts ordered in and fitted to customer specification, alongside XO7 soft OLED, hard OLED and incell LCD tiers. Every tier carries a 12-month warranty."
       },
@@ -293,7 +370,7 @@
       "@type": "Offer",
       "itemOffered": {
         "@type": "Service",
-        "name": "iPhone screen repair in under 30 minutes with XO7 soft OLED as standard"
+        "name": "iPhone screen repair with XO7 soft OLED as standard"
       },
       "url": "https://www.windsor-express.co.uk/iphone-repair-windsor.html",
       "priceCurrency": "GBP",
@@ -307,7 +384,7 @@
     }
   ],
   "isAccessibleForFree": false,
-  "publicAccess": true,
+  "publicAccess": false,
   "smokingAllowed": false,
   "sameAs": [
     "https://maps.app.goo.gl/pZWxtjh1QgyAGVUZ9",
@@ -387,15 +464,15 @@ footer a{color:#fff;text-decoration:none;font-weight:700}
 .disclose{background:#fff;border:1px dashed #cbd5e1;border-radius:12px;padding:14px 18px;margin:18px 0}
 .disclose p{margin:0;font-size:14px;color:#64748b}
 </style>
-<link rel="stylesheet" href="/site-common.css?v=20261110">
-<script src="/site-common.js?v=20261110" defer></script>
+<link rel="stylesheet" href="/site-common.css?v=20261123">
+<script src="/site-common.js?v=20261123" defer></script>
 </head>
 <body>
 <header><div class="wrap nav">
 <a class="logo" href="/"><span class="bolt">⚡</span>WINDSOR <span>EXPRESS</span></a>
 <a class="cta" href="/">Book a Repair</a>
 </div></header>
-<div class="trust">Independent · Peascod Street, Windsor · Genuine Parts on Request · 12-Month Warranty</div>
+<div class="trust">Independent · We Come to You While Our Shop Is Closed · Genuine Parts on Request · 12-Month Warranty</div>
 
 <div class="hero">
 <div class="eyebrow">Windsor · Buyer's Guide · Updated September 2026</div>
@@ -491,7 +568,7 @@ footer a{color:#fff;text-decoration:none;font-weight:700}
 
 <div class="bigcta">
 <h2>If You Land on Windsor Express</h2>
-<p>3 Peascod Street, two minutes from the Castle. Most screens under 30 minutes, genuine parts on request, 12-month warranty on every tier, no fix no fee.</p>
+<p>Our Peascod Street shop is temporarily closed due to a lease issue, so for now we come to you: repairs at your home or work, genuine parts on request, 12-month warranty on every tier, no fix no fee.</p>
 <div class="btns" style="margin-top:18px"><a class="btn btn-green" href="/">Book Online →</a><a class="btn" style="background:#25D366;color:#fff" href="https://wa.me/447912150397?text=Hi%20Windsor%20Express!%20I%20need%20a%20repair%20quote">WhatsApp Us</a></div>
 </div>
 
@@ -507,6 +584,7 @@ footer a{color:#fff;text-decoration:none;font-weight:700}
 <section>
 <h2>More From Windsor Express</h2>
 <div class="linkrow">
+<a href="/phone-repair-at-home.html">Phone Repair at Home</a>
 <a href="/screen-quality-windsor.html">Screen Quality Compared</a>
 <a href="/shop-in-windsor.html">The Shop</a>
 <a href="/oem-parts-windsor.html">Genuine &amp; OEM Parts</a>
@@ -525,7 +603,7 @@ footer a{color:#fff;text-decoration:none;font-weight:700}
 <footer><div class="wrap">
 <p><a href="/privacy.html">Privacy &amp; cookies</a> · <a href="/terms.html">Terms</a> · <a href="/returns.html">Returns</a> · <a href="/warranty.html">Warranty</a> · <button type="button" data-cookie-settings style="border:0;background:none;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">Cookie settings</button></p>
 <p><a href="/">Windsor Express</a> · Queen Annes Court, 3 Peascod St, Windsor SL4 1DG</p>
-<p>Mon–Sat 10am–8pm · Sun 10:30am–7pm · <a href="tel:+447912150397">07912 150397</a></p>
+<p>Shop temporarily closed · <a href="/phone-repair-at-home.html">We come to you</a> · <a href="tel:+447912150397">07912 150397</a></p>
 <p>Serving Windsor, Eton, Datchet, Old Windsor, Slough, Maidenhead, Ascot, Staines-upon-Thames, Egham, Virginia Water &amp; Wraysbury &middot; <a href="/areas-we-cover.html">All areas we cover</a></p>
 </div></footer>
 </body>

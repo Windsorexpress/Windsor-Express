@@ -29,6 +29,15 @@ export const BUSINESS = {
  */
 export const STORE_CODE = "11126744882028006931";
 
+/**
+ * The Peascod Street shop is temporarily closed (lease issue, Nov 2026).
+ * While true, nothing is offered for in-store collection: product pages,
+ * the Merchant Center feed and the local inventory feed all switch to
+ * tracked UK delivery only. Set to false when the shop reopens, together
+ * with SHOP_CLOSED in src/app.jsx and site-common.js.
+ */
+export const SHOP_CLOSED = true;
+
 // Postage matches the fee used at checkout (POSTAGE_FEE in create-checkout).
 export const POSTAGE_FEE = 4.99;
 
@@ -186,8 +195,8 @@ export const RETURN_POLICY = {
   refundType: "https://schema.org/FullRefund"
 };
 
-/** Tracked UK delivery, plus free collection in store. */
-export const SHIPPING_DETAILS = [
+/** Tracked UK delivery, plus free collection in store (not while closed). */
+const ALL_SHIPPING_DETAILS = [
   {
     "@type": "OfferShippingDetails",
     shippingRate: {
@@ -217,6 +226,7 @@ export const SHIPPING_DETAILS = [
     description: "Free click & collect from our Peascod Street shop in Windsor."
   }
 ];
+export const SHIPPING_DETAILS = SHOP_CLOSED ? ALL_SHIPPING_DETAILS.slice(0, 1) : ALL_SHIPPING_DETAILS;
 
 /** GTIN property name for the digit length supplied. */
 export function gtinProp(gtin) {
